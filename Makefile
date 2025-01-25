@@ -5,7 +5,7 @@ RESET = \033[0m
 NAME = webserv
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
-SRCS = srcs/main.cpp
+SRCS = src/main.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 %.o : %.cpp
