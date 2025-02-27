@@ -1,5 +1,5 @@
 #include "Parser.hpp"
-
+#include "Readconfig.cpp"
 
 Token   Parser::consume(TokenType expected)
 {
@@ -10,13 +10,19 @@ Token   Parser::consume(TokenType expected)
 }
 
 void    Parser::parseDirecive() {
-    Token key;
-    Token value;
+    Token directiveToken = _tokens[_index];
 
-    key = consume(LISTEN);
-    value = consume(NUMBER);
-    consume(SEMICOLON);
-    std::cout << "Parsed Directive: " << key.value << " " << value.value << std::endl;
+    if (directiveToken.type == LISTEN)
+        parseListenDirective();
+    else if (directiveToken.type == SERVER_NAME)
+        parseServerNameDirective();
+    else if (directiveToken.type == ROOT)
+        parseRootDirective();
+    else if (directiveToken.type == ERROR_PAGE)
+        parseErrorPageDirective();
+    else if (directiveToken.type == LOCATION)
+        parseLocationBlock();
+    
 }
 
 void    Parser::parseServerBlock() {
@@ -41,7 +47,8 @@ int main(int ac, char **av) {
 
     (void)ac; (void)av;
 
-    std::string config = "server { listen 8080 ; }";
+    std::string config;
+    config = readConfig(av[1]);
     std::vector<Token> tokens = tokenize(config);
 
     try {
