@@ -13,4 +13,6 @@ struct Token {
     std::string value;
 };
 
-std::vector<Token> tokenize(const std::string &input);
+std::vector<Token> tokenize(std::string &input);
+void SanitizeInput(std::string &input);
+bool find_del(char b);

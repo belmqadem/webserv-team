@@ -1,7 +1,26 @@
 #include "Tokenize.hpp"
+#include <algorithm>
 
-std::vector<Token> tokenize(const std::string &input) {
+bool find_del(char b) {
+    std::string delim = ";{}"; 
+    return (delim.find(b) != std::string::npos);
+}
+
+void SanitizeInput(std::string &input) {
+    for (size_t i = 0; i < input.length(); i++) {
+        if (find_del(input[i]))
+        {
+            input.insert(i, " ");
+            input.insert(i + 2, " ");
+            i+= 2;
+        }
+    }
+}
+
+std::vector<Token> tokenize(std::string &input) {
     std::vector<Token> tokens;
+    SanitizeInput(input);
+    std::cout << "SanitizedInput : " << input << std::endl;
     std::istringstream stream(input);
     std::string word;
 
