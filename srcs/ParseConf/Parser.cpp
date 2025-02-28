@@ -9,6 +9,51 @@ Token   Parser::consume(TokenType expected)
     throw std::runtime_error("Syntax Error: Unexpected token " + _tokens[_index].value);
 }
 
+void    Parser::parseListenDirective() {
+    Token key = consume(LISTEN);
+    Token value = consume(NUMBER);
+    consume(SEMICOLON);
+    std::cout << "Parse Listen " << value.value << std::endl;
+}
+
+void    Parser::parseServerNameDirective() {
+    Token key = consume(SERVER_NAME);
+    std::vector<std::string> serverNames;
+
+    serverNames.push_back(consume(STRING).value);
+    while (_tokens[_index].type == STRING)
+        serverNames.push_back(consume(STRING).value);
+    consume(SEMICOLON);
+
+    std::cout << "parseServerNameDirective" << std::endl;
+}
+
+void    Parser::parseRootDirective() {
+    Token   key = consume(ROOT);
+    Token   value  = consume(STRING);
+    consume(SEMICOLON);
+    std::cout << "Parse Root " << value.value << std::endl;
+
+}
+
+void    Parser::parseErrorPageDirective() {
+    Token key = consume(ERROR_PAGE);
+    Token error_code = consume(NUMBER);
+    Token file = consume(STRING);
+    consume(SEMICOLON);
+    std::cout << "Parsed error page: " << error_code.value << std::endl;
+}
+
+void Parser::parseLocationBlock() {
+    Token key = consume(LOCATION);
+    Token path = consume(STRING);
+    consume(LBRACE);
+    while (_tokens[_index].type != RBRACE) {
+        parseDirecive();
+    }
+    consume(RBRACE);
+}
+
 void    Parser::parseDirecive() {
     Token directiveToken = _tokens[_index];
 
@@ -22,7 +67,8 @@ void    Parser::parseDirecive() {
         parseErrorPageDirective();
     else if (directiveToken.type == LOCATION)
         parseLocationBlock();
-    
+    else
+        throw std::runtime_error("Syntax Error : Uknown directive " + directiveToken.value);
 }
 
 void    Parser::parseServerBlock() {

@@ -37,6 +37,21 @@ std::vector<Token> tokenize(std::string &input) {
             token.value = word;
             tokens.push_back(token);
         }
+        else if (word == "root") {
+            token.type = ROOT;
+            token.value = word;
+            tokens.push_back(token);
+        }
+        else if (word == "error_page") {
+            token.type = ERROR_PAGE;
+            token.value = word;
+            tokens.push_back(token);
+        }
+        else if (word == "location") {
+            token.type = LOCATION;
+            token.value = word;
+            tokens.push_back(token);
+        }
         else if (word == "server_name") {
             token.type = SERVER_NAME;
             token.value = word;

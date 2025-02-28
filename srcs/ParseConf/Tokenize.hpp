@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iostream>
 
-enum TokenType {SERVER , LISTEN, SERVER_NAME, NUMBER, STRING, LBRACE, RBRACE, SEMICOLON, END};
+enum TokenType {SERVER , LISTEN, SERVER_NAME, ROOT, ERROR_PAGE, LOCATION, NUMBER, STRING, LBRACE, RBRACE, SEMICOLON, END};
 
 struct Token {
     TokenType type;
