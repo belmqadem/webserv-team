@@ -1,5 +1,9 @@
 {
     "files.associations": {
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "chrono": "cpp",
+        "compare": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp"
     }
 }
