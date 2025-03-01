@@ -6,11 +6,13 @@ NAME = webserv
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
-REQUEST = srcs/request
 UTILS = srcs/utils
+REQUEST = srcs/request
 
 SRCS =	srcs/main.cpp \
-		$(UTILS)/utils.cpp
+		$(UTILS)/utils.cpp \
+		$(REQUEST)/RequestParser.cpp \
+		$(REQUEST)/ResponseBuilder.cpp \
 
 OBJS = $(SRCS:.cpp=.o)
 
