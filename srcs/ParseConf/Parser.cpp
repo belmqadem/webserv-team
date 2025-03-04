@@ -13,7 +13,8 @@ void    Parser::parseListenDirective() {
     Token key = consume(LISTEN);
     Token value = consume(NUMBER);
     consume(SEMICOLON);
-    std::cout << "Parse Listen " << value.value << std::endl;
+    if (_currentServer)
+        _currentServer->port = std::atoi(value.value.c_str());
 }
 
 void    Parser::parseServerNameDirective() {
@@ -24,15 +25,16 @@ void    Parser::parseServerNameDirective() {
     while (_tokens[_index].type == STRING)
         serverNames.push_back(consume(STRING).value);
     consume(SEMICOLON);
-
-    std::cout << "parseServerNameDirective" << std::endl;
+    if (_currentServer)
+        _currentServer->serverNames = serverNames;
 }
 
 void    Parser::parseRootDirective() {
     Token   key = consume(ROOT);
     Token   value  = consume(STRING);
     consume(SEMICOLON);
-    std::cout << "Parse Root " << value.value << std::endl;
+    if (_currentServer)
+        _currentServer->root = value.type;
 
 }
 
@@ -41,15 +43,22 @@ void    Parser::parseErrorPageDirective() {
     Token error_code = consume(NUMBER);
     Token file = consume(STRING);
     consume(SEMICOLON);
-    std::cout << "Parsed error page: " << error_code.value << std::endl;
+    if (_currentServer)
+        _currentServer->errorPages[std::atoi(error_code.value.c_str())] = file.value;
 }
 
 void Parser::parseLocationBlock() {
     Token key = consume(LOCATION);
     Token path = consume(STRING);
     consume(LBRACE);
+    Location location;
+    location.location = path.value;
     while (_tokens[_index].type != RBRACE) {
-        parseDirecive();
+        if (_tokens[_index].type == ROOT) {
+            consume(ROOT);
+            location.root = consume(STRING).value;
+            consume(SEMICOLON);
+        }
     }
     consume(RBRACE);
 }
@@ -74,11 +83,14 @@ void    Parser::parseDirecive() {
 void    Parser::parseServerBlock() {
     consume(SERVER);
     consume(LBRACE);
+
+    _servers.push_back(ServerConfig());
+    _currentServer = &_servers.back();
     while (_tokens[_index].type != RBRACE) {
         parseDirecive();
     }
     consume(RBRACE);
-    std::cout << "parseServerBlock Done\n";
+    _currentServer = NULL;
 }
 
 void    Parser::parseConfig() {
@@ -86,7 +98,6 @@ void    Parser::parseConfig() {
     {
         parseServerBlock();
     }
-    std::cout << "Parsing is Done!\n";
 }
 
 int main(int ac, char **av) {
@@ -100,8 +111,14 @@ int main(int ac, char **av) {
     try {
         Parser parser(tokens);
         parser.parseConfig();
+
+        std::vector<ServerConfig> servConfig = parser.getServers();
+        for (size_t i = 0; i < servConfig.size(); i++) {
+            std::cout << "server : " << i << " listens on port "<< servConfig[i].port << "\n";
+        }
     } catch (std::runtime_error &e) {
-        std::cout << e.what() << std::endl;
+        std::cout << "Catched in main : " << e.what() << "\n";
+    } catch (std::logic_error &e) {
     }
     return 0;
 }
