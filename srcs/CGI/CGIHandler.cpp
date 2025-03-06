@@ -1,6 +1,6 @@
 #include "CGIHandler.hpp"
 
-CGIHandler::CGIHandler(std::string path) : scriptPath(path) , path("usr/bin/python3")
+CGIHandler::CGIHandler(std::string path) : scriptPath(path) , path("usr/bin/python3") 
 {
     envp[0] = (char *)"REQUEST_METHOD=GET";
     envp[1] = (char *)"QUERY_STRING=name=hamid&age=21";
@@ -13,39 +13,50 @@ CGIHandler::CGIHandler(): scriptPath("") , path("usr/bin/python3")
 CGIHandler::CGIHandler(std::string pathS, std::string pathE): scriptPath(pathS) , path(pathE)  {} 
 
 
-char** CGIHandler::setupExecveArgs(const std::string& path)
-{
-    char **args;
-    args[0] = (char *)(path.c_str());
-    args[1] = (char *)scriptPath.c_str();
-    args[2] = NULL;
-    return args;
-}
-void CGIHandler::execute() {
-    int pipe_out[2];
-    pipe(pipe_out);
+
+void CGIHandler::executeCGI(RequestParser &request) {
+    int pipefd[2];
+    pipe(pipefd);
+
     pid_t pid = fork();
+    
     if (pid == 0) {
-        close(pipe_out[0]);
-        dup2(pipe_out[1], STDOUT_FILENO);
-        close(pipe_out[1]);
-        char **argv =  setupExecveArgs(path);
-        if(scriptPath.empty())
-            throw std::runtime_error("No path found");
-        execve(argv[0], argv, envp);
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        dup2(pipefd[1], STDERR_FILENO);
+        close(pipefd[1]);
+        setenv("REQUEST_METHOD", ((request.get_http_method()).c_str()), 1);
+        setenv("QUERY_STRING", ((request.get_query_string()).c_str()), 1);
+        if (request.get_http_method() == "POST") {
+            int postPipe[2];
+            pipe(postPipe);
+            write(postPipe[1], request.get_body().c_str(), request.get_body().size());
+            close(postPipe[1]);
+            dup2(postPipe[0], STDIN_FILENO);
+            close(postPipe[0]);
+        }
+        char *args[] = {nullptr};
+        execve(request.get_request_uri().c_str(), args, environ);
         exit(1);
-    } else { 
-        close(pipe_out[1]);
+    } 
+    else {
+        close(pipefd[1]);
+
         char buffer[1024];
-        int bytes = read(pipe_out[0], buffer, sizeof(buffer) - 1);
-        buffer[bytes] = '\0';
-        std::cout << "CGI Output:\n" << buffer << std::endl;
-        close(pipe_out[0]);
-        waitpid(pid, NULL, 0);
+        std::string cgiOutput;
+        ssize_t bytesRead;
+        while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0) {
+            buffer[bytesRead] = '\0';
+            cgiOutput += buffer;
+        }
+        close(pipefd[0]);
+        waitpid(pid, nullptr, 0);
+        std::cout << "CGI Output:\n" << cgiOutput << std::endl;
     }
 }
-int main()
-{
-    CGIHandler a("a.py");
-    a.execute();
-}
+
+// int main()
+// {
+//     CGIHandler a("a.py");
+//     a.execute();
+// }
