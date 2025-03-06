@@ -4,6 +4,7 @@
         "chrono": "cpp",
         "compare": "cpp",
         "tuple": "cpp",
-        "type_traits": "cpp"
+        "type_traits": "cpp",
+        "stdexcept": "cpp"
     }
 }
