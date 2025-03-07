@@ -8,7 +8,7 @@
 
 bool    isValidAddr(std::string addr) {
     struct sockaddr_in s;
-    return inet_pton(AF_INET, addr.c_str(), &s) == 1;
+    return inet_pton(AF_INET, addr.c_str(), &(s.sin_addr)) == 1;
 }
 
 Token   Parser::consume(TokenType expected)
