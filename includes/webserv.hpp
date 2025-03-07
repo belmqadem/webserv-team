@@ -26,4 +26,4 @@
 #include <sys/epoll.h>
 
 
-#define USAGE "./webserv /path/to/config/file"
+#define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"

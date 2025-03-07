@@ -21,7 +21,7 @@ void signalhandler() {
 int main(int ac, char **av)
 {
 	if (ac != 2) {
-		std::cout << USAGE << "\n";
+		std::cout << USAGE(av[0]) << "\n";
 		return (1);
 	}
 

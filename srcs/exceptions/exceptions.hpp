@@ -10,7 +10,18 @@ class IOMultiplexerExceptions : public std::exception
 private:
     std::string _reason;
 public:
-    IOMultiplexerExceptions(std::string reason) __THROW;
-    const char *what() const __THROW;
-    ~IOMultiplexerExceptions() __THROW;
+    IOMultiplexerExceptions(std::string reason) throw() ;
+    const char *what() const throw() ;
+    ~IOMultiplexerExceptions() throw() ;
+};
+
+
+class ServerExceptions : public std::exception
+{
+private:
+    std::string _reason;
+public:
+    ServerExceptions(std::string reason) throw() ;
+    const char *what() const throw() ;
+    ~ServerExceptions() throw() ;
 };
