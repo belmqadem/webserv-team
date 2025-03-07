@@ -24,3 +24,6 @@
 
 #include <poll.h>
 #include <sys/epoll.h>
+
+
+#define USAGE "./webserv /path/to/config/file"
