@@ -17,6 +17,13 @@ Logger& Logger::getInstance() {
     return *_instance;
 }
 
+void Logger::cleanup() {
+if (_instance != NULL) {
+    delete _instance;
+    _instance = NULL;
+    }
+}
+
 std::string Logger::getTimestamp() {
     std::time_t now = std::time(nullptr);
     std::tm* tm = std::localtime(&now);
