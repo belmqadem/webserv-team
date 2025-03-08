@@ -4,7 +4,7 @@ class IEvenetListeners
 {
 private:
 public:
-    IEvenetListeners() {};
+    IEvenetListeners();
     virtual ~IEvenetListeners() {};
     IEvenetListeners(const IEvenetListeners&) = delete;
     IEvenetListeners &operator=(const IEvenetListeners&) = delete;
