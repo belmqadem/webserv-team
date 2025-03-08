@@ -1,6 +1,7 @@
 #include "webserv.hpp"
 #include "ConfigManager.hpp"
 #include "IOMultiplexer.hpp"
+#include "Server.hpp"
 #include "Logger.hpp"
 #include <signal.h>
 
@@ -32,7 +33,7 @@ int main(int ac, char **av)
 	try {
 		ConfigManager::getInstance()->loadConfig(av[1]);
 		LOG_INFO("Webserver Starting...");
-		//server.start();
+		Server &server = Server::getInstance(ConfigManager::getInstance()->getServers());
 		IOMultiplexer::getInstance().runEventLoop();
 	} catch (std::exception &e) {
 		std::cerr << "Fatal error: \n" << e.what() << "\n";
