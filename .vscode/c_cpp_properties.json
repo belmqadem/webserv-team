@@ -4,8 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/srcs/exceptions",
-                "${workspaceFolder}/includes"
+                "${workspaceFolder}/srcs/Exceptions",
+                "${workspaceFolder}/includes",
+                "${workspaceFolder}/**"
             ]
         }
     ],

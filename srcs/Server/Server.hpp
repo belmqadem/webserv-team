@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Logger.hpp"
 #include "IEvenetListeners.hpp"
 #include "ConfigManager.hpp"
 #include "IOMultiplexer.hpp"
@@ -21,12 +22,14 @@ class ClientServer : IEvenetListeners {
         int         _peer_socket_fd;
         epoll_event _epoll_ev;
         Request     _request;
+        sockaddr_in _client_addr;
 
     public:
         /* getters and setters */
         bool    isStarted() const;
         void    setPeerSocketFd(uint32_t fd);
         void    setServerSocketFd(uint32_t fd);
+        void    setClientAddr(sockaddr_in addr);
 
     public:
         void RegisterWithIOMultiplexer() {
@@ -39,7 +42,9 @@ class ClientServer : IEvenetListeners {
             try {
                 IOMultiplexer::getInstance().addListener(this, _epoll_ev);
                 _is_started = true;
-                std::cout << "<<<< New client connection established on fd " << _peer_socket_fd << "\n";
+
+                std::string addr = inet_ntoa(_client_addr.sin_addr);
+                LOG_INFO("Client Connected: " + addr + ":" + std::to_string(ntohs(_client_addr.sin_port)));
             } catch (std::exception &e) {
                 close(_peer_socket_fd);
                 std::cerr << "Failed to register client fd " << _peer_socket_fd 

@@ -1,5 +1,7 @@
+#pragma once
+
 #include <sys/epoll.h>
-#include "exceptions.hpp"
+#include "Exceptions.hpp"
 #include "IEvenetListeners.hpp"
 #include <unistd.h>
 #include <map>

@@ -1,6 +1,7 @@
 #include "webserv.hpp"
-#include "IOMultiplexer.hpp"
 #include "ConfigManager.hpp"
+#include "IOMultiplexer.hpp"
+#include "Logger.hpp"
 #include <signal.h>
 
 extern int webserv_signal;
@@ -25,8 +26,12 @@ int main(int ac, char **av)
 		return (1);
 	}
 
+	Logger::getInstance().setLevel(DEBUG);
+	Logger::getInstance().setOutput(true, true);
+	Logger::getInstance().setLogFile("WebServe.log");
 	try {
 		ConfigManager::getInstance()->loadConfig(av[1]);
+		LOG_INFO("Webserver Starting...");
 		//server.start();
 		IOMultiplexer::getInstance().runEventLoop();
 	} catch (std::exception &e) {

@@ -1,5 +1,5 @@
 #include "Server.hpp"
-#include "exceptions.hpp"
+#include "Exceptions.hpp"
 #include <string.h>
 
 Server::Server(std::vector<ServerConfig> config) : _config(config), _is_started(false) {
@@ -38,18 +38,22 @@ void    Server::listenOnAddr(sockaddr_in addr) {
 	int socket_fd;
 	if ((socket_fd =  socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	throw ServerExceptions("socket(): failed.");
-
+	
 	int flag = 1;
 	if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag)) == -1)
-		close(socket_fd), throw ServerExceptions("setsockopt(): failed");
+	close(socket_fd), throw ServerExceptions("setsockopt(): failed");
 	if (bind(socket_fd, (sockaddr *)&addr, sizeof(addr)) == -1)
-		close(socket_fd), throw ServerExceptions("bind(): failed");
+	close(socket_fd), throw ServerExceptions("bind(): failed");
 	if (listen(socket_fd, SOMAXCONN) == -1)
-		close(socket_fd), throw ServerExceptions("listen(): failed");
+	close(socket_fd), throw ServerExceptions("listen(): failed");
 	fcntl(socket_fd, F_SETFL, fcntl(socket_fd, F_GETFL, 0) | O_NONBLOCK);
 	try {
 		_listen_sock_ev.data.fd = socket_fd;
 		IOMultiplexer::getInstance().addListener(this, _listen_sock_ev);
+
+		std::string ip_address = inet_ntoa(addr.sin_addr);
+        int port = ntohs(addr.sin_port);        
+        LOG_INFO("Server listening on " + ip_address + ":" + std::to_string(port));
 	} catch (std::exception &e) {
 		close(socket_fd);
 		throw e;
@@ -89,6 +93,7 @@ void    Server::terminate() {
 		}
 		_clients.clear();
 	}
+	LOG_INFO("Server is Shuted down !");
 }
 
 void Server::onEvent(int fd, uint32_t ev) {
@@ -115,5 +120,6 @@ void	Server::accept_peer(int fd) {
 		ClientServer *new_client = new ClientServer(fd, client_fd);
 		_clients.push_back(new_client);
 	}
-	(*client)->RegisterWithIOMultiplexer();
+	
+	(*client)->setClientAddr(peer_addrr), (*client)->RegisterWithIOMultiplexer();
 }
