@@ -6,6 +6,7 @@ Server::Server(std::vector<ServerConfig> config) : _config(config), _is_started(
 	_listen_sock_ev.events = EPOLLIN;
 }
 
+Server::~Server() { terminate(); }
 
 Server &Server::getInstance(std::vector<ServerConfig> config) {
 	static Server inst(config);
@@ -45,6 +46,7 @@ void    Server::listenOnAddr(sockaddr_in addr) {
 		close(socket_fd), throw ServerExceptions("bind(): failed");
 	if (listen(socket_fd, SOMAXCONN) == -1)
 		close(socket_fd), throw ServerExceptions("listen(): failed");
+	fcntl(socket_fd, F_SETFL, fcntl(socket_fd, F_GETFL, 0) | O_NONBLOCK);
 	try {
 		_listen_sock_ev.data.fd = socket_fd;
 		IOMultiplexer::getInstance().addListener(this, _listen_sock_ev);
@@ -87,4 +89,31 @@ void    Server::terminate() {
 		}
 		_clients.clear();
 	}
+}
+
+void Server::onEvent(int fd, uint32_t ev) {
+	std::vector<int>::iterator  listen_fd = std::find(_listen_fds.begin(), _listen_fds.end(), fd);
+	if (listen_fd != _listen_fds.end())
+		accept_peer(fd);
+}
+
+void	Server::accept_peer(int fd) {
+	sockaddr_in	peer_addrr;
+	socklen_t	peer_addrr_len = sizeof(peer_addrr);
+	int client_fd = accept(fd, (sockaddr*)&peer_addrr, &peer_addrr_len);
+	if (client_fd == -1) {
+		std::cerr << "accept() failed to accept this peer" << std::endl;
+		return ;
+	}
+	fcntl(client_fd, F_SETFL, fcntl(client_fd, F_GETFL, 0) | O_NONBLOCK);
+	std::vector<ClientServer*>::iterator client = _clients.begin();
+	for (; client != _clients.end() && (*client)->isStarted(); client++)
+		;
+	if (client != _clients.end())
+		(*client)->setPeerSocketFd(client_fd), (*client)->setServerSocketFd(fd);
+	else {
+		ClientServer *new_client = new ClientServer(fd, client_fd);
+		_clients.push_back(new_client);
+	}
+	(*client)->RegisterWithIOMultiplexer();
 }
