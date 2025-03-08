@@ -9,12 +9,20 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+class ClientServer : public IEvenetListeners {};
+
 class Server : public IEvenetListeners {
     private:
-        std::vector<ServerConfig> _config;
-        bool                      _is_started;
-        epoll_event               _listen_sock_ev;
-        std::vector<int>          _listen_fds;
+        /* List of Server configs */
+        std::vector<ServerConfig>    _config;
+        /* State of our Server */
+        bool                         _is_started;
+        /* Socket fd and event it interested to */
+        epoll_event                  _listen_sock_ev;
+        /* Pool of server sockets fds */
+        std::vector<int>             _listen_fds;
+        /* List of ClientServer connection objects */
+        std::vector<ClientServer*>   _clients;
 
     private:
         ~Server();
@@ -24,6 +32,7 @@ class Server : public IEvenetListeners {
     public:
         static Server &getInstance(std::vector<ServerConfig> config);
     public:
+        sockaddr_in getListenAddress(ServerConfig conf);
         void listenOnAddr(sockaddr_in addr);
 
         virtual void    terminate();
