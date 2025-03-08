@@ -1,14 +1,11 @@
+#!/usr/bin/python3
 
-class A:
-    def __init__(self, a,s,d):
-        self.a = a
-        self.s =s
-        self.d = d
-    def __str__(self):
-       return print("ssssssss  " + self.a  +" nn ")
+import os
+import sys
 
+content_length = int(os.environ.get("CONTENT_LENGTH", 0))
+body = sys.stdin.read(content_length)
 
-
-
-s = A("habb", 12, 34.4)
-s.__str__()
+print("Content-Type: text/plain")
+print("")
+print(f"Received POST Data:\n{body}")

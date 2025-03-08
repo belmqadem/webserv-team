@@ -1,18 +1,29 @@
 #include "../../includes/RequestParser.hpp"
 #include "../CGI/CGIHandler.hpp"
+#include <iostream>
+int main() {
+        std::string raw_request = "GET /test.php?name=ChatGPT HTTP/1.1\r\n"
+                              "Host: localhost\r\n"
+                              "Content-Type: application/x-www-form-urlencoded\r\n"
+                              "Content-Length: 11\r\n\r\n";
+    RequestParser request(raw_request);
+    
+    std::string php_cgi_path = "/usr/bin/php-cgi";
+    CGIHandler cgiHandler(request, php_cgi_path);
+    
+    std::string response = cgiHandler.executeCGI();
+    
+    std::cout << "CGI Response: " << std::endl << response << std::endl;
 
-int main()
-{
-    std::string request = 
-        "GET /hello?name=world HTTP/1.1\r\n"
-        "Host: example.com\r\n"
-        "Connection: keep-alive\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: 5\r\n"
-        "\r\n"
-        "Hello";
-    RequestParser parser(request);
-    CGIHandler cgi;
-    cgi.executeCGI(parser);
     return 0;
 }
+
+
+
+
+
+
+
+
+
+

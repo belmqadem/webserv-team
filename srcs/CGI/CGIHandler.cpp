@@ -1,62 +1,125 @@
 #include "CGIHandler.hpp"
 
-CGIHandler::CGIHandler(std::string path) : scriptPath(path) , path("usr/bin/python3") 
+
+CGIHandler::CGIHandler(RequestParser &request, const std::string &php_cgi_path)
+    {
+        scriptPath = request.get_request_uri();
+        method = request.get_http_method();
+        queryString = request.get_query_string();
+        body = request.get_body();
+        headers = request.get_headers();
+
+        size_t dotPos = scriptPath.find_last_of('.');
+        if (dotPos != std::string::npos)
+        {
+            std::string extension = scriptPath.substr(dotPos);
+            if (extension == ".php")
+            {
+                interpreter = php_cgi_path;
+            }
+        }
+        if (interpreter.empty())
+            throw std::runtime_error("500 Internal Server Error: No CGI interpreter found");
+
+    }
+
+
+std::string CGIHandler::executeCGI()
 {
-    envp[0] = (char *)"REQUEST_METHOD=GET";
-    envp[1] = (char *)"QUERY_STRING=name=hamid&age=21";
-    envp[2] = (char *)"CONTENT_TYPE=text/plain";
-    envp[3] = (char *)"CONTENT_LENGTH=0";
-    envp[4] = NULL;
-};
-CGIHandler::CGIHandler(): scriptPath("") , path("usr/bin/python3")
-{}
-CGIHandler::CGIHandler(std::string pathS, std::string pathE): scriptPath(pathS) , path(pathE)  {} 
+    int output_pipe[2], input_pipe[2];
 
-
-
-void CGIHandler::executeCGI(RequestParser &request) {
-    int pipefd[2];
-    pipe(pipefd);
+    if (pipe(output_pipe) == -1 || pipe(input_pipe) == -1)
+        throw std::runtime_error("500 Internal Server Error: Pipe creation failed");
 
     pid_t pid = fork();
-    
-    if (pid == 0) {
-        close(pipefd[0]);
-        dup2(pipefd[1], STDOUT_FILENO);
-        dup2(pipefd[1], STDERR_FILENO);
-        close(pipefd[1]);
-        setenv("REQUEST_METHOD", ((request.get_http_method()).c_str()), 1);
-        setenv("QUERY_STRING", ((request.get_query_string()).c_str()), 1);
-        if (request.get_http_method() == "POST") {
-            int postPipe[2];
-            pipe(postPipe);
-            write(postPipe[1], request.get_body().c_str(), request.get_body().size());
-            close(postPipe[1]);
-            dup2(postPipe[0], STDIN_FILENO);
-            close(postPipe[0]);
+    if (pid == -1)
+        throw std::runtime_error("500 Internal Server Error: Fork failed");
+
+        if (pid == 0)
+        {
+            std::cout << "Executing CGI script: " << scriptPath << std::endl;
+            std::cout << "Using interpreter: " << interpreter << std::endl;
+        
+            close(output_pipe[0]);
+            dup2(output_pipe[1], STDOUT_FILENO);
+            close(output_pipe[1]);
+        
+            if (method == "POST")
+            {
+                close(input_pipe[1]);
+                dup2(input_pipe[0], STDIN_FILENO);
+                close(input_pipe[0]);
+            }
+        
+            std::vector<std::string> args;
+            args.push_back(interpreter);
+            args.push_back(scriptPath);
+            args.push_back(queryString);
+        
+            char *argv[args.size() + 1];
+            for (size_t i = 0; i < args.size(); ++i)
+                argv[i] = const_cast<char *>(args[i].c_str());
+            argv[args.size()] = NULL;
+        
+            std::vector<std::string> env;
+            env.push_back("REQUEST_METHOD=" + method);
+            env.push_back("QUERY_STRING=" + queryString);
+            env.push_back("CONTENT_LENGTH=" + std::to_string(body.length()));
+            env.push_back("CONTENT_TYPE=" + headers["Content-Type"]);
+        
+            char *envp[env.size() + 1];
+            for (size_t i = 0; i < env.size(); ++i)
+                envp[i] = const_cast<char *>(env[i].c_str());
+            envp[env.size()] = NULL;
+        
+            std::cout << "Executing execve with args:" << std::endl;
+            for (size_t i = 0; i < args.size(); ++i)
+            {
+                std::cout << args[i] << std::endl;
+            }
+        
+            execve(argv[0], argv, envp);
+            perror("execve failed");
+            exit(1);
         }
-        char *args[] = {nullptr};
-        execve(request.get_request_uri().c_str(), args, environ);
-        exit(1);
-    } 
-    else {
-        close(pipefd[1]);
+        
+    else
+    {
+        close(output_pipe[1]);
+        close(input_pipe[0]);
+
+        if (method == "POST")
+        {
+            write(input_pipe[1], body.c_str(), body.length());
+            close(input_pipe[1]);
+        }
 
         char buffer[1024];
-        std::string cgiOutput;
+        std::string cgi_output;
         ssize_t bytesRead;
-        while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0) {
+        while ((bytesRead = read(output_pipe[0], buffer, sizeof(buffer) - 1)) > 0)
+        {
             buffer[bytesRead] = '\0';
-            cgiOutput += buffer;
+            cgi_output += buffer;
+        
+            std::cout << "CGI Output: " << buffer << std::endl;
         }
-        close(pipefd[0]);
-        waitpid(pid, nullptr, 0);
-        std::cout << "CGI Output:\n" << cgiOutput << std::endl;
+        
+        close(output_pipe[0]);
+        waitpid(pid, NULL, 0);
+        
+        std::cout << "Final CGI Response: " << cgi_output << std::endl;
+        
+
+        return cgi_output;
     }
 }
 
-// int main()
-// {
-//     CGIHandler a("a.py");
-//     a.execute();
-// }
+
+
+
+
+
+    
+
+
