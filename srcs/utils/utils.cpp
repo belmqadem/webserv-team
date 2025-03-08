@@ -65,3 +65,13 @@ std::string getCurrentTime()
 	strftime(buffer, sizeof(buffer), YELLOW "%H:%M:%S" RESET, timeinfo);
 	return std::string(buffer);
 }
+
+bool is_numeric(const std::string &str)
+{
+	for (size_t i = 0; i < str.size(); ++i)
+	{
+		if (!std::isdigit(static_cast<unsigned char>(str[i])))
+			return false;
+	}
+	return true;
+}

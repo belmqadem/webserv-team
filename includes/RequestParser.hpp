@@ -29,6 +29,11 @@ private:
 	const char *parse_body(const char *pos, const char *end);
 	const char *parse_chunked_body(const char *pos, const char *end);
 	const char *find_line_end(const char *pos, const char *end);
+	std::string normalize_uri(const std::string &uri);
+	std::string decode_percent_encoding(const std::string &str);
+	bool is_keep_alive();
+	bool is_valid_header_name(const std::string &name);
+	bool is_valid_header_value(const std::string &value);
 
 	RequestParser(const RequestParser &other);
 	RequestParser &operator=(const RequestParser &other);
@@ -38,7 +43,7 @@ public:
 
 	// Setters
 	bool set_http_method(const std::string &http_method);
-	void set_request_uri(const std::string &request_uri);
+	bool set_request_uri(const std::string &request_uri);
 	void set_query_string(const std::string &query_string);
 	bool set_http_version(const std::string &http_version);
 	void set_headers(const std::string &key, const std::string &value);
@@ -51,10 +56,11 @@ public:
 	std::string &get_query_string();
 	std::string &get_http_version();
 	std::map<std::string, std::string> &get_headers();
+	std::string &get_header_value(const std::string &key);
 	std::string &get_body();
 	short get_error_code();
-	std::string &get_header_value(const std::string &key);
 
-	bool parse_request(const std::string &request);
+	// Main Method
+	void parse_request(const std::string &request);
 	void print_request();
 };
