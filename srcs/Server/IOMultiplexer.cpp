@@ -46,7 +46,7 @@ void    IOMultiplexer::runEventLoop(void) {
                 throw IOMultiplexerExceptions(
                     "fd not found in [std::map<int, IEvenetListeners*>::iterator it = _listeners.begin()].");        
             }
-            it->second->onEvent(_events[i].data.fd, _events[i].events);
+            it->second->onEvent(_events[i].data.fd, _events[i]);
         }
     }
     terminate();

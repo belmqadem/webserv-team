@@ -146,42 +146,42 @@ void    Parser::parseConfig() {
     }
 }
 
-int main(int ac, char **av) {
-    if (ac != 2) {
-        std::cerr << "Usage: " << av[0] << " <config_file>" << std::endl;
-        return 1;
-    }
+// int main(int ac, char **av) {
+//     if (ac != 2) {
+//         std::cerr << "Usage: " << av[0] << " <config_file>" << std::endl;
+//         return 1;
+//     }
 
-    ConfigManager* configManager = ConfigManager::getInstance();
+//     ConfigManager* configManager = ConfigManager::getInstance();
     
-    if (!configManager->loadConfig(av[1])) {
-        std::cerr << "Failed to load configuration." << std::endl;
-        return 1;
-    }
+//     if (!configManager->loadConfig(av[1])) {
+//         std::cerr << "Failed to load configuration." << std::endl;
+//         return 1;
+//     }
     
-    const std::vector<ServerConfig>& servers = configManager->getServers();
+//     const std::vector<ServerConfig>& servers = configManager->getServers();
     
-    // Display information about loaded servers
-    for (size_t i = 0; i < servers.size(); i++) {
-        std::cout << "Server " << i << " listening on port " << servers[i].port << std::endl;
+//     // Display information about loaded servers
+//     for (size_t i = 0; i < servers.size(); i++) {
+//         std::cout << "Server " << i << " listening on port " << servers[i].port << std::endl;
         
-        if (!servers[i].serverNames.empty()) {
-            std::cout << "  Server names: ";
-            for (size_t j = 0; j < servers[i].serverNames.size(); j++) {
-                std::cout << servers[i].serverNames[j] << " ";
-            }
-            std::cout << std::endl;
-        }
+//         if (!servers[i].serverNames.empty()) {
+//             std::cout << "  Server names: ";
+//             for (size_t j = 0; j < servers[i].serverNames.size(); j++) {
+//                 std::cout << servers[i].serverNames[j] << " ";
+//             }
+//             std::cout << std::endl;
+//         }
         
-        std::cout << "  Root: " << servers[i].root << std::endl;
+//         std::cout << "  Root: " << servers[i].root << std::endl;
         
-        if (!servers[i].locations.empty()) {
-            std::cout << "  Locations: " << servers[i].locations.size() << std::endl;
-        }
-    }
+//         if (!servers[i].locations.empty()) {
+//             std::cout << "  Locations: " << servers[i].locations.size() << std::endl;
+//         }
+//     }
     
-    // Clean up the singleton instance
-    ConfigManager::destroyInstance();
+//     // Clean up the singleton instance
+//     ConfigManager::destroyInstance();
     
-    return 0;
-}
+//     return 0;
+// }

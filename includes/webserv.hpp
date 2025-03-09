@@ -24,6 +24,7 @@
 
 #include <poll.h>
 #include <sys/epoll.h>
+#include <cstdlib>
 
 
 #define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"

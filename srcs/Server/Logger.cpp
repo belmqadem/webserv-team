@@ -25,11 +25,13 @@ if (_instance != NULL) {
 }
 
 std::string Logger::getTimestamp() {
-    std::time_t now = std::time(nullptr);
+    std::time_t now = std::time(NULL);
     std::tm* tm = std::localtime(&now);
     
     std::ostringstream oss;
-    oss << std::put_time(tm, "%Y-%m-%d %H:%M:%S");
+    char buffer[20];
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", tm);
+    oss << buffer;
     return oss.str();
 }
 
@@ -58,7 +60,7 @@ void Logger::setLogFile(const std::string& path) {
         _logFile.close();
     }
     
-    _logFile.open(path, std::ios::out | std::ios::app);
+    _logFile.open(path.c_str(), std::ios::out | std::ios::app);
     if (!_logFile.is_open()) {
         std::cerr << "Failed to open log file: " << path << std::endl;
         _toFile = false;
