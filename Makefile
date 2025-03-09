@@ -4,7 +4,7 @@ RESET = \033[0m
 
 NAME = webserv
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
 SRCS = $(shell find srcs -name "*.cpp")
 OBJS = $(SRCS:.cpp=.o)
 

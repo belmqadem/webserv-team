@@ -44,7 +44,7 @@ class ClientServer : IEvenetListeners {
                 _is_started = true;
 
                 std::string addr = inet_ntoa(_client_addr.sin_addr);
-                LOG_INFO("Client Connected: " + addr + ":" + to_string(ntohs(_client_addr.sin_port)));
+                LOG_INFO("Client Connected: " + addr + ":" + to_string(ntohs(_client_addr.sin_port)) + " Fd " + to_string(_peer_socket_fd));
             } catch (std::exception &e) {
                 close(_peer_socket_fd);
                 std::cerr << "Failed to register client fd " << _peer_socket_fd 
@@ -57,8 +57,26 @@ class ClientServer : IEvenetListeners {
             _server_socket_fd(server_socket_fd), _peer_socket_fd(peer_socket_fd) {};
         ~ClientServer() {};
         
-        virtual void    terminate() {};
-        virtual void    onEvent(int fd, epoll_event ev) { (void)fd;(void)ev;}
+        virtual void    terminate() {
+            IOMultiplexer::getInstance().removeListener(_epoll_ev, _peer_socket_fd);
+            _is_started = false;
+
+            std::string addr =  inet_ntoa(_client_addr.sin_addr);
+            LOG_INFO("Client " + addr + " Fd " + to_string(_peer_socket_fd) + " Disconnected!");
+            close(_peer_socket_fd);
+        };
+        virtual void    onEvent(int fd, epoll_event ev) {
+            (void) fd;
+            if (ev.events & EPOLLIN) {
+                std::vector<byte> buff(RD_SIZE, 0);
+                ssize_t rd_count = recv(this->_peer_socket_fd, buff.data(), RD_SIZE, MSG_DONTWAIT);
+                if (rd_count == 0) {
+                    this->terminate();
+                }
+                buff.erase(buff.begin()  + rd_count, buff.end());
+                printf("%.*s\n", (int)rd_count, buff.data());
+            }
+        }
 };
 
 class Server : public IEvenetListeners {

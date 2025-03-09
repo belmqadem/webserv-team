@@ -113,9 +113,6 @@ void	Server::accept_peer(int fd) {
 		std::cerr << "accept() failed to accept this peer" << std::endl;
 		return ;
 	}
-	LOG_INFO("Client connected fd: " + to_string(client_fd));
-	close(client_fd);
-	return ;
 	fcntl(client_fd, F_SETFL, fcntl(client_fd, F_GETFL, 0) | O_NONBLOCK);
 	std::vector<ClientServer*>::iterator client = _clients.begin();
 	for (; client != _clients.end() && (*client)->isStarted(); client++)
@@ -125,6 +122,7 @@ void	Server::accept_peer(int fd) {
 	else {
 		ClientServer *new_client = new ClientServer(fd, client_fd);
 		_clients.push_back(new_client);
+		client = _clients.begin() + _clients.size() - 1;
 	}
 	
 	(*client)->setClientAddr(peer_addrr), (*client)->RegisterWithIOMultiplexer();
