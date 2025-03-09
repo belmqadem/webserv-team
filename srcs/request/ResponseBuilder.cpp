@@ -165,7 +165,9 @@ void ResponseBuilder::doGET(RequestParser &request)
 	std::string uri = request.get_request_uri();
 	std::string path = ROOT_DIRECTORY + uri;
 	std::string index = DEFAULT_INDEX;
-	std::string file_path = path + index;
+	std::string file_path = path;
+
+	std::cout << file_path << std::endl;
 
 	// Check if the file exists
 	struct stat file_stat;
@@ -213,7 +215,7 @@ void ResponseBuilder::doGET(RequestParser &request)
 	// CGI Execution
 	if (is_cgi_request(file_path))
 	{
-		const std::string cgi_path_extention = "/usr/bin/python3";
+		const std::string cgi_path_extention = "/usr/bin/php";
 		CGIHandler cgi(request, cgi_path_extention);
 		std::string cgi_output = cgi.executeCGI();
 		body = cgi_output;  // Store CGI output in the response bodys
@@ -343,7 +345,7 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 bool ResponseBuilder::is_cgi_request(const std::string &file_path)
 {
 	(void)file_path;
-	return false;
+	return true;
 }
 
 /****************************

@@ -8,23 +8,25 @@
 #include "RequestParser.hpp"
 #include "ResponseBuilder.hpp"
 #include "Parser.hpp"
+
+class RequestParser;
+
 class CGIHandler
 {
 private:
-    std::string scriptPath;
-    std::string interpreter;
-    std::string method;
-    std::string queryString;
-    std::string body;
-    std::map<std::string, std::string> headers;
+	std::string scriptPath;
+	std::string interpreter;
+	std::string method;
+	std::string queryString;
+	std::string body;
+	std::map<std::string, std::string> headers;
 
-    
-    public:
-    std::string executeCGI();
-CGIHandler(RequestParser &request, const std::string &php_cgi_path);
+public:
+	std::string executeCGI();
+	CGIHandler(RequestParser &request, const std::string &php_cgi_path);
 
-    // CGIHandler(RequestParser &request, Parser &config);
-    // std::string handleRequest();
+	// CGIHandler(RequestParser &request, Parser &config);
+	// std::string handleRequest();
 };
 
 #endif
@@ -39,10 +41,10 @@ CGIHandler(RequestParser &request, const std::string &php_cgi_path);
 // //     pipe(pipefd);
 
 // //     pid_t pid = fork();
-    
+
 // //     if (pid == 0) {  // Child process
 // //         close(pipefd[0]); // Close read end, we only write here
-        
+
 // //         // Redirect stdout and stderr to the pipe
 // //         dup2(pipefd[1], STDOUT_FILENO);
 // //         dup2(pipefd[1], STDERR_FILENO);
@@ -51,7 +53,7 @@ CGIHandler(RequestParser &request, const std::string &php_cgi_path);
 // //         // Set environment variables
 // //         setenv("REQUEST_METHOD", method.c_str(), 1);
 // //         setenv("QUERY_STRING", queryString.c_str(), 1);
-        
+
 // //         if (method == "POST") {
 // //             int postPipe[2];
 // //             pipe(postPipe);
@@ -64,14 +66,14 @@ CGIHandler(RequestParser &request, const std::string &php_cgi_path);
 // //         char *args[] = {nullptr};  // No additional args
 // //         execve(scriptPath.c_str(), args, environ);
 // //         exit(1);  // If execve fails
-// //     } 
+// //     }
 // //     else {  // Parent process
 // //         close(pipefd[1]); // Close write end, we only read here
 
 // //         char buffer[1024];
 // //         std::string cgiOutput;
 // //         ssize_t bytesRead;
-        
+
 // //         while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0) {
 // //             buffer[bytesRead] = '\0';
 // //             cgiOutput += buffer;
@@ -87,11 +89,10 @@ CGIHandler(RequestParser &request, const std::string &php_cgi_path);
 
 // // int main() {
 // //     std::string scriptPath = "/cgi-bin/script.py";
-// //     std::string method = "GET"; 
-// //     std::string body = "";  
-// //     std::string queryString = "id=123&name=admin"; 
+// //     std::string method = "GET";
+// //     std::string body = "";
+// //     std::string queryString = "id=123&name=admin";
 
 // //     executeCGI(scriptPath, method, body, queryString);
 // //     return 0;
 // // }
-
