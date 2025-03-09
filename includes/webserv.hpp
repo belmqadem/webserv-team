@@ -96,3 +96,6 @@ std::string trim(const std::string &str, const std::string &delim);
 std::string readFile(const std::string &filename);
 bool writeFile(const std::string &filename, const std::string &content);
 std::string getCurrentTime();
+
+
+#define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"

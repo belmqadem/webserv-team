@@ -5,7 +5,7 @@ RESET = \033[0m
 NAME = parser
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
-SRCS = Parser.cpp Tokenize.cpp
+SRCS = Parser.cpp Tokenize.cpp ConfigManager.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 %.o : %.cpp
