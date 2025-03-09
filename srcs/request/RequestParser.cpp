@@ -94,15 +94,6 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 	{
 		const char *header_end = find_line_end(pos, end);
 
-		// If no CRLF found
-		if (header_end == end)
-		{
-			std::cerr << HTTP_PARSE_INVALID_REQUEST << std::endl;
-			error_code = 400;
-			state = ERROR;
-			return pos;
-		}
-
 		// If an empty line that means end of headers
 		if (pos == header_end - 2)
 		{
@@ -330,7 +321,7 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 		}
 	}
 
-	// Case 3: Read until connection closes
+	// Case 3: Read until connection closes (for HTTP/1.0) 
 	if (headers.find("connection") != headers.end() && headers["connection"] == "close")
 	{
 		body.assign(pos, end);
@@ -672,7 +663,7 @@ void RequestParser::print_request()
 	}
 	else
 		std::cout << RED "Error Code: " << error_code << RESET << std::endl;
-	std::cout << CYAN "-----------------------------------------\n** WEBSERV **  ** REQUEST PARSING DONE **" RESET << std::endl;
+	std::cout << CYAN "** REQUEST PARSING DONE **" RESET << std::endl;
 }
 
 // ********************************* Old version *********************************

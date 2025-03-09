@@ -31,7 +31,6 @@ private:
 	const char *find_line_end(const char *pos, const char *end);
 	std::string normalize_uri(const std::string &uri);
 	std::string decode_percent_encoding(const std::string &str);
-	bool is_keep_alive();
 	bool is_valid_header_name(const std::string &name);
 	bool is_valid_header_value(const std::string &value);
 
@@ -59,6 +58,7 @@ public:
 	std::string &get_header_value(const std::string &key);
 	std::string &get_body();
 	short get_error_code();
+	bool is_keep_alive();
 
 	// Main Method
 	void parse_request(const std::string &request);

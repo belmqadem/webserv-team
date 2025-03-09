@@ -1,7 +1,7 @@
 #include "../../includes/RequestParser.hpp"
-#include "../CGI/CGIHandler.hpp"
+#include "../../includes/CGIHandler.hpp"
 #include "../../includes/RequestParser.hpp"
-#include "../CGI/CGIHandler.hpp"
+#include "../../includes/CGIHandler.hpp"
 
 int main() {
     std::string server_host = "localhost";
@@ -13,11 +13,11 @@ int main() {
                               "Content-Length: 11\r\n\r\n"
                               "name=HelloWorld";
     RequestParser request_parser(raw_request);
-    if (request_parser.get_error_code() != 200) 
-    {
-        std::cerr << "Error parsing the request!" << std::endl;
-        return 1;
-    }
+    // if (request_parser.get_error_code() != 200) 
+    // {
+    //     std::cerr << "Error parsing the request!" << std::endl;
+    //     return 1;
+    // }
     try 
     {
         CGIHandler cgi_handler(request_parser, php_cgi_path);
@@ -29,7 +29,7 @@ int main() {
         response_builder.set_body(cgi_output);
 
         std::string response = response_builder.build_response(request_parser);
-        // std::cout <<"her start ========\n" << response <<"\n========]dsad" <<std::endl;
+        std::cout <<"her start ========\n" << response <<"\n========]dsad" <<std::endl;
     } catch (const std::exception &e) {
         std::cerr << "Error during CGI execution: " << e.what() << std::endl;
     }

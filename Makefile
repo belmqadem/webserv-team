@@ -4,15 +4,24 @@ RESET = \033[0m
 
 NAME = webserv
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
+CXXFLAGS = -Wall -Wextra -Werror  -fsanitize=address -g #-std=c++98
 
 UTILS = srcs/utils
 REQUEST = srcs/request
+CGI = srcs/CGI
+SERVER = srcs/Server
+# SRCS =	srcs/main.cpp \
+# 		$(UTILS)/utils.cpp \
+# 		$(REQUEST)/RequestParser.cpp \
+# 		$(REQUEST)/ResponseBuilder.cpp
 
-SRCS =	srcs/main.cpp \
+SRCS =	srcs/main0.cpp \
 		$(UTILS)/utils.cpp \
 		$(REQUEST)/RequestParser.cpp \
-		$(REQUEST)/ResponseBuilder.cpp
+		$(REQUEST)/ResponseBuilder.cpp \
+		$(CGI)/CGIHandler.cpp \
+		$(SERVER)/Logger.cpp 
+		
 
 OBJS = $(SRCS:.cpp=.o)
 
