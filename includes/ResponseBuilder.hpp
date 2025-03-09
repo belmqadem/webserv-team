@@ -27,6 +27,7 @@ private:
 	std::string generate_directory_listing(const std::string &path);
 	std::string generate_response_string();
 	std::string detect_mime_type(const std::string &path);
+	bool is_cgi_request(const std::string &file_path);
 
 	// A map to save the mime types
 	static std::map<std::string, std::string> mime_types;

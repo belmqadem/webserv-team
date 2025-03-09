@@ -94,15 +94,6 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 	{
 		const char *header_end = find_line_end(pos, end);
 
-		// If no CRLF found
-		if (header_end == end)
-		{
-			std::cerr << HTTP_PARSE_INVALID_REQUEST << std::endl;
-			error_code = 400;
-			state = ERROR;
-			return pos;
-		}
-
 		// If an empty line that means end of headers
 		if (pos == header_end - 2)
 		{

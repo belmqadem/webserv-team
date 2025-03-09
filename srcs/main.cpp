@@ -2,12 +2,9 @@
 
 int main()
 {
-	const std::string request = "POST /style.css HTTP/1.1\r\n"
-						  "Cookie: session=abc123\r\n"
-						  "Host: localhost\r\n"
-						  "Transfer-Encoding: chunked\r\n"
-						  "\r\n"
-						  "5\r\nhello\r\n0\r\n\r\n";
+	const std::string request = "GET / HTTP/1.1\r\n"
+								"Host: localhost\r\n"
+								"\r\n";
 
 	RequestParser parser(request);
 	parser.print_request();

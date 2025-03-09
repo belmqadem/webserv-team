@@ -122,12 +122,6 @@ std::string ResponseBuilder::build_response(RequestParser &request)
 		set_status(405);
 		set_headers("Allow", "GET, POST, DELETE"); // Check later in nginx and compare
 		body = generate_error_page(405, "Method Not Allowed");
-		if (!headers.count("Content-Length"))
-		{
-			std::ostringstream ss;
-			ss << body.size();
-			headers["Content-Length"] = ss.str();
-		}
 		return generate_response_string();
 	}
 
@@ -167,8 +161,94 @@ std::string ResponseBuilder::generate_response_string()
 
 void ResponseBuilder::doGET(RequestParser &request)
 {
-	(void)request;
 	std::cout << "GET METHOD EXECUTED" << std::endl;
+	std::string uri = request.get_request_uri();
+	std::string path = ROOT_DIRECTORY + uri;
+	std::string index = DEFAULT_INDEX;
+	std::string file_path = path + index;
+
+	// Check if the file exists
+	struct stat file_stat;
+	if (stat(file_path.c_str(), &file_stat) == -1)
+	{
+		set_status(404);
+		body = generate_error_page(404, "File Not Found");
+		return;
+	}
+
+	// Check if the file is a directory
+	if (S_ISDIR(file_stat.st_mode))
+	{
+
+		// If the URI does not end with '/', redirect to the correct URL
+		if (uri[uri.size() - 1] != '/')
+		{
+			set_status(301);
+			set_headers("Location", uri + "/");
+			body = generate_error_page(301, "Moved Permanently");
+			return;
+		}
+
+		// If an index file exists, use it
+		std::string index_path = path + index;
+		if (stat(index_path.c_str(), &file_stat) == 0)
+		{
+			file_path = index_path;
+		}
+		else if (DIRECTORY_LISTING_ENABLED) // If auto index is enabled in the config file
+		{
+			body = generate_directory_listing(path);
+			set_status(200);
+			set_headers("Content-Type", "text/html");
+			return;
+		}
+		else
+		{
+			set_status(403);
+			body = generate_error_page(403, "Directory Listing Denied");
+			return;
+		}
+	}
+
+	// CGI Execution
+	if (is_cgi_request(file_path))
+	{
+		// HANDLE CGI IN GET
+
+		return;
+	}
+
+	// Check Read persmission
+	if (!(file_stat.st_mode & S_IRUSR))
+	{
+		set_status(403);
+		body = generate_error_page(403, "Forbidden");
+		return;
+	}
+
+
+	// 	Open The file
+	std::ifstream file(file_path.c_str(), std::ios::in | std::ios::binary);
+	if (!file)
+	{
+		set_status(500);
+		body = generate_error_page(500, "Internal Server Error");
+		return;
+	}
+
+	// Determine mime type
+	std::string extension = file_path.substr(file_path.find_last_of('.'));
+	std::map<std::string, std::string>::iterator it = mime_types.find(extension);
+	if (it != mime_types.end())
+		set_headers("Content-Type", it->second);
+	else
+		set_headers("Content-Type", "application/octet-stream");
+
+	// Read File
+	std::ostringstream file_stream;
+	file_stream << file.rdbuf();
+	body = file_stream.str();
+	set_status(200);
 }
 
 void ResponseBuilder::doPOST(RequestParser &request)
@@ -181,6 +261,18 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 {
 	(void)request;
 	std::cout << "DELETE METHOD EXECUTED" << std::endl;
+	// std::string uri = request.get_request_uri();
+	// std::string path = ROOT_DIRECTORY + uri;
+	// if (remove(path.c_str()) == 0)
+	// {
+	// 	set_status(204);
+	// 	body = "";
+	// }
+	// else
+	// {
+	// 	set_status(404);
+	// 	body = generate_error_page(404, "File Not Found");
+	// }
 }
 
 // Method to handle redirection
@@ -221,29 +313,35 @@ std::string ResponseBuilder::detect_mime_type(const std::string &path)
 }
 
 // Method for directory listing
-// std::string ResponseBuilder::generate_directory_listing(const std::string &path)
-// {
-// 	std::ostringstream page;
-// 	page << "<html><head><title>Directory Listing</title></head>";
-// 	page << "<body><h1>Directory Listing</h1>";
-// 	page << "<ul>";
-// 	DIR *dir;
-// 	struct dirent *ent;
-// 	if ((dir = opendir(path.c_str())) != NULL)
-// 	{
-// 		while ((ent = readdir(dir)) != NULL)
-// 		{
-// 			page << "<li><a href=\"" << ent->d_name << "\">" << ent->d_name << "</a></li>";
-// 		}
-// 		closedir(dir);
-// 	}
-// 	else
-// 	{
-// 		page << "<p>Error: Could not open directory</p>";
-// 	}
-// 	page << "</ul></body></html>";
-// 	return page.str();
-// }
+std::string ResponseBuilder::generate_directory_listing(const std::string &path)
+{
+	std::ostringstream page;
+	page << "<html><head><title>Directory Listing</title></head>";
+	page << "<body><h1>Directory Listing</h1>";
+	page << "<ul>";
+	DIR *dir;
+	struct dirent *ent;
+	if ((dir = opendir(path.c_str())) != NULL)
+	{
+		while ((ent = readdir(dir)) != NULL)
+		{
+			page << "<li><a href=\"" << ent->d_name << "\">" << ent->d_name << "</a></li>";
+		}
+		closedir(dir);
+	}
+	else
+	{
+		page << "<p>Error: Could not open directory</p>";
+	}
+	page << "</ul></body></html>";
+	return page.str();
+}
+
+bool ResponseBuilder::is_cgi_request(const std::string &file_path)
+{
+	(void)file_path;
+	return false;
+}
 
 /****************************
 		START SETTERS
