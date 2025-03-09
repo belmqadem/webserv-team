@@ -1,7 +1,7 @@
 #pragma once
 
 #include "webserv.hpp"
-
+#include "CGIHandler.hpp"
 class RequestParser;
 
 class ResponseBuilder

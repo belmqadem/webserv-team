@@ -43,7 +43,6 @@ std::string CGIHandler::executeCGI()
         logger.error("Fork failed");
         throw std::runtime_error("500 Internal Server Error: Fork failed");
     }
-
     if (pid == 0)
     {
         logger.info("Executing CGI script: " + scriptPath);
@@ -52,30 +51,25 @@ std::string CGIHandler::executeCGI()
         close(output_pipe[0]);
         dup2(output_pipe[1], STDOUT_FILENO);
         close(output_pipe[1]);
-
         if (method == "POST")
         {
             close(input_pipe[1]);
             dup2(input_pipe[0], STDIN_FILENO);
             close(input_pipe[0]);
         }
-
         std::vector<std::string> args;
         args.push_back(interpreter);
         args.push_back(scriptPath);
-
         char *argv[args.size() + 1];
         for (size_t i = 0; i < args.size(); ++i)
             argv[i] = const_cast<char *>(args[i].c_str());
         argv[args.size()] = NULL;
-
         std::vector<std::string> env;
         env.push_back("REQUEST_METHOD=" + method);
         env.push_back("QUERY_STRING=" + queryString);
         env.push_back("CONTENT_LENGTH=" + std::to_string(body.length()));
         env.push_back("CONTENT_TYPE=" + headers["Content-Type"]);
         env.push_back("REDIRECT_STATUS=200"); // Add this line
-
         char *envp[env.size() + 1];
         for (size_t i = 0; i < env.size(); ++i)
             envp[i] = const_cast<char *>(env[i].c_str());
@@ -86,7 +80,6 @@ std::string CGIHandler::executeCGI()
         {
             logger.info(args[i]);
         }
-
         execve(argv[0], argv, envp);
         perror("execve failed");
         logger.error("execve failed");
@@ -96,13 +89,11 @@ std::string CGIHandler::executeCGI()
     {
         close(output_pipe[1]);
         close(input_pipe[0]);
-
         if (method == "POST")
         {
             write(input_pipe[1], body.c_str(), body.length());
             close(input_pipe[1]);
         }
-
         char buffer[1024];
         std::string cgi_output;
         ssize_t bytesRead;

@@ -213,8 +213,12 @@ void ResponseBuilder::doGET(RequestParser &request)
 	// CGI Execution
 	if (is_cgi_request(file_path))
 	{
-		// HANDLE CGI IN GET
-
+		const std::string cgi_path_extention = "/usr/bin/python3";
+		CGIHandler cgi(request, cgi_path_extention);
+		std::string cgi_output = cgi.executeCGI();
+		body = cgi_output;  // Store CGI output in the response bodys
+		set_status(200);  // Assuming CGI executed successfully
+		set_headers("Content-Type", "text/html"); // Adjust based on CGI output
 		return;
 	}
 
@@ -225,7 +229,6 @@ void ResponseBuilder::doGET(RequestParser &request)
 		body = generate_error_page(403, "Forbidden");
 		return;
 	}
-
 
 	// 	Open The file
 	std::ifstream file(file_path.c_str(), std::ios::in | std::ios::binary);
