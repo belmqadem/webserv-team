@@ -11,7 +11,7 @@ enum LogLevel {
     DEBUG,
     INFO,
     WARNING,
-    ERROR,
+    ERROR2,
     FATAL
 };
 

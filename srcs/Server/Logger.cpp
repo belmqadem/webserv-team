@@ -1,4 +1,4 @@
-#include "Logger.hpp"
+#include "../../includes/Logger.hpp"
 
 Logger* Logger::_instance = NULL;
 
@@ -38,7 +38,7 @@ std::string Logger::getLevelString(LogLevel level) {
         case DEBUG:   return "DEBUG";
         case INFO:    return "INFO";
         case WARNING: return "WARNING";
-        case ERROR:   return "ERROR";
+        case ERROR2:   return "ERROR";
         case FATAL:   return "FATAL";
         default:      return "UNKNOWN";
     }
@@ -77,7 +77,7 @@ void Logger::log(LogLevel level, const std::string& message) {
     std::string logMessage = "[" + timestamp + "] [" + levelStr + "] " + message;
     
     if (_toConsole) {
-        if (level >= ERROR) {
+        if (level >= ERROR2) {
             std::cerr << logMessage << std::endl;
         } else {
             std::cout << logMessage << std::endl;
@@ -102,7 +102,7 @@ void Logger::warning(const std::string& message) {
 }
 
 void Logger::error(const std::string& message) {
-    log(ERROR, message);
+    log(ERROR2, message);
 }
 
 void Logger::fatal(const std::string& message) {

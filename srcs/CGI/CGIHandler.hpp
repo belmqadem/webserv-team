@@ -4,10 +4,10 @@
 #ifndef CGI_HANDLER_HPP
 #define CGI_HANDLER_HPP
 #pragma once
-
+#include "../../includes/Logger.hpp"
 #include "../../includes/RequestParser.hpp"
 #include "../../includes/ResponseBuilder.hpp"
-#include "../ParseConf/Parser.hpp"
+#include "../../includes/Parser.hpp"
 class CGIHandler
 {
 private:
