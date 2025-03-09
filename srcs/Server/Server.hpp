@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <algorithm>
 #include <fcntl.h>
-
+#include "webserv.hpp"
 
 class Request {};
 
@@ -44,7 +44,7 @@ class ClientServer : IEvenetListeners {
                 _is_started = true;
 
                 std::string addr = inet_ntoa(_client_addr.sin_addr);
-                LOG_INFO("Client Connected: " + addr + ":" + std::to_string(ntohs(_client_addr.sin_port)));
+                LOG_INFO("Client Connected: " + addr + ":" + to_string(ntohs(_client_addr.sin_port)));
             } catch (std::exception &e) {
                 close(_peer_socket_fd);
                 std::cerr << "Failed to register client fd " << _peer_socket_fd 

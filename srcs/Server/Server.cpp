@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include "Exceptions.hpp"
+#include "webserv.hpp"
 #include <string.h>
 
 Server::Server(std::vector<ServerConfig> config) : _config(config), _is_started(false) {
@@ -34,6 +35,8 @@ sockaddr_in Server::getListenAddress(ServerConfig conf) {
 	return addr;
 }
 
+
+
 void    Server::listenOnAddr(sockaddr_in addr) {
 	int socket_fd;
 	if ((socket_fd =  socket(AF_INET, SOCK_STREAM, 0)) == -1)
@@ -52,8 +55,8 @@ void    Server::listenOnAddr(sockaddr_in addr) {
 		IOMultiplexer::getInstance().addListener(this, _listen_sock_ev);
 
 		std::string ip_address = inet_ntoa(addr.sin_addr);
-        int port = ntohs(addr.sin_port);        
-        LOG_INFO("Server listening on " + ip_address + ":" + std::to_string(port));
+        int port = ntohs(addr.sin_port);
+        LOG_INFO("Server listening on " + ip_address + to_string(port));
 	} catch (std::exception &e) {
 		close(socket_fd);
 		throw e;
