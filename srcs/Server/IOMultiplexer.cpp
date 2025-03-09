@@ -46,7 +46,7 @@ void    IOMultiplexer::runEventLoop(void) {
                 throw IOMultiplexerExceptions(
                     "fd not found in [std::map<int, IEvenetListeners*>::iterator it = _listeners.begin()].");        
             }
-            it->second->onEvent(_events[i].data.fd, _events[i].events);
+            it->second->onEvent(_events[i].data.fd, _events[i]);
         }
     }
     terminate();
@@ -65,7 +65,7 @@ void IOMultiplexer::addListener(IEvenetListeners *listener, epoll_event ev) {
 
 void IOMultiplexer::removeListener(epoll_event ev, int fd) {
 
-    std::map<int, IEvenetListeners*>::iterator it = _listeners.find(ev.data.fd);
+    std::map<int, IEvenetListeners*>::iterator it = _listeners.find(fd);
     if (it == _listeners.end())
         throw IOMultiplexerExceptions("removeListener() fd EventListener not found.");
     ev.data.fd = fd;

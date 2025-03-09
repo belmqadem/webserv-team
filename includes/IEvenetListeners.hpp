@@ -1,14 +1,16 @@
+#pragma once
+#include "webserv.hpp"
 #include "sys/epoll.h"
 
 class IEvenetListeners
 {
 private:
 public:
-    IEvenetListeners();
+    IEvenetListeners() {};
     virtual ~IEvenetListeners() {};
-    IEvenetListeners(const IEvenetListeners&) = delete;
-    IEvenetListeners &operator=(const IEvenetListeners&) = delete;
+    IEvenetListeners(const IEvenetListeners&);
+    IEvenetListeners &operator=(const IEvenetListeners&);
 public:
-    virtual void onEvent(int fd, uint32_t ev) = 0;
+    virtual void onEvent(int fd, epoll_event ev) = 0;
     virtual void terminate() = 0;
 };

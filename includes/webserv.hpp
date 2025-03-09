@@ -118,6 +118,17 @@ std::string readFile(const std::string &filename);
 bool writeFile(const std::string &filename, const std::string &content);
 std::string getCurrentTime();
 bool is_numeric(const std::string &str);
+#include <cstdlib>
 
+
+typedef uint8_t byte ;
+#define RD_SIZE 1024
 
 #define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
+
+template<class T> std::string to_string(T t)
+{
+	std::stringstream str;
+	str << t;
+	return str.str();
+}

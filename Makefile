@@ -25,13 +25,15 @@ SRCS =	srcs/main0.cpp \
 
 OBJS = $(SRCS:.cpp=.o)
 
+INC=includes
+
 %.o : %.cpp
-	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -I$(INC)
 
 all : $(NAME)
 
 $(NAME) : $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ -o $(NAME)
+	$(CXX) $(CXXFLAGS) $^ -o $(NAME) 
 	@echo "$(GREEN)$(NAME) compiled.$(RESET)"
 
 clean :

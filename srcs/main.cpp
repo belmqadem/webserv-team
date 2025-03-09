@@ -34,4 +34,17 @@ int main()
 	std::cout << YELLOW "** HTTP RESPONSE **" RESET << std::endl;
 	std::cout << "--------------------------------" << std::endl;
 	std::cout << response.get_response() << std::endl;
+	Logger::getInstance().setLevel(DEBUG);
+	Logger::getInstance().setOutput(true, true);
+	Logger::getInstance().setLogFile("WebServe.log");
+	try {
+		ConfigManager::getInstance()->loadConfig(av[1]);
+		LOG_INFO("Webserver Starting...");
+		Server &server = Server::getInstance(ConfigManager::getInstance()->getServers());
+		server.StartServer();
+		IOMultiplexer::getInstance().runEventLoop();
+	} catch (std::exception &e) {
+		std::cerr << "Fatal error: \n" << e.what() << "\n";
+	}
+	return (0);
 }

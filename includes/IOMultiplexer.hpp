@@ -18,8 +18,8 @@ class IOMultiplexer {
         bool        _is_started;
     private:
         IOMultiplexer();
-        IOMultiplexer(const IOMultiplexer& rhs) = delete;
-        IOMultiplexer &operator=(const IOMultiplexer& rhs) = delete;
+        IOMultiplexer(const IOMultiplexer& rhs);
+        IOMultiplexer &operator=(const IOMultiplexer& rhs);
         ~IOMultiplexer();
 
     public:

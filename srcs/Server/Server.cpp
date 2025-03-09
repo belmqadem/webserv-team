@@ -1,8 +1,9 @@
 #include "Server.hpp"
 #include "Exceptions.hpp"
+#include "webserv.hpp"
 #include <string.h>
 
-Server::Server(std::vector<ServerConfig> config) : _config(config), _is_started(false) {
+Server::Server(std::vector<ServerConfig> config) :IEvenetListeners(), _config(config), _is_started(false) {
 	_listen_sock_ev.events = EPOLLIN;
 }
 
@@ -34,6 +35,8 @@ sockaddr_in Server::getListenAddress(ServerConfig conf) {
 	return addr;
 }
 
+
+
 void    Server::listenOnAddr(sockaddr_in addr) {
 	int socket_fd;
 	if ((socket_fd =  socket(AF_INET, SOCK_STREAM, 0)) == -1)
@@ -52,8 +55,8 @@ void    Server::listenOnAddr(sockaddr_in addr) {
 		IOMultiplexer::getInstance().addListener(this, _listen_sock_ev);
 
 		std::string ip_address = inet_ntoa(addr.sin_addr);
-        int port = ntohs(addr.sin_port);        
-        LOG_INFO("Server listening on " + ip_address + ":" + std::to_string(port));
+        int port = ntohs(addr.sin_port);
+        LOG_INFO("Server listening on " + ip_address + ":" + to_string(port));
 	} catch (std::exception &e) {
 		close(socket_fd);
 		throw e;
@@ -96,8 +99,8 @@ void    Server::terminate() {
 	LOG_INFO("Server is Shuted down !");
 }
 
-void Server::onEvent(int fd, uint32_t ev) {
-	std::vector<int>::iterator  listen_fd = std::find(_listen_fds.begin(), _listen_fds.end(), fd);
+void Server::onEvent(int fd, epoll_event ev) {
+	std::vector<int>::iterator  listen_fd = std::find(_listen_fds.begin(), _listen_fds.end(), ev.data.fd);
 	if (listen_fd != _listen_fds.end())
 		accept_peer(fd);
 }
@@ -119,6 +122,7 @@ void	Server::accept_peer(int fd) {
 	else {
 		ClientServer *new_client = new ClientServer(fd, client_fd);
 		_clients.push_back(new_client);
+		client = _clients.begin() + _clients.size() - 1;
 	}
 	
 	(*client)->setClientAddr(peer_addrr), (*client)->RegisterWithIOMultiplexer();
