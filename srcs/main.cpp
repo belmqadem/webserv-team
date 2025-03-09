@@ -1,13 +1,17 @@
 #include "../includes/webserv.hpp"
 
-int main(int ac, char **av)
+int main()
 {
-	(void)ac, (void)av;
+	const std::string request = "GET / HTTP/1.1\r\n"
+								"Host: localhost\r\n"
+								"\r\n";
 
-	std::cout << "Hello Team,\nThis marks the beginning of our journey together. Welcome aboard, and cheers to success!" << std::endl;
-	try {
-		std::cout << "hello" << std::endl;
-	} catch (...) {
-		throw "helloss";
-	}
+	RequestParser parser(request);
+	parser.print_request();
+
+	ResponseBuilder response(parser);
+	std::cout << "\n--------------------------------" << std::endl;
+	std::cout << YELLOW "** HTTP RESPONSE **" RESET << std::endl;
+	std::cout << "--------------------------------" << std::endl;
+	std::cout << response.get_response() << std::endl;
 }
