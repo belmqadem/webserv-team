@@ -37,7 +37,7 @@
 #define CRLF_DOUBLE "\r\n\r\n"
 
 // MAX LENGTH OF URI
-#define MAX_REQUEST_LINE_LENGTH 8192 // Most servers set a limit of 8k bytes for preventing overflow
+#define MAX_REQUEST_LINE_LENGTH 8192
 #define MAX_URI_LENGTH 2048
 #define MAX_HEADER_LENGTH 8192
 #define MAX_HEADER_COUNT 100

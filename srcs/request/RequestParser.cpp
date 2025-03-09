@@ -330,7 +330,7 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 		}
 	}
 
-	// Case 3: Read until connection closes
+	// Case 3: Read until connection closes (for HTTP/1.0) 
 	if (headers.find("connection") != headers.end() && headers["connection"] == "close")
 	{
 		body.assign(pos, end);
@@ -672,5 +672,5 @@ void RequestParser::print_request()
 	}
 	else
 		std::cout << RED "Error Code: " << error_code << RESET << std::endl;
-	std::cout << CYAN "-----------------------------------------\n** WEBSERV **  ** REQUEST PARSING DONE **" RESET << std::endl;
+	std::cout << CYAN "** REQUEST PARSING DONE **" RESET << std::endl;
 }
