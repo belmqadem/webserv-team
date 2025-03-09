@@ -11,6 +11,7 @@
 
 // STATUS CODES
 #define STATUS_200 GREEN "200 OK" RESET
+#define STATUS_201 GREEN "201 Created" RESET
 #define STATUS_204 GREEN "204 No Content" RESET
 #define STATUS_301 YELLOW "301 Moved Permanently" RESET
 #define STATUS_302 YELLOW "302 Found"
@@ -22,6 +23,7 @@
 #define STATUS_410 RED "410 Gone" RESET
 #define STATUS_413 RED "413 Payload Too Large" RESET
 #define STATUS_414 RED "414 URI Too Long" RESET
+#define STATUS_417 RED "417 Expectation Failed" RESET
 #define STATUS_431 RED "431 Request Header Fields Too Large" RESET
 #define STATUS_500 RED "500 Internal Server Error" RESET
 #define STATUS_501 RED "501 Not Implemented" RESET
@@ -34,18 +36,34 @@
 #define CRLF "\r\n"
 #define CRLF_DOUBLE "\r\n\r\n"
 
+// MAX LENGTH OF URI
+#define MAX_REQUEST_LINE_LENGTH 8192 // Most servers set a limit of 8k bytes for preventing overflow
+#define MAX_URI_LENGTH 2048
+#define MAX_HEADER_LENGTH 8192
+#define MAX_HEADER_COUNT 100
+
 // ERROR MESSAGES (Response: 400 Bad Request)
-#define HTTP_PARSE_INVALID_METHOD RED "Error: client sent invalid method" RESET
-#define HTTP_PARSE_INVALID_VERSION RED "Error: client sent invalid version" RESET
-#define HTTP_PARSE_INVALID_REQUEST_LINE RED "Error: client sent invalid request line" RESET
-#define HTTP_PARSE_MISSING_REQUEST_LINE RED "Error: client sent a request without request line" RESET
+#define HTTP_PARSE_INVALID_REQUEST RED "Error: client sent invalid request" RESET					  // DONE
+#define HTTP_PARSE_INVALID_METHOD RED "Error: client sent invalid method" RESET						  // DONE
+#define HTTP_PARSE_INVALID_VERSION RED "Error: client sent invalid version" RESET					  // DONE
+#define HTTP_PARSE_INVALID_REQUEST_LINE RED "Error: client sent invalid request line" RESET			  // DONE
+#define HTTP_PARSE_MISSING_REQUEST_LINE RED "Error: client sent a request without request line" RESET // DONE
+#define HTTP_PARSE_MISSING_REQUEST_URI RED "Error: client sent request without URI" RESET			  // DONE
+#define HTTP_PARSE_INVALID_URI RED "Error: client sent request with invalid URI" RESET				  // DONE
+#define HTTP_PARSE_MISSING_HOST RED "Error: client sent request without Host header" RESET
 #define HTTP_PARSE_INVALID_HOST RED "Error: client sent request with invalid Host header" RESET
-#define HTTP_PARSE_INVALID_CONTENT_LENGTH RED "Error: client sent request with invalid Content-Length value" RESET
+#define HTTP_PARSE_INVALID_CONTENT_LENGTH RED "Error: client sent request with invalid Content-Length value" RESET // DONE
 #define HTTP_PARSE_INVALID_HEADER_FIELD RED "Error: client sent request with malformed header field" RESET
-#define HTTP_PARSE_INVALID_CHUNKED_BODY RED "Error: client sent request with invalid chunked body" RESET
+#define HTTP_PARSE_INVALID_CHUNKED_TRANSFER RED "Error: client sent request with invalid chunked body" RESET	 // DONE
+#define HTTP_PARSE_INVALID_PERCENT_ENCODING RED "Error: client sent request with invalid percent encoding" RESET // DONE
+#define HTTP_PARSE_INVALID_TRAILER_HEADER RED "Error: client sent request with invalid trailer header" RESET	 // DONE
+#define HTTP_PARSE_CONFLICTING_HEADERS RED "Error: client sent a request with Transfer-Encoding and Content-Length" RESET
+#define HTTP_PARSE_INVALID_CONNECTION_HEADER RED "Error: client sent a reauest with invalid value for Connection header" RESET
+#define HTTP_PARSE_INVALID_UPGRADE_HEADER RED "Error: client sent a request with invalid value for Upgrade header" RESET
+#define HTTP_PARSE_INVALID_TRANSFER_ENCODING RED "Error: client sent a request with invalid value of Transfer Encoding header" RESET
 
 // ERROR MESSAGES (Response: 411 Lenght Required)
-#define HTTP_PARSE_MISSING_CONTENT_LENGTH RED "Error: client sent request without Content-Length header" RESET
+#define HTTP_PARSE_MISSING_CONTENT_LENGTH RED "Error: client sent request without Content-Length header" RESET // DONE
 
 // ERROR MESSAGES (Response: 413 Payload Too Large)
 #define HTTP_PARSE_PAYLOAD_TOO_LARGE RED "Error: client sent request with payload too large" RESET
@@ -53,14 +71,17 @@
 // ERROR MESSAGES (Response: 414 URI Too Long)
 #define HTTP_PARSE_URI_TOO_LONG RED "Error: client sent request with URI too long" RESET
 
+// ERROR MESSAGES (Response: 417 Expectation Failed)
+#define HTTP_PARSE_INVALID_EXPECT_HEADER RED "Error: client sent a request with invalid value for Expect header" RESET
+
 // ERROR MESSAGES (Response: 431 Request Header Fields Too Large)
-#define HTTP_PARSE_HEADER_FIELDS_TOO_LARGE RED "Error: client sent request with header fields too large" RESET
+#define HTTP_PARSE_HEADER_FIELDS_TOO_LARGE RED "Error: client sent request with header fields too large" RESET // DONE
 
 // ERROR MESSAGES (Response: 501 Not Implemented)
-#define HTTP_PARSE_METHOD_NOT_IMPLEMENTED RED "Error: client sent request with method not implemented" RESET
+#define HTTP_PARSE_METHOD_NOT_IMPLEMENTED RED "Error: client sent request with method not implemented" RESET // DONE
 
 // ERROR MESSAGES (Response: 505 HTTP Version Not Supported)
-#define HTTP_PARSE_HTTP_VERSION_NOT_SUPPORTED RED "Error: client sent request with unsupported HTTP version" RESET
+#define HTTP_PARSE_HTTP_VERSION_NOT_SUPPORTED RED "Error: client sent request with unsupported HTTP version" RESET // DONE
 
 // HEADER FILES
 #include <iostream>
@@ -96,6 +117,7 @@ std::string trim(const std::string &str, const std::string &delim);
 std::string readFile(const std::string &filename);
 bool writeFile(const std::string &filename, const std::string &content);
 std::string getCurrentTime();
+bool is_numeric(const std::string &str);
 
 
 #define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
