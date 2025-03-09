@@ -27,3 +27,10 @@
 
 
 #define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
+
+template<class T> std::string to_string(T t)
+{
+	std::stringstream str;
+	str << t;
+	return str.str();
+}
