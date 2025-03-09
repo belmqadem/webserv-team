@@ -32,13 +32,11 @@ std::string CGIHandler::executeCGI()
 {
 	Logger &logger = Logger::getInstance();
 	int output_pipe[2], input_pipe[2];
-
 	if (pipe(output_pipe) == -1 || pipe(input_pipe) == -1)
 	{
-		logger.error("Pipe creation failed");
+		// logger.error("Pipe creation failed");
 		throw std::runtime_error("500 Internal Server Error: Pipe creation failed");
 	}
-
 	pid_t pid = fork();
 	if (pid == -1)
 	{
@@ -47,9 +45,8 @@ std::string CGIHandler::executeCGI()
 	}
 	if (pid == 0)
 	{
-		logger.info("Executing CGI script: " + scriptPath);
-		logger.info("Using interpreter: " + interpreter);
-
+		// logger.info("Executing CGI script: " + scriptPath);
+		// logger.info("Using interpreter: " + interpreter);
 		close(output_pipe[0]);
 		dup2(output_pipe[1], STDOUT_FILENO);
 		close(output_pipe[1]);
@@ -62,28 +59,24 @@ std::string CGIHandler::executeCGI()
 		std::vector<std::string> args;
 		args.push_back(interpreter);
 		args.push_back(scriptPath);
+        // std::cout <<  scriptPath <<std::endl; exit(0);
 		char *argv[args.size() + 1];
 		for (size_t i = 0; i < args.size(); ++i)
 			argv[i] = const_cast<char *>(args[i].c_str());
 		argv[args.size()] = NULL;
-		std::vector<std::string> env;
-		env.push_back("REQUEST_METHOD=" + method);
-		env.push_back("QUERY_STRING=" + queryString);
-		env.push_back("CONTENT_LENGTH=" + std::to_string(body.length()));
-		env.push_back("CONTENT_TYPE=" + headers["Content-Type"]);
-		env.push_back("REDIRECT_STATUS=200"); // Add this line
-		char *envp[env.size() + 1];
+        std::vector<std::string> env;
+        env.push_back("REQUEST_METHOD=" + method);
+        env.push_back("QUERY_STRING=" + queryString);
+		// std::cout << queryString <<std::endl;exit(0);
+        env.push_back("CONTENT_LENGTH=" + std::to_string(body.length()));
+        env.push_back("CONTENT_TYPE=" + headers["Content-Type"]);
+        env.push_back("REDIRECT_STATUS=200"); 
+        // std::cout << queryString <<std::endl;
+        char *envp[env.size() + 1];
 		for (size_t i = 0; i < env.size(); ++i)
 			envp[i] = const_cast<char *>(env[i].c_str());
 		envp[env.size()] = NULL;
-
-		logger.info("Executing execve with args:");
-		for (size_t i = 0; i < args.size(); ++i)
-		{
-			logger.info(args[i]);
-		}
 		execve(argv[0], argv, envp);
-		perror("execve failed");
 		logger.error("execve failed");
 		exit(1);
 	}
@@ -104,11 +97,8 @@ std::string CGIHandler::executeCGI()
 			buffer[bytesRead] = '\0';
 			cgi_output += buffer;
 		}
-
 		close(output_pipe[0]);
 		waitpid(pid, NULL, 0);
-
-		logger.info("Final CGI Response: " + cgi_output);
 		return cgi_output;
 	}
 }
