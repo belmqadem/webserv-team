@@ -26,10 +26,10 @@ class ClientServer : IEvenetListeners {
 
     public:
         /* getters and setters */
-        bool    isStarted() const;
-        void    setPeerSocketFd(uint32_t fd);
-        void    setServerSocketFd(uint32_t fd);
-        void    setClientAddr(sockaddr_in addr);
+        bool    isStarted() const {return _is_started;};
+        void    setPeerSocketFd(uint32_t fd) { _peer_socket_fd = fd;};
+        void    setServerSocketFd(uint32_t fd){ _server_socket_fd = fd;};
+        void    setClientAddr(sockaddr_in addr) { _client_addr = addr;};
 
     public:
         void RegisterWithIOMultiplexer() {
@@ -58,7 +58,7 @@ class ClientServer : IEvenetListeners {
         ~ClientServer() {};
         
         virtual void    terminate() {};
-        virtual void    onEvent(int fd, uint32_t ev) {};
+        virtual void    onEvent(int fd, epoll_event ev) { (void)fd;(void)ev;}
 };
 
 class Server : public IEvenetListeners {
@@ -87,5 +87,5 @@ class Server : public IEvenetListeners {
         void            accept_peer(int fd);
 
         virtual void    terminate();
-        virtual void    onEvent(int fd, uint32_t ev);
+        virtual void    onEvent(int fd, epoll_event ev);
 };

@@ -3,7 +3,7 @@
 #include "webserv.hpp"
 #include <string.h>
 
-Server::Server(std::vector<ServerConfig> config) : _config(config), _is_started(false) {
+Server::Server(std::vector<ServerConfig> config) :IEvenetListeners(), _config(config), _is_started(false) {
 	_listen_sock_ev.events = EPOLLIN;
 }
 
@@ -56,7 +56,7 @@ void    Server::listenOnAddr(sockaddr_in addr) {
 
 		std::string ip_address = inet_ntoa(addr.sin_addr);
         int port = ntohs(addr.sin_port);
-        LOG_INFO("Server listening on " + ip_address + to_string(port));
+        LOG_INFO("Server listening on " + ip_address + ":" + to_string(port));
 	} catch (std::exception &e) {
 		close(socket_fd);
 		throw e;
@@ -99,8 +99,8 @@ void    Server::terminate() {
 	LOG_INFO("Server is Shuted down !");
 }
 
-void Server::onEvent(int fd, uint32_t ev) {
-	std::vector<int>::iterator  listen_fd = std::find(_listen_fds.begin(), _listen_fds.end(), fd);
+void Server::onEvent(int fd, epoll_event ev) {
+	std::vector<int>::iterator  listen_fd = std::find(_listen_fds.begin(), _listen_fds.end(), ev.data.fd);
 	if (listen_fd != _listen_fds.end())
 		accept_peer(fd);
 }
@@ -113,6 +113,9 @@ void	Server::accept_peer(int fd) {
 		std::cerr << "accept() failed to accept this peer" << std::endl;
 		return ;
 	}
+	LOG_INFO("Client connected fd: " + to_string(client_fd));
+	close(client_fd);
+	return ;
 	fcntl(client_fd, F_SETFL, fcntl(client_fd, F_GETFL, 0) | O_NONBLOCK);
 	std::vector<ClientServer*>::iterator client = _clients.begin();
 	for (; client != _clients.end() && (*client)->isStarted(); client++)

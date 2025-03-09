@@ -11,8 +11,8 @@ private:
     std::string _reason;
 public:
     IOMultiplexerExceptions(std::string reason) throw() ;
-    const char *what() const throw() ;
-    ~IOMultiplexerExceptions() throw() ;
+    virtual const char *what() const throw() ;
+    virtual ~IOMultiplexerExceptions() throw() ;
 };
 
 
@@ -22,6 +22,6 @@ private:
     std::string _reason;
 public:
     ServerExceptions(std::string reason) throw() ;
-    const char *what() const throw() ;
-    ~ServerExceptions() throw() ;
+    virtual const char *what() const throw() ;
+    virtual ~ServerExceptions() throw() ;
 };

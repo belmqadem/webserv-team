@@ -6,4 +6,4 @@ const char *IOMultiplexerExceptions::what() const __THROW {
     return _reason.c_str();
 }
 
-IOMultiplexerExceptions::~IOMultiplexerExceptions() {}
+IOMultiplexerExceptions::~IOMultiplexerExceptions() __THROW {}

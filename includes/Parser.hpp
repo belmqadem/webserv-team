@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include "Tokenize.hpp"
+#include "webserv.hpp"
 
 struct Location {
     std::string location;
