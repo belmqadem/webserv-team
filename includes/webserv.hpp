@@ -108,6 +108,11 @@
 #include <sys/epoll.h>
 #include "RequestParser.hpp"
 #include "ResponseBuilder.hpp"
+#include "Logger.hpp"
+#include "ConfigManager.hpp"
+
+class Server;
+
 
 // Utils Functions
 std::string &to_upper(std::string &str);
@@ -118,3 +123,9 @@ std::string readFile(const std::string &filename);
 bool writeFile(const std::string &filename, const std::string &content);
 std::string getCurrentTime();
 bool is_numeric(const std::string &str);
+#include <cstdlib>
+
+
+
+#define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
+

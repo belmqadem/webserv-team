@@ -8,7 +8,7 @@ enum ParseState
 	HEADERS,
 	BODY,
 	DONE,
-	ERROR
+	ERROR_PARSE
 };
 
 class RequestParser

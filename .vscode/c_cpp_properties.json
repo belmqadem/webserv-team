@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/srcs/Exceptions",
+                "${workspaceFolder}/includes",
+                "${workspaceFolder}/**"
+            ]
+        }
+    ],
+    "version": 4
+}
