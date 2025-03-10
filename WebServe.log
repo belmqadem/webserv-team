@@ -1,55 +1,56 @@
-[2025-03-09 04:30:21] [INFO] Webserver Starting...
-[2025-03-09 04:30:21] [INFO] Server listening on 0.0.0.08080
-[2025-03-09 04:30:21] [INFO] Server listening on 0.0.0.09090
-[2025-03-09 04:31:01] [INFO] Client connected fd: 7
-[2025-03-09 04:31:06] [INFO] Client connected fd: 7
-[2025-03-09 04:31:19] [INFO] Client connected fd: 7
-[2025-03-09 04:32:29] [INFO] Webserver Starting...
-[2025-03-09 04:32:29] [INFO] Server listening on 0.0.0.0:8080
-[2025-03-09 04:32:29] [INFO] Server listening on 0.0.0.0:9090
-[2025-03-09 04:32:42] [INFO] Client connected fd: 7
-[2025-03-09 05:36:12] [INFO] Webserver Starting...
-[2025-03-09 05:36:12] [INFO] Server listening on 0.0.0.0:8080
-[2025-03-09 05:36:12] [INFO] Server listening on 0.0.0.0:9090
-[2025-03-09 05:37:19] [INFO] Webserver Starting...
-[2025-03-09 05:37:19] [INFO] Server listening on 0.0.0.0:8080
-[2025-03-09 05:37:19] [INFO] Server listening on 0.0.0.0:9090
-[2025-03-09 05:38:05] [INFO] Webserver Starting...
-[2025-03-09 05:38:05] [INFO] Server listening on 0.0.0.0:8080
-[2025-03-09 05:38:05] [INFO] Server listening on 0.0.0.0:9090
-[2025-03-09 05:40:03] [INFO] Webserver Starting...
-[2025-03-09 05:40:03] [INFO] Server listening on 0.0.0.0:8080
-[2025-03-09 05:40:03] [INFO] Server listening on 0.0.0.0:9090
-[2025-03-09 05:41:38] [INFO] Webserver Starting...
-[2025-03-09 05:41:38] [INFO] Server listening on 0.0.0.0:8080
-[2025-03-09 05:41:38] [INFO] Server listening on 0.0.0.0:9090
-[2025-03-09 05:41:40] [INFO] Client Connected: 127.0.0.1:53974
-[2025-03-09 05:42:11] [INFO] Client Connected: 127.0.0.1:54086
-[2025-03-09 05:49:51] [INFO] Webserver Starting...
-[2025-03-09 05:49:51] [INFO] Server listening on 0.0.0.0:8080
-[2025-03-09 05:49:51] [INFO] Server listening on 0.0.0.0:9090
-[2025-03-09 05:49:56] [INFO] Client Connected: 127.0.0.1:55954
-[2025-03-09 05:50:24] [INFO] Client 127.0.0.1 Disconnected!
-[2025-03-09 05:50:34] [INFO] Client Connected: 127.0.0.1:42882
-[2025-03-09 05:52:27] [INFO] Webserver Starting...
-[2025-03-09 05:52:27] [INFO] Server listening on 0.0.0.0:8080
-[2025-03-09 05:52:27] [INFO] Server listening on 0.0.0.0:9090
-[2025-03-09 05:52:31] [INFO] Client Connected: 127.0.0.1:58710
-[2025-03-09 05:52:45] [INFO] Client 127.0.0.1Fd 7 Disconnected!
-[2025-03-09 05:52:52] [INFO] Client Connected: 127.0.0.1:53038
-[2025-03-09 05:53:02] [INFO] Client 127.0.0.1Fd 7 Disconnected!
-[2025-03-09 05:56:48] [INFO] Webserver Starting...
-[2025-03-09 05:56:48] [INFO] Server listening on 0.0.0.0:8080
-[2025-03-09 05:56:48] [INFO] Server listening on 0.0.0.0:9090
-[2025-03-09 05:56:52] [INFO] Webserver Starting...
-[2025-03-09 05:56:52] [INFO] Server listening on 0.0.0.0:8080
-[2025-03-09 05:56:52] [INFO] Server listening on 0.0.0.0:9090
-[2025-03-09 06:05:58] [INFO] Webserver Starting...
-[2025-03-09 06:05:58] [INFO] Server listening on 0.0.0.0:8080
-[2025-03-09 06:05:58] [INFO] Server listening on 0.0.0.0:9090
-[2025-03-09 06:06:03] [INFO] Webserver Starting...
-[2025-03-09 06:06:03] [INFO] Server listening on 0.0.0.0:8080
-[2025-03-09 06:06:03] [INFO] Server listening on 0.0.0.0:9090
-[2025-03-09 06:06:06] [INFO] Webserver Starting...
-[2025-03-09 06:06:06] [INFO] Server listening on 0.0.0.0:8080
-[2025-03-09 06:06:06] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-09 21:38:49] [INFO] Webserver Starting...
+[2025-03-09 21:38:49] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-09 21:38:49] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-09 21:39:25] [INFO] Client Connected: 127.0.0.1:51290 Fd 7
+[2025-03-09 21:39:55] [INFO] Client Connected: 127.0.0.1:37518 Fd 8
+[2025-03-09 21:40:03] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-09 21:40:10] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-09 21:47:14] [INFO] Webserver Starting...
+[2025-03-09 21:47:14] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-09 21:47:14] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-09 21:48:30] [INFO] Client Connected: 127.0.0.1:33872 Fd 7
+[2025-03-09 21:54:21] [INFO] Webserver Starting...
+[2025-03-09 21:54:21] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-09 21:54:21] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-09 21:55:29] [INFO] Webserver Starting...
+[2025-03-09 21:55:29] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-09 21:55:29] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-09 21:55:35] [INFO] Client Connected: 127.0.0.1:38270 Fd 7
+[2025-03-09 21:55:36] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-09 21:55:36] [INFO] Client Connected: 127.0.0.1:38278 Fd 7
+[2025-03-09 21:55:37] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-09 21:55:37] [INFO] Client Connected: 127.0.0.1:38286 Fd 7
+[2025-03-09 21:55:37] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-09 21:55:37] [INFO] Client Connected: 127.0.0.1:38294 Fd 7
+[2025-03-09 21:55:37] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-09 21:55:37] [INFO] Client Connected: 127.0.0.1:38298 Fd 7
+[2025-03-09 21:55:37] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-09 21:55:37] [INFO] Client Connected: 127.0.0.1:38306 Fd 7
+[2025-03-09 21:56:14] [INFO] Webserver Starting...
+[2025-03-09 21:56:14] [INFO] Server is Shuted down !
+[2025-03-09 21:56:19] [INFO] Webserver Starting...
+[2025-03-09 21:56:19] [INFO] Server is Shuted down !
+[2025-03-09 21:56:22] [INFO] Webserver Starting...
+[2025-03-09 21:56:22] [INFO] Server is Shuted down !
+[2025-03-09 21:56:28] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-09 21:56:28] [INFO] Client Connected: 127.0.0.1:36982 Fd 7
+[2025-03-09 21:56:28] [INFO] Client Connected: 127.0.0.1:36988 Fd 8
+[2025-03-09 21:56:28] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-09 21:56:34] [INFO] Webserver Starting...
+[2025-03-09 21:56:34] [INFO] Server is Shuted down !
+[2025-03-09 21:56:52] [INFO] Webserver Starting...
+[2025-03-09 21:56:52] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-09 21:56:52] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-09 21:56:54] [INFO] Client Connected: 127.0.0.1:53850 Fd 7
+[2025-03-10 00:02:10] [INFO] Webserver Starting...
+[2025-03-10 00:02:10] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-10 00:02:10] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-10 00:02:33] [INFO] Client Connected: 127.0.0.1:59282 Fd 7
+[2025-03-10 00:02:47] [INFO] Client Connected: 127.0.0.1:33178 Fd 8
+[2025-03-10 00:03:29] [INFO] Webserver Starting...
+[2025-03-10 00:03:29] [INFO] Server is Shuted down !
+[2025-03-10 00:03:49] [INFO] Webserver Starting...
+[2025-03-10 00:03:49] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-10 00:03:49] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-10 00:03:53] [INFO] Client Connected: 127.0.0.1:43060 Fd 7
+[2025-03-10 00:04:05] [INFO] Client Connected: 127.0.0.1:50190 Fd 8

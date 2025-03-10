@@ -21,7 +21,7 @@ class ClientServer : IEvenetListeners {
         int         _server_socket_fd;
         int         _peer_socket_fd;
         epoll_event _epoll_ev;
-        Request     _request;
+        // Request     _request;
         sockaddr_in _client_addr;
 
     public:
@@ -55,7 +55,7 @@ class ClientServer : IEvenetListeners {
 
         ClientServer(const int &server_socket_fd, const int &peer_socket_fd) : _is_started(false),
             _server_socket_fd(server_socket_fd), _peer_socket_fd(peer_socket_fd) {};
-        ~ClientServer() {};
+        ~ClientServer() { terminate(); };
         
         virtual void    terminate() {
             IOMultiplexer::getInstance().removeListener(_epoll_ev, _peer_socket_fd);
@@ -70,10 +70,13 @@ class ClientServer : IEvenetListeners {
             if (ev.events & EPOLLIN) {
                 std::vector<byte> buff(RD_SIZE, 0);
                 ssize_t rd_count = recv(this->_peer_socket_fd, buff.data(), RD_SIZE, MSG_DONTWAIT);
-                if (rd_count == 0) {
+                if (rd_count < 0) {
+                    LOG_ERROR("recv() Failed For Client " + to_string(this->_peer_socket_fd));
+                    LOG_INFO("Clinet " + to_string(this->_peer_socket_fd) + "Will terminate");
                     this->terminate();
                 }
-                buff.erase(buff.begin()  + rd_count, buff.end());
+                if (rd_count < RD_SIZE)
+                    buff.erase(buff.begin()  + rd_count, buff.end());
                 printf("%.*s\n", (int)rd_count, buff.data());
             }
         }
