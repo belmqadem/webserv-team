@@ -6,7 +6,7 @@
 int main() {
     // std::string server_host = "localhost";
     // int server_port = 8080;
-    std::string php_cgi_path = "/bin/php";
+    // std::string php_cgi_path = "/bin/python3";
     std::string raw_request = "GET /a.php?name=hamid HTTP/1.1\r\n"
                               "Host: localhost\r\n"
                               "Content-Type: application/x-www-form-urlencoded\r\n"

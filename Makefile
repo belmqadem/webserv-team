@@ -14,8 +14,8 @@ SERVER = srcs/Server
 # 		$(UTILS)/utils.cpp \
 # 		$(REQUEST)/RequestParser.cpp \
 # 		$(REQUEST)/ResponseBuilder.cpp
-
-SRCS =	srcs/main0.cpp \
+# SRCS =$(shell find srcs -name "*.cpp")
+ SRCS =	srcs/main0.cpp \
 		$(UTILS)/utils.cpp \
 		$(REQUEST)/RequestParser.cpp \
 		$(REQUEST)/ResponseBuilder.cpp \

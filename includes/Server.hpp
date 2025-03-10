@@ -21,7 +21,7 @@ class ClientServer : IEvenetListeners {
         int         _server_socket_fd;
         int         _peer_socket_fd;
         epoll_event _epoll_ev;
-        Request     _request;
+        // Request     _request;
         sockaddr_in _client_addr;
 
     public:

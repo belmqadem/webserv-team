@@ -16,10 +16,9 @@ private:
 	std::map<std::string, void (ResponseBuilder::*)(RequestParser &)> routes; // A map to route the request to the correct method
 
 	// Required HTTP Methods
-	void doGET(RequestParser &request);
 	void doPOST(RequestParser &request);
 	void doDELETE(RequestParser &request);
-
+	
 	// Helper Methods
 	void init_routes();
 	bool handle_redirection();
@@ -28,15 +27,16 @@ private:
 	std::string generate_response_string();
 	std::string detect_mime_type(const std::string &path);
 	bool is_cgi_request(const std::string &file_path);
-
+	
 	// A map to save the mime types
 	static std::map<std::string, std::string> mime_types;
-
+	
 	ResponseBuilder(const ResponseBuilder &);
 	ResponseBuilder &operator=(const ResponseBuilder &);
-
-public:
+	
+	public:
 	ResponseBuilder(RequestParser &request);
+	void doGET(RequestParser &request);
 
 	// Setters
 	void set_http_version(const std::string &http_version);

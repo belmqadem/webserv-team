@@ -215,7 +215,7 @@ void ResponseBuilder::doGET(RequestParser &request)
 	// CGI Execution
 	if (is_cgi_request(file_path))
 	{
-		const std::string cgi_path_extention = "/usr/bin/php";
+		const std::string cgi_path_extention = "/usr/bin/php-cgi";
 		CGIHandler cgi(request, cgi_path_extention);
 		std::string cgi_output = cgi.executeCGI();
 		body = cgi_output;  // Store CGI output in the response bodys
