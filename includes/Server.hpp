@@ -4,13 +4,6 @@
 #include "IEvenetListeners.hpp"
 #include "ConfigManager.hpp"
 #include "IOMultiplexer.hpp"
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <algorithm>
-#include <fcntl.h>
 #include "webserv.hpp"
 
 typedef uint8_t byte;

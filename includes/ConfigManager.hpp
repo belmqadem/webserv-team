@@ -1,5 +1,4 @@
-#ifndef CONFIG_MANAGER_HPP
-#define CONFIG_MANAGER_HPP
+#pragma once
 
 #include <vector>
 #include <string>
@@ -40,4 +39,3 @@ public:
     void setServers(const std::vector<ServerConfig>& servers);
 };
 
-#endif
