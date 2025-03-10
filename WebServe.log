@@ -161,3 +161,18 @@
 [2025-03-10 01:24:52] [INFO] HELLO
 [2025-03-10 01:24:52] [INFO] EventListner removed 7
 [2025-03-10 01:24:52] [INFO] Server is Shuted down !
+[2025-03-10 07:08:07] [INFO] Webserver Starting...
+[2025-03-10 07:08:07] [INFO] Server is Shuted down !
+[2025-03-10 07:08:11] [INFO] Webserver Starting...
+[2025-03-10 07:08:11] [INFO] Server is Shuted down !
+[2025-03-10 07:08:20] [INFO] Webserver Starting...
+[2025-03-10 07:08:20] [INFO] EventListner added 4
+[2025-03-10 07:08:20] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-10 07:08:20] [INFO] EventListner added 6
+[2025-03-10 07:08:20] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-10 07:08:20] [INFO] EventListner added 7
+[2025-03-10 07:08:20] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-10 07:08:43] [INFO] EventListner added 8
+[2025-03-10 07:08:43] [INFO] Client Connected: 127.0.0.1:52046 Fd 8
+[2025-03-10 07:09:00] [INFO] EventListner added 9
+[2025-03-10 07:09:00] [INFO] Client Connected: 127.0.0.1:46780 Fd 9
