@@ -21,7 +21,7 @@ void RequestParser::parse_request(const std::string &request)
 	const char *end = start + request.size();
 	const char *pos = start;
 
-	while (pos < end && state != DONE && state != ERROR)
+	while (pos < end && state != DONE && state != ERROR_PARSE)
 	{
 		switch (state)
 		{
@@ -35,7 +35,7 @@ void RequestParser::parse_request(const std::string &request)
 			pos = parse_body(pos, end);
 			break;
 		default:
-			state = ERROR;
+			state = ERROR_PARSE;
 		}
 	}
 }
@@ -50,7 +50,7 @@ const char *RequestParser::parse_request_line(const char *pos, const char *end)
 	{
 		std::cerr << HTTP_PARSE_URI_TOO_LONG << std::endl;
 		error_code = 414;
-		state = ERROR;
+		state = ERROR_PARSE;
 		return pos;
 	}
 
@@ -58,7 +58,7 @@ const char *RequestParser::parse_request_line(const char *pos, const char *end)
 	{
 		std::cerr << HTTP_PARSE_INVALID_REQUEST << std::endl;
 		error_code = 400;
-		state = ERROR;
+		state = ERROR_PARSE;
 		return pos;
 	}
 
@@ -68,14 +68,14 @@ const char *RequestParser::parse_request_line(const char *pos, const char *end)
 	{
 		std::cerr << HTTP_PARSE_INVALID_REQUEST_LINE << std::endl;
 		error_code = 400;
-		state = ERROR;
+		state = ERROR_PARSE;
 		return pos;
 	}
 
 	// Check for all parts of request line before setting them
 	if (!set_http_method(parts[0]) || !set_request_uri(parts[1]) || !set_http_version(parts[2]))
 	{
-		state = ERROR;
+		state = ERROR_PARSE;
 		return pos;
 	}
 	state = HEADERS;
@@ -102,7 +102,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			{
 				std::cerr << HTTP_PARSE_MISSING_HOST << std::endl;
 				error_code = 400;
-				state = ERROR;
+				state = ERROR_PARSE;
 				return pos;
 			}
 			state = BODY;
@@ -114,7 +114,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_INVALID_HEADER_FIELD << std::endl;
 			error_code = 400;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 
@@ -123,7 +123,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_HEADER_FIELDS_TOO_LARGE << std::endl;
 			error_code = 431;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 
@@ -135,7 +135,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_INVALID_HEADER_FIELD << std::endl;
 			error_code = 400;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 
@@ -150,7 +150,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_INVALID_HEADER_FIELD << std::endl;
 			error_code = 400;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 
@@ -159,7 +159,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_INVALID_HEADER_FIELD << std::endl;
 			error_code = 400;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 
@@ -171,7 +171,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			{
 				std::cerr << HTTP_PARSE_INVALID_CONTENT_LENGTH << std::endl;
 				error_code = 400;
-				state = ERROR;
+				state = ERROR_PARSE;
 				return pos;
 			}
 
@@ -179,7 +179,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			{
 				std::cerr << HTTP_PARSE_INVALID_CONTENT_LENGTH << std::endl;
 				error_code = 400;
-				state = ERROR;
+				state = ERROR_PARSE;
 				return pos;
 			}
 
@@ -195,7 +195,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			{
 				std::cerr << HTTP_PARSE_CONFLICTING_HEADERS << std::endl;
 				error_code = 400;
-				state = ERROR;
+				state = ERROR_PARSE;
 				return pos;
 			}
 
@@ -203,7 +203,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			{
 				std::cerr << HTTP_PARSE_INVALID_TRANSFER_ENCODING << std::endl;
 				error_code = 400;
-				state = ERROR;
+				state = ERROR_PARSE;
 				return pos;
 			}
 		}
@@ -215,7 +215,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			{
 				std::cerr << HTTP_PARSE_INVALID_HOST << std::endl;
 				error_code = 400;
-				state = ERROR;
+				state = ERROR_PARSE;
 				return pos;
 			}
 			has_host = true;
@@ -226,7 +226,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_INVALID_CONNECTION_HEADER << std::endl;
 			error_code = 400;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 
@@ -235,7 +235,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_INVALID_EXPECT_HEADER << std::endl;
 			error_code = 417;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 
@@ -244,7 +244,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_INVALID_UPGRADE_HEADER << std::endl;
 			error_code = 400;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 
@@ -252,7 +252,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_HEADER_FIELDS_TOO_LARGE << std::endl;
 			error_code = 431;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 
@@ -276,7 +276,7 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_METHOD_NOT_IMPLEMENTED << std::endl;
 			error_code = 501;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 	}
@@ -294,7 +294,7 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_INVALID_CONTENT_LENGTH << std::endl;
 			error_code = 400;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 
@@ -316,7 +316,7 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_MISSING_CONTENT_LENGTH << std::endl;
 			error_code = 411;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 	}
@@ -331,7 +331,7 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 	{
 		std::cerr << HTTP_PARSE_INVALID_CONTENT_LENGTH << std::endl;
 		error_code = 400; // Bad Request
-		state = ERROR;
+		state = ERROR_PARSE;
 	}
 	return pos;
 }
@@ -347,7 +347,7 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_INVALID_CHUNKED_TRANSFER << std::endl;
 			error_code = 400;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 
@@ -367,7 +367,7 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_INVALID_CHUNKED_TRANSFER << std::endl;
 			error_code = 400;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 
@@ -379,7 +379,7 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 		{
 			std::cerr << HTTP_PARSE_INVALID_CHUNKED_TRANSFER << std::endl;
 			error_code = 400;
-			state = ERROR;
+			state = ERROR_PARSE;
 			return pos;
 		}
 		pos += 2;

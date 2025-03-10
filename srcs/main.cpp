@@ -1,17 +1,46 @@
-#include "../includes/webserv.hpp"
+#include "webserv.hpp"
 
-int main()
+extern int webserv_signal;
+
+#include "Server.hpp"
+
+void sigint_handle(int sig)
 {
-	const std::string request = "GET / HTTP/1.1\r\n"
-								"Host: localhost\r\n"
-								"\r\n";
+	webserv_signal = sig;
+	std::cout << "Interrupt signal catched." << std::endl;
+}
 
-	RequestParser parser(request);
-	parser.print_request();
+void signalhandler()
+{
+	if (signal(SIGQUIT, SIG_IGN) == SIG_ERR)
+		throw std::runtime_error("signal() faild.");
+	if (signal(SIGINT, &sigint_handle) == SIG_ERR)
+		throw std::runtime_error("signal() faild.");
+}
 
-	ResponseBuilder response(parser);
-	std::cout << "\n--------------------------------" << std::endl;
-	std::cout << YELLOW "** HTTP RESPONSE **" RESET << std::endl;
-	std::cout << "--------------------------------" << std::endl;
-	std::cout << response.get_response() << std::endl;
+int main(int ac, char **av)
+{
+	if (ac != 2)
+	{
+		std::cout << USAGE(av[0]) << "\n";
+		return (1);
+	}
+
+	Logger::getInstance().setLevel(DEBUG);
+	Logger::getInstance().setOutput(true, true);
+	Logger::getInstance().setLogFile("WebServe.log");
+	try
+	{
+		ConfigManager::getInstance()->loadConfig(av[1]);
+		LOG_INFO("Webserver Starting...");
+		Server &server = Server::getInstance(ConfigManager::getInstance()->getServers());
+		server.StartServer();
+		IOMultiplexer::getInstance().runEventLoop();
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << "Fatal error: \n"
+				  << e.what() << "\n";
+	}
+	return (0);
 }
