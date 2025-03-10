@@ -1,8 +1,7 @@
 #include "webserv.hpp"
+#include "Server.hpp"
 
 extern int webserv_signal;
-
-#include "Server.hpp"
 
 void sigint_handle(int sig)
 {

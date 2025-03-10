@@ -321,7 +321,7 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 		}
 	}
 
-	// Case 3: Read until connection closes (for HTTP/1.0) 
+	// Case 3: Read until connection closes (for HTTP/1.0)
 	if (headers.find("connection") != headers.end() && headers["connection"] == "close")
 	{
 		body.assign(pos, end);

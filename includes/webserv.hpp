@@ -111,8 +111,6 @@
 #include "Logger.hpp"
 #include "ConfigManager.hpp"
 
-class Server;
-
 
 // Utils Functions
 std::string &to_upper(std::string &str);
@@ -125,7 +123,4 @@ std::string getCurrentTime();
 bool is_numeric(const std::string &str);
 #include <cstdlib>
 
-
-
 #define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
-

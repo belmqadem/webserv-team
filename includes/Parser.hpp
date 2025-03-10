@@ -1,11 +1,5 @@
-#ifndef PARSER_HPP
-#define PARSER_HPP
+#pragma once
 
-#include <vector>
-#include <string>
-#include <map>
-#include <iostream>
-#include <sstream>
 #include "Tokenize.hpp"
 #include "webserv.hpp"
 
@@ -62,5 +56,3 @@ public:
 
 	friend class ConfigManager;
 };
-
-#endif
