@@ -30,6 +30,7 @@ int main(int ac, char **av)
 	Logger::getInstance().setLevel(DEBUG);
 	Logger::getInstance().setOutput(true, true);
 	Logger::getInstance().setLogFile("WebServe.log");
+	signalhandler();
 	try {
 		ConfigManager::getInstance()->loadConfig(av[1]);
 		LOG_INFO("Webserver Starting...");
@@ -39,5 +40,6 @@ int main(int ac, char **av)
 	} catch (std::exception &e) {
 		std::cerr << "Fatal error: \n" << e.what() << "\n";
 	}
-	return (0);
+	
+	exit (0);
 }

@@ -3,6 +3,7 @@
 #include <sys/epoll.h>
 #include "Exceptions.hpp"
 #include "IEvenetListeners.hpp"
+#include "Logger.hpp"
 #include <unistd.h>
 #include <map>
 #include <iostream>
