@@ -86,7 +86,6 @@ const char *RequestParser::parse_request_line(const char *pos, const char *end)
 const char *RequestParser::parse_headers(const char *pos, const char *end)
 {
 	bool has_content_length = false;
-	bool has_transfer_encoding = false;
 	bool has_host = false;
 	std::string content_length_value;
 
@@ -190,7 +189,6 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 		// Special Handling for `Transfer-Encoding`
 		if (key == "transfer-encoding")
 		{
-			has_transfer_encoding = true;
 			if (has_content_length)
 			{
 				std::cerr << HTTP_PARSE_CONFLICTING_HEADERS << std::endl;

@@ -24,6 +24,8 @@ private:
 	int _peer_socket_fd;
 	epoll_event _epoll_ev;
 	sockaddr_in _client_addr;
+	std::string _request_buffer; // Buffer to store the request
+	std::string _response_buffer; // Buffer to store the response
 
 public:
 	/* getters and setters */
@@ -72,19 +74,42 @@ public:
 		LOG_INFO("Client " + addr + " Fd " + to_string(_peer_socket_fd) + " Disconnected!");
 		close(_peer_socket_fd);
 	};
+
 	virtual void onEvent(int fd, epoll_event ev)
 	{
 		(void)fd;
 		if (ev.events & EPOLLIN)
 		{
-			std::vector<byte> buff(RD_SIZE, 0);
-			ssize_t rd_count = recv(this->_peer_socket_fd, buff.data(), RD_SIZE, MSG_DONTWAIT);
-			if (rd_count == 0)
+			char buffer[RD_SIZE];
+			ssize_t rd_count = recv(this->_peer_socket_fd, buffer, RD_SIZE, MSG_DONTWAIT);
+			if (rd_count <= 0)
 			{
 				this->terminate();
+				return;
 			}
-			buff.erase(buff.begin() + rd_count, buff.end());
-			printf("%.*s\n", (int)rd_count, buff.data());
+
+			// Here I append the received data to the request buffer
+			_request_buffer.append(buffer, rd_count);
+			// Check if the request is complete
+			// if so, parse the request and send the response
+			if (_request_buffer.find("\r\n\r\n") != std::string::npos)
+			{
+				// Parse the request
+				RequestParser request(_request_buffer);
+				request.print_request();
+				ResponseBuilder response(request);
+				_request_buffer.clear();
+				
+				// store the response
+				_response_buffer = response.get_response();
+
+				// Enable EPOLLOUT to send response
+				// ... (code to enable EPOLLOUT)
+			}
+		}
+		if (ev.events & EPOLLOUT)
+		{
+			// send response
 		}
 	}
 };
