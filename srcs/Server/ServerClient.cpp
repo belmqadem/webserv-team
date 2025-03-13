@@ -67,36 +67,42 @@ void ClientServer::terminate()
 void ClientServer::onEvent(int fd, epoll_event ev)
 {
 	(void)fd;
+
 	if (ev.events & EPOLLIN)
 	{
-		char buffer[RD_SIZE];
-		ssize_t rd_count = recv(this->_peer_socket_fd, buffer, RD_SIZE, MSG_DONTWAIT);
-		if (rd_count <= 0)
-		{
-			this->terminate();
-			return;
-		}
-
-		// Here I append the received data to the request buffer
-		_request_buffer.append(buffer, rd_count);
-		// Check if the request is complete
-		// if so, parse the request and send the response
-		if (_request_buffer.find("\r\n\r\n") != std::string::npos)
-		{
-			// Parse the request
-			RequestParser request(_request_buffer);
-			ResponseBuilder response(request);
-			_request_buffer.clear();
-
-			// store the response
-			_response_buffer = response.get_response();
-
-			// Enable EPOLLOUT to send response
-			// ... (code to enable EPOLLOUT)
-		}
+		handleIncomingData();
 	}
+
 	if (ev.events & EPOLLOUT)
 	{
-		// send response
+		handleResponse();
 	}
+}
+
+void ClientServer::handleIncomingData()
+{
+	char buffer[RD_SIZE];
+	ssize_t rd_count = recv(this->_peer_socket_fd, buffer, RD_SIZE, MSG_DONTWAIT);
+
+	if (rd_count <= 0)
+	{
+		this->terminate();
+		return;
+	}
+
+	_request_buffer.append(buffer, rd_count);
+
+	/*Implement the parsing handling and build the response*/
+
+	enableWriteEvent();
+}
+
+void ClientServer::handleResponse()
+{
+	/*Implement response sending*/
+}
+
+void ClientServer::enableWriteEvent()
+{
+	/*Enable write event*/
 }
