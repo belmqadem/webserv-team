@@ -1,4 +1,5 @@
 #include "Logger.hpp"
+#include "webserv.hpp"
 
 Logger *Logger::_instance = NULL;
 
@@ -50,6 +51,8 @@ std::string Logger::getLevelString(LogLevel level)
 		return "DEBUG";
 	case INFO:
 		return "INFO";
+	case REQUEST:
+		return "REQUEST";
 	case WARNING:
 		return "WARNING";
 	case ERROR:
@@ -105,13 +108,13 @@ void Logger::log(LogLevel level, const std::string &message)
 	if (_toConsole)
 	{
 		if (level >= ERROR)
-		{
-			std::cerr << logMessage << std::endl;
-		}
+			std::cerr << RED << logMessage << RESET << std::endl;
+		else if (level == INFO)
+			std::cout << YELLOW << logMessage << RESET << std::endl;
+		else if (level == REQUEST)
+			std::cout << GREEN << logMessage << RESET << std::endl;
 		else
-		{
 			std::cout << logMessage << std::endl;
-		}
 	}
 
 	if (_toFile && _logFile.is_open())
@@ -128,6 +131,11 @@ void Logger::debug(const std::string &message)
 void Logger::info(const std::string &message)
 {
 	log(INFO, message);
+}
+
+void Logger::request(const std::string &message)
+{
+	log(REQUEST, message);
 }
 
 void Logger::warning(const std::string &message)

@@ -1,0 +1,52 @@
+[2025-03-13 02:00:51] [INFO] Webserver Starting...
+[2025-03-13 02:00:51] [INFO] EventListner added 4
+[2025-03-13 02:00:51] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-13 02:00:51] [INFO] EventListner added 6
+[2025-03-13 02:00:51] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-13 02:00:51] [INFO] EventListner added 7
+[2025-03-13 02:00:51] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-13 02:01:08] [INFO] EventListner added 8
+[2025-03-13 02:01:08] [INFO] Client Connected: 127.0.0.1:38914 Fd 8
+[2025-03-13 02:02:52] [INFO] Webserver Starting...
+[2025-03-13 02:02:52] [INFO] EventListner added 4
+[2025-03-13 02:02:52] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-13 02:02:52] [INFO] EventListner added 6
+[2025-03-13 02:02:52] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-13 02:02:52] [INFO] EventListner added 7
+[2025-03-13 02:02:52] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-13 02:03:04] [INFO] EventListner added 8
+[2025-03-13 02:03:04] [INFO] Client Connected: 127.0.0.1:56584 Fd 8
+[2025-03-13 02:28:21] [INFO] Webserver Starting...
+[2025-03-13 02:28:21] [INFO] EventListner added 4
+[2025-03-13 02:28:21] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-13 02:28:21] [INFO] EventListner added 6
+[2025-03-13 02:28:21] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-13 02:28:21] [INFO] EventListner added 7
+[2025-03-13 02:28:21] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-13 02:28:32] [INFO] EventListner added 8
+[2025-03-13 02:28:32] [INFO] Client Connected: 127.0.0.1:55494 Fd 8
+[2025-03-13 02:42:50] [INFO] Webserver Starting...
+[2025-03-13 02:42:50] [INFO] EventListner added 4
+[2025-03-13 02:42:50] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-13 02:42:50] [INFO] EventListner added 6
+[2025-03-13 02:42:50] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-13 02:42:50] [INFO] EventListner added 7
+[2025-03-13 02:42:50] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-13 02:43:04] [INFO] EventListner added 8
+[2025-03-13 02:43:04] [INFO] Client Connected: 127.0.0.1:33636 Fd 8
+[2025-03-13 02:43:15] [REQUEST] GET / HTTP/1.1
+[2025-03-13 02:43:15] [REQUEST] GET / HTTP/1.1
+[2025-03-13 02:43:44] [REQUEST] GET / HTTP/1.1
+[2025-03-13 02:43:44] [REQUEST] GET / HTTP/1.1
+[2025-03-13 02:44:50] [INFO] Webserver Starting...
+[2025-03-13 02:44:50] [INFO] Server is Shuted down !
+[2025-03-13 02:45:05] [INFO] Webserver Starting...
+[2025-03-13 02:45:05] [INFO] EventListner added 4
+[2025-03-13 02:45:05] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-13 02:45:05] [INFO] EventListner added 6
+[2025-03-13 02:45:05] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-13 02:45:05] [INFO] EventListner added 7
+[2025-03-13 02:45:05] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-13 02:45:07] [INFO] EventListner added 8
+[2025-03-13 02:45:07] [INFO] Client Connected: 127.0.0.1:35996 Fd 8
+[2025-03-13 02:45:19] [REQUEST] GET / HTTP/1.1

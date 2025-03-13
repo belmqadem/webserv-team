@@ -93,13 +93,15 @@ void Server::StartServer(void)
 	}
 }
 
-void    Server::terminate() {
+void Server::terminate()
+{
 	if (_is_started == false)
-		return ;
+		return;
 	_is_started = false;
 	{
 		std::vector<int>::iterator i = _listen_fds.begin();
-		for (; i != _listen_fds.end(); i++) {
+		for (; i != _listen_fds.end(); i++)
+		{
 			LOG_INFO("HELLO");
 			IOMultiplexer::getInstance().removeListener(_listen_sock_ev, *i);
 			close(*i);
