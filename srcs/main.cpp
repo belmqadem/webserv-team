@@ -29,7 +29,8 @@ int main(int ac, char **av)
 	Logger::getInstance().setOutput(true, true);
 	Logger::getInstance().setLogFile("WebServe.log");
 	signalhandler();
-	try {
+	try
+	{
 		ConfigManager::getInstance()->loadConfig(av[1]);
 		LOG_INFO("Webserver Starting...");
 		Server &server = Server::getInstance(ConfigManager::getInstance()->getServers());
@@ -41,6 +42,4 @@ int main(int ac, char **av)
 		std::cerr << "Fatal error: \n"
 				  << e.what() << "\n";
 	}
-	
-	exit (0);
 }

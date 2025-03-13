@@ -85,7 +85,6 @@ void ClientServer::onEvent(int fd, epoll_event ev)
 		{
 			// Parse the request
 			RequestParser request(_request_buffer);
-			request.print_request();
 			ResponseBuilder response(request);
 			_request_buffer.clear();
 

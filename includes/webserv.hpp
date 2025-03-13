@@ -106,6 +106,7 @@
 #include <cstring>
 #include <poll.h>
 #include <sys/epoll.h>
+#include <cstdlib>
 #include "RequestParser.hpp"
 #include "ResponseBuilder.hpp"
 #include "Logger.hpp"
@@ -121,6 +122,7 @@ std::string readFile(const std::string &filename);
 bool writeFile(const std::string &filename, const std::string &content);
 std::string getCurrentTime();
 bool is_numeric(const std::string &str);
-#include <cstdlib>
 
 #define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
+
+typedef uint8_t byte; // 8 bit unsigned integers

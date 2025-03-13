@@ -6,8 +6,8 @@
 #include "IOMultiplexer.hpp"
 #include "webserv.hpp"
 
-typedef uint8_t byte;
 #define RD_SIZE 1024
+
 template <class T>
 std::string to_string(T t)
 {
@@ -59,17 +59,14 @@ private:
 	/* List of ClientServer connection objects */
 	std::vector<ClientServer *> _clients;
 
-private:
 	~Server();
 	Server(std::vector<ServerConfig> config);
 
 public:
 	void StartServer();
 
-public:
 	static Server &getInstance(std::vector<ServerConfig> config);
 
-public:
 	sockaddr_in getListenAddress(ServerConfig conf);
 	void listenOnAddr(sockaddr_in addr);
 	void accept_peer(int fd);
