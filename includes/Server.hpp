@@ -42,7 +42,6 @@ class ClientServer : IEvenetListeners {
             try {
                 IOMultiplexer::getInstance().addListener(this, _epoll_ev);
                 _is_started = true;
-
                 std::string addr = inet_ntoa(_client_addr.sin_addr);
                 LOG_INFO("Client Connected: " + addr + ":" + to_string(ntohs(_client_addr.sin_port)) + " Fd " + to_string(_peer_socket_fd));
             } catch (std::exception &e) {

@@ -1,17 +1,19 @@
-#include "webserv.hpp"
-#include "RequestParser.hpp"
 
 #ifndef CGI_HANDLER_HPP
 #define CGI_HANDLER_HPP
 #pragma once
 #include "Logger.hpp"
+#include "webserv.hpp"
+#include "RequestParser.hpp"
+#include "IOMultiplexer.hpp"
+#include "IEvenetListeners.hpp"
 #include "RequestParser.hpp"
 #include "ResponseBuilder.hpp"
 #include "Parser.hpp"
 
 class RequestParser;
 
-class CGIHandler
+class CGIHandler 
 {
 private:
 	std::string scriptPath;
@@ -19,11 +21,14 @@ private:
 	std::string method;
 	std::string queryString;
 	std::string body;
+	std::string cgiOutput;
 	std::map<std::string, std::string> headers;
+	static std::string FindWhichScriptIs(std::string& dotS);
 
 public:
-	std::string executeCGI();
-	CGIHandler(RequestParser &request, const std::string &php_cgi_path);
+	const std::string getOut() const;
+	void executeCGI();
+	CGIHandler(RequestParser &request);
 
 	// CGIHandler(RequestParser &request, Parser &config);
 	// std::string handleRequest();
