@@ -23,23 +23,23 @@ size_t RequestParser::parse_request(const std::string &request)
 		{
 		case REQUEST_LINE:
 			pos = parse_request_line(pos, end);
-			if (state == ERROR_PARSE)
+			if (state == ERROR_PARSE || pos == end)
 				return pos - start;
 			break;
 		case HEADERS:
 			pos = parse_headers(pos, end);
-			if (state == ERROR_PARSE)
-			{
+			if (state == ERROR_PARSE || pos == end)
 				return pos - start;
-			}
 			break;
 		case BODY:
 			if (!has_content_length && !has_transfer_encoding)
 			{
-				state = DONE; // No body expected -> Mark request as complete
+				state = DONE; // No body expected -> request is complete
 				return pos - start;
 			}
-			parse_body(pos, end);
+			pos = parse_body(pos, end);
+			if (state == ERROR_PARSE || pos == end)
+				return pos - start;
 			break;
 		default:
 			state = ERROR_PARSE;
@@ -195,10 +195,8 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 }
 
 // Method to extract body of the request
-size_t RequestParser::parse_body(const char *pos, const char *end)
+const char *RequestParser::parse_body(const char *pos, const char *end)
 {
-	size_t bytes_received = 0;
-
 	if (!has_content_length && !has_transfer_encoding)
 	{
 		state = DONE; // No body expected -> Mark as complete
@@ -212,7 +210,7 @@ size_t RequestParser::parse_body(const char *pos, const char *end)
 			return parse_chunked_body(pos, end);
 		else
 			log_error(HTTP_PARSE_METHOD_NOT_IMPLEMENTED, 501);
-		return bytes_received;
+		return pos;
 	}
 
 	// Case 2: Content-Length is present
@@ -226,7 +224,7 @@ size_t RequestParser::parse_body(const char *pos, const char *end)
 		if (*endptr != '\0' || content_length > static_cast<size_t>(end - pos))
 		{
 			log_error(HTTP_PARSE_INVALID_CONTENT_LENGTH, 400);
-			return bytes_received;
+			return pos;
 		}
 
 		size_t remaining_bytes = content_length - body.size();
@@ -234,27 +232,25 @@ size_t RequestParser::parse_body(const char *pos, const char *end)
 
 		body.insert(body.end(), pos, pos + bytes_to_read);
 		pos += bytes_to_read;
-		bytes_received += bytes_to_read;
 
 		// If body is fully received ==> Parse done
 		if (body.size() == content_length)
 			state = DONE;
 
-		return bytes_received;
+		return pos;
 	}
 
-	return bytes_received;
+	return pos;
 }
 
 // Method to handle transfer encoding: chunked
-size_t RequestParser::parse_chunked_body(const char *pos, const char *end)
+const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 {
-	size_t bytes_received = 0;
 	while (pos < end)
 	{
 		const char *chunk_size_end = find_line_end(pos, end);
 		if (chunk_size_end == end)
-			return bytes_received;
+			return pos;
 
 		// Convert hex size to int
 		std::string chunk_size_str = trim(std::string(pos, chunk_size_end - pos), "\r\n \t");
@@ -263,7 +259,7 @@ size_t RequestParser::parse_chunked_body(const char *pos, const char *end)
 		if (*endptr != '\0')
 		{
 			log_error(HTTP_PARSE_INVALID_CHUNKED_TRANSFER, 400);
-			return bytes_received;
+			return pos;
 		}
 
 		pos = chunk_size_end;
@@ -271,36 +267,35 @@ size_t RequestParser::parse_chunked_body(const char *pos, const char *end)
 		if (chunk_size == 0) // Last chunk
 		{
 			if (pos + 2 > end)
-				return bytes_received; // Wait for final CRLF
+				return pos; // Wait for final CRLF
 			if (pos[0] != '\r' || pos[1] != '\n')
 			{
 				log_error(HTTP_PARSE_INVALID_CHUNKED_TRANSFER, 400);
-				return bytes_received;
+				return pos;
 			}
 			pos += 2;
 			state = DONE;
-			return bytes_received;
+			return pos;
 		}
 
 		// Ensure Enough bytes in this segment
 		size_t bytes_to_read = std::min(chunk_size, static_cast<size_t>(end - pos));
 		body.insert(body.end(), pos, pos + bytes_to_read);
 		pos += bytes_to_read;
-		bytes_received += bytes_to_read;
 
 		// If not enough bytes received, wait for the next segment
 		if (body.size() < chunk_size)
-			return bytes_received; // Wait for next data segment
+			return pos; // Wait for next data segment
 
 		// Ensure chunk ends with CRLF
 		if (pos + 2 > end || pos[0] != '\r' || pos[1] != '\n')
 		{
 			log_error(HTTP_PARSE_INVALID_CHUNKED_TRANSFER, 400);
-			return bytes_received;
+			return pos;
 		}
 		pos += 2; // Move past CRLF
 	}
-	return bytes_received;
+	return pos;
 }
 
 // Helper function returns the end of the line

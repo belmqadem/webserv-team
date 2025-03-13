@@ -27,15 +27,14 @@ private:
 
 	ParseState state;
 	short error_code;
-	size_t bytes_read;
 	bool has_content_length;
 	bool has_transfer_encoding;
 
 	// Private Helper Methods
 	const char *parse_request_line(const char *pos, const char *end);
 	const char *parse_headers(const char *pos, const char *end);
-	size_t parse_body(const char *pos, const char *end);
-	size_t parse_chunked_body(const char *pos, const char *end);
+	const char *parse_body(const char *pos, const char *end);
+	const char *parse_chunked_body(const char *pos, const char *end);
 	const char *find_line_end(const char *pos, const char *end);
 	std::string normalize_uri(const std::string &uri);
 	std::string decode_percent_encoding(const std::string &str);
