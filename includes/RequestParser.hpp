@@ -2,6 +2,8 @@
 
 #include "webserv.hpp"
 
+typedef uint8_t byte; // 8 bit unsigned integers
+
 // This is an enum to save the parsing state of the request
 enum ParseState
 {
@@ -46,7 +48,7 @@ private:
 	RequestParser &operator=(const RequestParser &other);
 
 public:
-	RequestParser(const std::string &request);
+	RequestParser();
 
 	// Main Methods
 	size_t parse_request(const std::string &request);
@@ -72,6 +74,7 @@ public:
 	std::string &get_header_value(const std::string &key);
 	std::vector<byte> &get_body();
 	short get_error_code();
+	ParseState &get_state();
 
 	// Public Helper methods
 	bool is_keep_alive();

@@ -24,8 +24,9 @@ private:
 	int _peer_socket_fd;
 	epoll_event _epoll_ev;
 	sockaddr_in _client_addr;
-	std::string _request_buffer;  // Buffer to store the request
-	std::string _response_buffer; // Buffer to store the response
+	RequestParser request;
+	std::string _request_buffer;
+	std::string _response_buffer;
 
 public:
 	/* getters and setters */
@@ -43,6 +44,11 @@ public:
 	virtual void terminate();
 
 	virtual void onEvent(int fd, epoll_event ev);
+
+private:
+	void handleIncomingData();
+	void handleResponse();
+	void enableWriteEvent();
 };
 
 class Server : public IEvenetListeners

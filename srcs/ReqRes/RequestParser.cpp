@@ -2,14 +2,12 @@
 #include "Logger.hpp"
 
 // Constructor
-RequestParser::RequestParser(const std::string &request)
+RequestParser::RequestParser()
 {
 	this->state = REQUEST_LINE; // Starting by Request Line State (Start line of the request)
 	this->error_code = 1;		// If no error, error_code is set to 1 else it will be set to the error code that i will return in the response directly
 	this->has_content_length = false;
 	this->has_transfer_encoding = false;
-	this->bytes_read += parse_request(request); // Parse the request and return bytes received
-	print_request();
 }
 
 // Main Function that parses the request
@@ -557,6 +555,7 @@ std::map<std::string, std::string> &RequestParser::get_headers() { return header
 std::string &RequestParser::get_header_value(const std::string &key) { return headers[key]; }
 std::vector<byte> &RequestParser::get_body() { return body; }
 short RequestParser::get_error_code() { return error_code; }
+ParseState &RequestParser::get_state() { return state; }
 /****************************
 		END GETTERS
 ****************************/
