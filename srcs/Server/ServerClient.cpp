@@ -24,7 +24,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 {
 	if (_is_started == true)
 	{
-		std::cerr << "WARNING: Attempting to registre an already started fd " << _peer_socket_fd << std::endl;
+		std::cerr << RED "WARNING: Attempting to registre an already started fd " << _peer_socket_fd << RESET << std::endl;
 		return;
 	}
 	_epoll_ev.data.fd = _peer_socket_fd;
@@ -40,9 +40,9 @@ void ClientServer::RegisterWithIOMultiplexer()
 	catch (std::exception &e)
 	{
 		close(_peer_socket_fd);
-		std::cerr << "Failed to register client fd " << _peer_socket_fd
+		std::cerr << RED "Failed to register client fd " << _peer_socket_fd
 				  << " with IO multiplexer. Connection terminated.\n"
-				  << "Error: " << e.what() << std::endl;
+				  << "Error: " << e.what() << RESET << std::endl;
 	}
 }
 

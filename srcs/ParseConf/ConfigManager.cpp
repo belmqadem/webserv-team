@@ -37,7 +37,7 @@ bool ConfigManager::loadConfig(const std::string &configFile)
 
 	if (!file.is_open())
 	{
-		std::cerr << "Error: Cannot open config file: " << configFile << std::endl;
+		std::cerr << RED "Error: Cannot open config file: " << configFile << RESET << std::endl;
 		return false;
 	}
 
@@ -58,7 +58,7 @@ bool ConfigManager::loadConfig(const std::string &configFile)
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << "Error parsing config: " << e.what() << std::endl;
+		std::cerr << RED "Error parsing config: " << e.what() << RESET << std::endl;
 		return false;
 	}
 }

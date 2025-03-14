@@ -28,7 +28,7 @@ sockaddr_in Server::getListenAddress(ServerConfig conf)
 	{
 		addr.sin_addr.s_addr = INADDR_ANY;
 		return addr;
-	}
+	} 
 	if (conf.host == "127.0.0.1")
 	{
 		addr.sin_addr.s_addr = INADDR_LOOPBACK;
@@ -86,9 +86,9 @@ void Server::StartServer(void)
 		}
 		catch (std::exception &e)
 		{
-			std::cout << "Failed to listen on addr " << it->host << ":" << it->port
+			std::cerr << RED "Failed to listen on addr " << it->host << ":" << it->port
 					  << "\n"
-					  << "Reason : " << e.what() << std::endl;
+					  << "Reason : " << e.what() << RESET << std::endl;
 		}
 	}
 }
@@ -102,7 +102,6 @@ void Server::terminate()
 		std::vector<int>::iterator i = _listen_fds.begin();
 		for (; i != _listen_fds.end(); i++)
 		{
-			LOG_INFO("HELLO");
 			IOMultiplexer::getInstance().removeListener(_listen_sock_ev, *i);
 			close(*i);
 		}
@@ -115,7 +114,7 @@ void Server::terminate()
 		}
 		_clients.clear();
 	}
-	LOG_INFO("Server is Shuted down !");
+	LOG_INFO("Our Webserver *Not Nginx* is Shuted down !");
 }
 
 void Server::onEvent(int fd, epoll_event ev)
@@ -132,7 +131,7 @@ void Server::accept_peer(int fd)
 	int client_fd = accept(fd, (sockaddr *)&peer_addrr, &peer_addrr_len);
 	if (client_fd == -1)
 	{
-		std::cerr << "accept() failed to accept this peer" << std::endl;
+		std::cerr << RED "accept() failed to accept this peer" RESET << std::endl;
 		return;
 	}
 	fcntl(client_fd, F_SETFL, fcntl(client_fd, F_GETFL, 0) | O_NONBLOCK);
