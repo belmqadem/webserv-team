@@ -9,7 +9,6 @@ params = urllib.parse.parse_qs(query_string)
 
 # Extract 'name' parameter
 name = params.get("name", [""])[0]
-time.sleep(5)
 print("Content-Type: text/plain")
 print("")
 print(f"Received name parameter: {name}")

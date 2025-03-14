@@ -18,6 +18,7 @@ private:
 	// Required HTTP Methods
 	void doPOST(RequestParser &request);
 	void doDELETE(RequestParser &request);
+	void doGET(RequestParser &request);
 	
 	// Helper Methods
 	void init_routes();
@@ -36,7 +37,6 @@ private:
 	
 	public:
 	ResponseBuilder(RequestParser &request);
-	void doGET(RequestParser &request);
 
 	// Setters
 	void set_http_version(const std::string &http_version);

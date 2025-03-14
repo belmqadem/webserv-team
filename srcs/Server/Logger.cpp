@@ -11,10 +11,9 @@ Logger::~Logger() {
 }
 
 Logger& Logger::getInstance() {
-    if (_instance == NULL) {
-        _instance = new Logger();
-    }
-    return *_instance;
+
+    static Logger logger;
+    return logger;
 }
 
 void Logger::cleanup() {

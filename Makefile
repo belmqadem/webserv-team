@@ -21,8 +21,6 @@ SERVER = srcs/Server
 		$(REQUEST)/ResponseBuilder.cpp \
 		$(CGI)/CGIHandler.cpp \
 		$(SERVER)/Logger.cpp \
-		$(SERVER)/IOMultiplexer.cpp\
-		srcs/Exceptions/IOMultiplexerExceptions.cpp
 		
 
 OBJS = $(SRCS:.cpp=.o)

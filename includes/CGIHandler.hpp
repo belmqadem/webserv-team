@@ -29,6 +29,7 @@ public:
 	const std::string getOut() const;
 	void executeCGI();
 	CGIHandler(RequestParser &request);
+	~CGIHandler();
 
 	// CGIHandler(RequestParser &request, Parser &config);
 	// std::string handleRequest();

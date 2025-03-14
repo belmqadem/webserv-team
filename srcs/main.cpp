@@ -43,7 +43,7 @@ int main(int ac, char**av)
 		Server &server = Server::getInstance(ConfigManager::getInstance()->getServers());
 		server.StartServer();
 		ResponseBuilder response(parser);
-		response.doGET(parser);
+		// response.doGET(parser);
 		IOMultiplexer::getInstance().runEventLoop();
 	} catch (std::exception &e) {
 		std::cerr << "Fatal error: \n" << e.what() << "\n";
