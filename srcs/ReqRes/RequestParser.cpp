@@ -2,12 +2,17 @@
 #include "Logger.hpp"
 
 // Constructor
-RequestParser::RequestParser()
+RequestParser::RequestParser(const std::string &request, const ServerConfig *v_server)
 {
-	this->state = REQUEST_LINE; // Starting by Request Line State (Start line of the request)
-	this->error_code = 1;		// If no error, error_code is set to 1 else it will be set to the error code that i will return in the response directly
+	this->state = REQUEST_LINE;
+	this->error_code = 1;
 	this->has_content_length = false;
 	this->has_transfer_encoding = false;
+	this->server_config = v_server;
+	this->location_config = NULL;
+	this->bytes_read += parse_request(request);
+	if (this->bytes_read > 0)
+		match_location(); // Match the request to a location block
 }
 
 // Main Function that parses the request
@@ -551,6 +556,8 @@ std::string &RequestParser::get_header_value(const std::string &key) { return he
 std::vector<byte> &RequestParser::get_body() { return body; }
 short RequestParser::get_error_code() { return error_code; }
 ParseState &RequestParser::get_state() { return state; }
+const ServerConfig *RequestParser::get_server_config() { return server_config; }
+const Location *RequestParser::get_location_config() { return location_config; }
 /****************************
 		END GETTERS
 ****************************/
@@ -578,3 +585,26 @@ void RequestParser::print_request()
 	}
 	std::cout << CYAN "** REQUEST PARSING DONE **" RESET << std::endl;
 }
+
+// void RequestParser::match_location()
+// {
+// 	const std::map<std::string, Location> &locations = server_config->locations;
+
+// 	std::string best_match;
+// 	for (std::map<std::string, Location>::const_iterator it = locations.begin(); it != locations.end(); ++it)
+// 	{
+// 		if (request_uri.find(it->first) == 0) // Check if URI starts with a location path
+// 		{
+// 			if (it->first.size() > best_match.size()) // Find the longest match
+// 			{
+// 				best_match = it->first;
+// 				location_config = &it->second;
+// 			}
+// 		}
+// 	}
+
+// 	if (!location_config)
+// 	{
+// 		log_error("No matching location found", 404);
+// 	}
+// }

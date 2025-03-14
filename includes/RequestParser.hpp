@@ -24,6 +24,10 @@ private:
 	std::string http_version;
 	std::map<std::string, std::string> headers;
 	std::vector<byte> body;
+	size_t bytes_read;
+
+	const ServerConfig *server_config; // Store the server block handling the request
+	const Location *location_config;   // Store the matched location block
 
 	ParseState state;
 	short error_code;
@@ -47,7 +51,7 @@ private:
 	RequestParser &operator=(const RequestParser &other);
 
 public:
-	RequestParser();
+	RequestParser(const std::string &request, const ServerConfig *);
 
 	// Main Methods
 	size_t parse_request(const std::string &request);
@@ -74,8 +78,11 @@ public:
 	std::vector<byte> &get_body();
 	short get_error_code();
 	ParseState &get_state();
+	const ServerConfig *get_server_config();
+	const Location *get_location_config();
 
 	// Public Helper methods
+	void match_location();
 	bool is_keep_alive();
 	bool content_length_exists();
 	bool transfer_encoding_exists();
