@@ -85,7 +85,7 @@ void Logger::setLogFile(const std::string &path)
 	_logFile.open(path.c_str(), std::ios::out | std::ios::app);
 	if (!_logFile.is_open())
 	{
-		std::cerr << "Failed to open log file: " << path << std::endl;
+		std::cerr << RED "Failed to open log file: " << path << RESET << std::endl;
 		_toFile = false;
 	}
 	else
@@ -110,7 +110,7 @@ void Logger::log(LogLevel level, const std::string &message)
 		if (level >= ERROR)
 			std::cerr << RED << logMessage << RESET << std::endl;
 		else if (level == INFO)
-			std::cout << YELLOW << logMessage << RESET << std::endl;
+			std::cout << BOLD_CYAN << logMessage << RESET << std::endl;
 		else if (level == REQUEST)
 			std::cout << GREEN << logMessage << RESET << std::endl;
 		else

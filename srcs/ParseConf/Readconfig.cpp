@@ -2,13 +2,14 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include "webserv.hpp"
 
 std::string readConfig(const std::string &filename)
 {
 	std::ifstream conf(filename.c_str());
 	if (!conf)
 	{
-		std::cerr << "Error : Could not open the file " << filename << std::endl;
+		std::cerr << RED "Error: Could not open the file " << filename << RESET << std::endl;
 		return "";
 	}
 

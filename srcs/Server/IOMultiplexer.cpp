@@ -34,10 +34,10 @@ IOMultiplexer &IOMultiplexer::getInstance()
 void IOMultiplexer::runEventLoop(void)
 {
 	if (_is_started)
-		throw IOMultiplexerExceptions("Server is already started.");
+		throw IOMultiplexerExceptions("Server is already started!");
 	if (_listeners.size() == 0)
 	{
-		std::cerr << "NO listeners available the program will quit" << std::endl;
+		std::cerr << RED "NO listeners available the program will quit" RESET << std::endl;
 		return;
 	}
 	_is_started = true;
@@ -77,7 +77,7 @@ void IOMultiplexer::addListener(IEvenetListeners *listener, epoll_event ev)
 	{
 		throw IOMultiplexerExceptions("epoll_ctl() failed.");
 	}
-	LOG_INFO("EventListner added " + to_string(ev.data.fd));
+	// LOG_INFO("EventListner added " + to_string(ev.data.fd));
 }
 
 void IOMultiplexer::removeListener(epoll_event ev, int fd)
@@ -92,7 +92,7 @@ void IOMultiplexer::removeListener(epoll_event ev, int fd)
 	{
 		throw IOMultiplexerExceptions("epoll_ctl() failed.");
 	}
-	LOG_INFO("EventListner removed " + to_string(fd));
+	// LOG_INFO("EventListner removed " + to_string(fd));
 }
 
 void IOMultiplexer::terminate(void)
