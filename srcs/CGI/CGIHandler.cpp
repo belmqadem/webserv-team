@@ -49,13 +49,13 @@ CGIHandler::~CGIHandler()
 {
 }
 void CGIHandler::executeCGI() {
+
     Logger &logger = Logger::getInstance();
     int sv[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1) {
         LOG_ERROR("socketpair failed");
         throw std::runtime_error("500 Internal Server Error: Socket pair creation failed");
     }
-
     pid_t pid = fork();
     if (pid == -1) {
         logger.error("Fork failed");
@@ -74,9 +74,11 @@ void CGIHandler::executeCGI() {
             argv[i] = const_cast<char *>(args[i].c_str());
         argv[args.size()] = NULL;
         std::vector<std::string> env;
+        std::ostringstream ss;
+        ss << body.length();
         env.push_back("REQUEST_METHOD=" + method);
         env.push_back("QUERY_STRING=" + queryString);
-        env.push_back("CONTENT_LENGTH=" + std::to_string(body.length()));
+        env.push_back("CONTENT_LENGTH=" + ss.str());
         env.push_back("CONTENT_TYPE=" + headers["Content-Type"]);
         env.push_back("REDIRECT_STATUS=200");
         env.push_back("SCRIPT_FILENAME=" + scriptPath);
@@ -93,7 +95,9 @@ void CGIHandler::executeCGI() {
         execve(argv[0], argv, envp);
         logger.error("execve failed");
         exit(1);
-    } else {
+    } 
+    else 
+    {
         close(sv[1]);
         struct pollfd fds[1];
         fds[0].fd = sv[0];
@@ -104,7 +108,7 @@ void CGIHandler::executeCGI() {
         int ret = poll(fds, 1, timeout_ms);
         if (ret > 0) {
             while (true) {
-                int n = read(sv[0], buffer, sizeof(buffer) - 1);
+                int n = recv(sv[0], buffer, sizeof(buffer) - 1, MSG_DONTWAIT);
                 if (n > 0) {
                     buffer[n] = '\0';
                     cgiOutput += std::string(buffer, n);
@@ -122,7 +126,6 @@ void CGIHandler::executeCGI() {
         } else {
             logger.error("Poll failed");
         }
-    
         close(sv[0]);
         waitpid(pid, NULL, 0);
     }

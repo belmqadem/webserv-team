@@ -40,7 +40,7 @@ sockaddr_in Server::getListenAddress(ServerConfig conf) {
 void    Server::listenOnAddr(sockaddr_in addr) {
 	int socket_fd;
 	if ((socket_fd =  socket(AF_INET, SOCK_STREAM, 0)) == -1)
-	throw ServerExceptions("socket(): failed.");
+		throw ServerExceptions("socket(): failed.");
 	
 	int flag = 1;
 	if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag)) == -1)

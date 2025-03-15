@@ -4,7 +4,7 @@ RESET = \033[0m
 
 NAME = webserv
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror  -fsanitize=address -g #-std=c++98
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g 
 
 UTILS = srcs/utils
 REQUEST = srcs/request
