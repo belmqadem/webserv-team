@@ -19,7 +19,6 @@ void timeout_handler(int signum) {
     exit(1);
 }
 
-
 CGIHandler::CGIHandler(RequestParser &request)
 {
     Logger &logger = Logger::getInstance();
@@ -28,7 +27,6 @@ CGIHandler::CGIHandler(RequestParser &request)
     queryString = request.get_query_string();
     body = request.get_body();
     headers = request.get_headers();
-
     size_t dotPos = scriptPath.find_last_of('.');
     if (dotPos != std::string::npos)
     {
@@ -45,8 +43,40 @@ CGIHandler::CGIHandler(RequestParser &request)
     }
     logger.info("CGIHandler initialized with script: " + scriptPath);
 }
-CGIHandler::~CGIHandler()
+CGIHandler::~CGIHandler(){}
+
+char** CGIHandler::prepareArgs()
 {
+    std::vector<std::string> args;
+    args.push_back(interpreter);
+    args.push_back(scriptPath);
+    char **argv = new char*[args.size() + 1];
+    for (size_t i = 0; i < args.size(); ++i)
+        argv[i] = const_cast<char *>(args[i].c_str());
+    argv[args.size()] = NULL;
+    return argv;
+}
+
+char** CGIHandler::prepareEnvirements()
+{
+    std::vector<std::string> env;
+    std::ostringstream ss;
+    ss << body.length();
+    env.push_back("REQUEST_METHOD=" + method);
+    env.push_back("QUERY_STRING=" + queryString);
+    env.push_back("CONTENT_LENGTH=" + ss.str());
+    env.push_back("CONTENT_TYPE=" + headers["Content-Type"]);
+    env.push_back("REDIRECT_STATUS=200");
+    env.push_back("SCRIPT_FILENAME=" + scriptPath);
+    env.push_back("SCRIPT_NAME=" + scriptPath);
+    env.push_back("DOCUMENT_ROOT=" + std::string(ROOT_DIRECTORY));
+    env.push_back("PHP_SELF=" + scriptPath);
+    env.push_back("PATH_TRANSLATED=" + scriptPath);
+    char **envp = new char*[env.size() + 1];
+    for (size_t i = 0; i < env.size(); ++i)
+        envp[i] = const_cast<char *>(env[i].c_str());
+    envp[env.size()] = NULL;
+    return envp;
 }
 void CGIHandler::executeCGI() {
 
@@ -58,7 +88,7 @@ void CGIHandler::executeCGI() {
     }
     pid_t pid = fork();
     if (pid == -1) {
-        logger.error("Fork failed");
+        LOG_ERROR("Fork failed");
         throw std::runtime_error("500 Internal Server Error: Fork failed");
     }
     if (pid == 0) {
@@ -66,34 +96,14 @@ void CGIHandler::executeCGI() {
         dup2(sv[1], STDIN_FILENO);
         dup2(sv[1], STDOUT_FILENO);
         close(sv[1]);
-        std::vector<std::string> args;
-        args.push_back(interpreter);
-        args.push_back(scriptPath);
-        char *argv[args.size() + 1];
-        for (size_t i = 0; i < args.size(); ++i)
-            argv[i] = const_cast<char *>(args[i].c_str());
-        argv[args.size()] = NULL;
-        std::vector<std::string> env;
-        std::ostringstream ss;
-        ss << body.length();
-        env.push_back("REQUEST_METHOD=" + method);
-        env.push_back("QUERY_STRING=" + queryString);
-        env.push_back("CONTENT_LENGTH=" + ss.str());
-        env.push_back("CONTENT_TYPE=" + headers["Content-Type"]);
-        env.push_back("REDIRECT_STATUS=200");
-        env.push_back("SCRIPT_FILENAME=" + scriptPath);
-        env.push_back("SCRIPT_NAME=" + scriptPath);
-        env.push_back("DOCUMENT_ROOT=" + std::string(ROOT_DIRECTORY));
-        env.push_back("PHP_SELF=" + scriptPath);
-        env.push_back("PATH_TRANSLATED=" + scriptPath);
-        char *envp[env.size() + 1];
-        for (size_t i = 0; i < env.size(); ++i)
-            envp[i] = const_cast<char *>(env[i].c_str());
-        envp[env.size()] = NULL;
+        char** av = prepareArgs();
+        char** envp = prepareEnvirements();
         signal(SIGALRM, timeout_handler);
         alarm(CGI_TIMEOUT);
-        execve(argv[0], argv, envp);
-        logger.error("execve failed");
+        execve(av[0], av, envp);
+        delete[] av;
+        delete[] envp;
+        LOG_ERROR("execve failed");
         exit(1);
     } 
     else 
@@ -115,19 +125,19 @@ void CGIHandler::executeCGI() {
                 } else if (n == 0) {
                     break;
                 } else {
-                    logger.error("Error reading from CGI process");
+                    LOG_ERROR("Error reading from CGI process");
                     break;
                 }
             }
         } else if (ret == 0) {
-            logger.error("CGI script timeout, killing process");
+            LOG_ERROR("CGI script timeout, killing process");
             kill(pid, SIGKILL);
             waitpid(pid, NULL, 0);
         } else {
             logger.error("Poll failed");
-        }
-        close(sv[0]);
-        waitpid(pid, NULL, 0);
+    }
+    close(sv[0]);
+    waitpid(pid, NULL, 0);
     }
 }
  const std::string CGIHandler::getOut() const 

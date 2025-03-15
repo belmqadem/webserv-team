@@ -24,6 +24,8 @@ private:
 	std::string cgiOutput;
 	std::map<std::string, std::string> headers;
 	static std::string FindWhichScriptIs(std::string& dotS);
+	 char **prepareArgs();
+	 char **prepareEnvirements();
 
 public:
 	const std::string getOut() const;
