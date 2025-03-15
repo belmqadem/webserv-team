@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>Not Nginx</title>
+  </head>
+  <body>
+    <!-- Start Main Section -->
+    <main>
+      <header>
+        <h1>webserv</h1>
+      </header>
+
+      <div class="profiles">
+        <div class="profile">
+          <img src="./images/abel-mqa.jpeg" alt="profile" />
+          <h3 id="login">abel-mqa</h3>
+        </div>
+        <div class="profile">
+          <img src="./images/mchihab.jpeg" alt="profile" />
+          <h3 id="login">mchihab</h3>
+        </div>
+        <div class="profile">
+          <img src="./images/nmellal.jpeg" alt="profile" />
+          <h3 id="login">nmellal</h3>
+        </div>
+      </div>
+    </main>
+    <!-- End Main Section -->
+
+    <!-- Start Testing Section -->
+    <section class="testing">
+      <!-- Redirection Test -->
+      <section class="test-section">
+        <h2>Redirection Test</h2>
+        <a href="/old-page">Test 301 Redirect</a>
+      </section>
+
+      <!-- Location Block Test -->
+      <section class="test-section">
+        <h2>Location Block Testing</h2>
+        <a href="/static/index.html">Test Static File</a><br /><br />
+        <a href="/api">Test Forbidden Location</a>
+      </section>
+
+      <!-- CGI Execution -->
+      <section class="test-section">
+        <h2>CGI Execution</h2>
+        <a href="/cgi-bin/test.py">Run Python CGI Script</a><br /><br />
+        <a href="/cgi-bin/test.py">Run Php CGI Script</a>
+      </section>
+
+      <!-- File Upload -->
+      <section class="test-section">
+        <h2>File Upload</h2>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+          <input type="file" name="file" />
+          <input type="submit" value="Upload" />
+        </form>
+      </section>
+
+      <!-- GET Request -->
+      <section class="test-section">
+        <h2>GET Request</h2>
+        <a href="/data.txt">Fetch File</a>
+      </section>
+
+      <!-- POST Request -->
+      <section class="test-section">
+        <h2>POST Request</h2>
+        <form action="/submit" method="POST">
+          <input type="text" name="message" placeholder="Enter text" />
+          <input type="submit" value="Send" />
+        </form>
+      </section>
+
+      <!-- DELETE Request -->
+      <section class="test-section">
+        <h2>DELETE Request</h2>
+        <form action="/delete/data.txt" method="POST">
+          <input type="hidden" name="_method" value="DELETE" />
+          <input type="submit" value="Delete File" />
+        </form>
+      </section>
+    </section>
+
+    <footer></footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
