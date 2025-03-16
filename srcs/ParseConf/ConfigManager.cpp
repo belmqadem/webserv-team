@@ -7,10 +7,7 @@
 // Initialize static instance to NULL
 ConfigManager *ConfigManager::_instance = NULL;
 
-ConfigManager::ConfigManager()
-{
-	// Initialize any needed properties
-}
+ConfigManager::ConfigManager() {}
 
 ConfigManager *ConfigManager::getInstance()
 {

@@ -14,61 +14,68 @@
 
 // Default size limits
 #define DEFAULT_CLIENT_MAX_BODY_SIZE (1 * SIZE_MB) // 1MB
-#define DEFAULT_MAX_UPLOAD_SIZE (10 * SIZE_MB)	   // 10MB
 
 struct Location
 {
 	std::string location;
-	std::string root;
-	std::map<int, std::string> errorPages;
 	std::vector<std::string> allowedMethods;
+	std::string root;
 	bool autoindex;
 	std::string index;
 
 	// redirection parameters
-	bool redirect;
+	bool isRedirect;
 	std::string redirectUrl;
-	bool redirectPermanent;
-	int	redirectCode;
+	bool isRedirectPermanent;
+	int redirectCode;
 
 	// CGI parameters
 	bool useCgi;
 	std::string cgiPath;
 	std::map<std::string, std::string> cgiExtensions;
-    std::string cgiWorkingDirectory;
+	std::string cgiWorkingDirectory;
 
 	// file upload parameters
 	std::string uploadStore;
-	size_t maxUploadSize;
 
-	Location() : autoindex(false), redirect(false),
-				redirectPermanent(false), useCgi(false),
-				maxUploadSize(DEFAULT_MAX_UPLOAD_SIZE)
+	Location() : autoindex(false), isRedirect(false),
+				 isRedirectPermanent(false), useCgi(false),
+				 index("index.html")
 	{
-		// Default allowed methods
 		allowedMethods.push_back("GET");
 		allowedMethods.push_back("POST");
 		allowedMethods.push_back("DELETE");
-
-		// Default index
-		index = "index.html";
 	}
 };
 
 struct ServerConfig
 {
-	/* TO ADD
-		client_max_body_size
-	*/
 	uint16_t port;
 	std::string host;
 	std::vector<std::string> serverNames;
+	bool defaultServer;
 	std::map<int, std::string> errorPages;
-	std::vector<Location> locations;
-	// client max body size parameter (in bytes)
 	size_t clientMaxBodySize;
+	std::vector<Location> locations;
 
-	ServerConfig() : port(80), host("0.0.0.0"), clientMaxBodySize(DEFAULT_CLIENT_MAX_BODY_SIZE) {}
+	ServerConfig() : port(80), host("0.0.0.0"), clientMaxBodySize(DEFAULT_CLIENT_MAX_BODY_SIZE), defaultServer(false)
+	{
+		serverNames.push_back("localhost");
+		errorPages[400] = "/errors/400.html";
+		errorPages[403] = "/errors/403.html";
+		errorPages[404] = "/errors/404.html";
+		errorPages[405] = "/errors/405.html";
+		errorPages[409] = "/errors/409.html";
+		errorPages[410] = "/errors/410.html";
+		errorPages[413] = "/errors/413.html";
+		errorPages[414] = "/errors/414.html";
+		errorPages[415] = "/errors/415.html";
+		errorPages[416] = "/errors/416.html";
+		errorPages[431] = "/errors/431.html";
+		errorPages[500] = "/errors/500.html";
+		errorPages[501] = "/errors/501.html";
+		errorPages[505] = "/errors/505.html";
+	}
 };
 
 class ConfigManager
