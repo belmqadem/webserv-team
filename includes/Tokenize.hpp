@@ -29,6 +29,8 @@ enum TokenType
     CGI,
     CGI_PATH,
     CGI_EXTENSION,
+	CGI_PASS,
+    CGI_WORKING_DIRECTORY,
     UPLOAD_STORE,
     MAX_UPLOAD_SIZE
 };
