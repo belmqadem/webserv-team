@@ -72,15 +72,6 @@ void Parser::parseServerNameDirective()
 		_currentServer->serverNames = serverNames;
 }
 
-void Parser::parseRootDirective()
-{
-	Token key = consume(ROOT);
-	Token value = consume(STRING);
-	consume(SEMICOLON);
-	if (_currentServer)
-		_currentServer->root = value.value; // Fixed: Using value.value instead of value.type
-}
-
 void Parser::parseErrorPageDirective()
 {
 	Token key = consume(ERROR_PAGE);
@@ -131,49 +122,24 @@ size_t parseSize(const std::string& sizeStr) {
 void Parser::parseRedirectDirective(Location &location)
 {
     consume(REDIRECT);
+    
+    if (_tokens[_index].type == NUMBER) {
+        Token code = consume(NUMBER);
+        int statusCode = std::atoi(code.value.c_str());
+        
+        location.redirectPermanent = (statusCode == 301);
+        
+        location.redirectCode = statusCode;
+    } else {
+        location.redirectPermanent = false;
+        location.redirectCode = 302;
+    }
+    
     Token url = consume(STRING);
     location.redirect = true;
     location.redirectUrl = url.value;
-    location.redirectPermanent = false;  // Default to temporary redirect
-	consume(SEMICOLON);
-    // Check if the next token is REDIRECT_PERMANENT
-    if (_tokens[_index].type == REDIRECT_PERMANENT) {
-        consume(REDIRECT_PERMANENT);
-        location.redirectPermanent = true;
-    }
     
     consume(SEMICOLON);
-}
-
-void Parser::parseCgiDirective(Location &location)
-{
-    consume(CGI);
-    
-    // Check if the next token is "on"
-    if (_tokens[_index].type == STRING && _tokens[_index].value == "on") {
-        consume(STRING);  // Consume "on"
-        location.useCgi = true;
-    }
-    else {
-        location.useCgi = true;  // Default to true if just "cgi;"
-    }
-    consume(SEMICOLON);
-    // Get the CGI path
-    if (_tokens[_index].type == CGI_PATH) {
-        consume(CGI_PATH);
-        Token path = consume(STRING);
-        location.cgiPath = path.value;
-		consume(SEMICOLON);
-    }
-    
-    // Get CGI extensions
-    while (_tokens[_index].type == CGI_EXTENSION) {
-        consume(CGI_EXTENSION);
-        Token extension = consume(STRING);
-        Token handler = consume(STRING);
-        location.cgiExtensions[extension.value] = handler.value;
-		consume(SEMICOLON);
-	}
 }
 
 void Parser::parseUploadStoreDirective(Location &location)
@@ -182,14 +148,6 @@ void Parser::parseUploadStoreDirective(Location &location)
     Token path = consume(STRING);
     location.uploadStore = path.value;
 	consume(SEMICOLON);
-    // Check for max upload size
-    if (_tokens[_index].type == MAX_UPLOAD_SIZE) {
-        consume(MAX_UPLOAD_SIZE);
-        Token size = consume(NUMBER);
-        location.maxUploadSize = parseSize(size.value);
-    }
-    
-    consume(SEMICOLON);
 }
 
 void Parser::parseClientMaxBodySizeDirective()
@@ -200,6 +158,60 @@ void Parser::parseClientMaxBodySizeDirective()
         _currentServer->clientMaxBodySize = parseSize(size.value);
     }
     consume(SEMICOLON);
+}
+
+void Parser::parseCgiDirective(Location &location)
+{
+    consume(CGI);
+    
+    if (_tokens[_index].type == STRING) {
+        Token value = consume(STRING);
+        if (value.value == "on") {
+            location.useCgi = true;
+        }
+        else if (value.value == "off") {
+            location.useCgi = false;
+        }
+        else {
+            throw std::runtime_error("Syntax Error: Expected 'on' or 'off' after 'cgi', got '" + value.value + "'");
+        }
+    }
+    else {
+        throw std::runtime_error("Syntax Error: Expected 'on' or 'off' after 'cgi'");
+    }
+    consume(SEMICOLON);
+    
+    while (_tokens[_index].type == CGI_PATH || 
+           _tokens[_index].type == CGI_EXTENSION ||
+           _tokens[_index].type == CGI_PASS || 
+           _tokens[_index].type == CGI_WORKING_DIRECTORY) {
+        
+        if (_tokens[_index].type == CGI_PATH) {
+            consume(CGI_PATH);
+            Token path = consume(STRING);
+            location.cgiPath = path.value;
+            consume(SEMICOLON);
+        }
+        else if (_tokens[_index].type == CGI_EXTENSION) {
+            consume(CGI_EXTENSION);
+            Token extension = consume(STRING);
+            Token handler = consume(STRING);
+            location.cgiExtensions[extension.value] = handler.value;
+            consume(SEMICOLON);
+        }
+        else if (_tokens[_index].type == CGI_PASS) {
+            consume(CGI_PASS);
+            Token interpreter = consume(STRING);
+            location.cgiPath = interpreter.value;  // Use existing field
+            consume(SEMICOLON);
+        }
+        else if (_tokens[_index].type == CGI_WORKING_DIRECTORY) {
+            consume(CGI_WORKING_DIRECTORY);
+            Token workingDir = consume(STRING);
+            location.cgiWorkingDirectory = workingDir.value;  // Add this field to Location struct
+            consume(SEMICOLON);
+        }
+    }
 }
 
 void Parser::parseLocationBlock()
@@ -286,7 +298,8 @@ void Parser::parseDirecive()
     }
     else if (directiveToken.type == ROOT)
     {
-        parseRootDirective();
+        // parseRootDirective();
+		throw std::runtime_error("Configuration Error: 'root' directive is only allowed in location blocks");
     }
     else if (directiveToken.type == ERROR_PAGE)
     {

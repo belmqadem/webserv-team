@@ -6,7 +6,6 @@ void printServerConfig(const ServerConfig& server) {
     std::cout << "Server Configuration:" << std::endl;
     std::cout << "  Port: " << server.port << std::endl;
     std::cout << "  Host: " << server.host << std::endl;
-    std::cout << "  Root: " << server.root << std::endl;
     std::cout << "  Client Max Body Size: " << server.clientMaxBodySize 
               << " bytes (" << server.clientMaxBodySize / SIZE_MB << "MB)" << std::endl;
     

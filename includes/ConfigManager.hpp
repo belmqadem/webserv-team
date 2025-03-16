@@ -7,42 +7,52 @@
 #include <string>
 #include <fstream>
 
-
 // Size constants
 #define SIZE_KB (1024UL)
 #define SIZE_MB (1024UL * SIZE_KB)
 #define SIZE_GB (1024UL * SIZE_MB)
 
 // Default size limits
-#define DEFAULT_CLIENT_MAX_BODY_SIZE (1 * SIZE_MB)  // 1MB
-#define DEFAULT_MAX_UPLOAD_SIZE (10 * SIZE_MB)     // 10MB
+#define DEFAULT_CLIENT_MAX_BODY_SIZE (1 * SIZE_MB) // 1MB
+#define DEFAULT_MAX_UPLOAD_SIZE (10 * SIZE_MB)	   // 10MB
 
 struct Location
 {
-    std::string location;
-    std::string root;
-    std::map<int, std::string> errorPages;
-    std::vector<std::string> allowedMethods;
-    bool autoindex;
-    std::string index;
-    
-    // redirection parameters
-    bool redirect;
-    std::string redirectUrl;
-    bool redirectPermanent;
-    
-    // CGI parameters
-    bool useCgi;
-    std::string cgiPath;
-    std::map<std::string, std::string> cgiExtensions;
-    
-    // file upload parameters
-    std::string uploadStore;
-    size_t maxUploadSize;
+	std::string location;
+	std::string root;
+	std::map<int, std::string> errorPages;
+	std::vector<std::string> allowedMethods;
+	bool autoindex;
+	std::string index;
 
-    Location() : autoindex(false), redirect(false), 
-                 redirectPermanent(false), useCgi(false),
-                 maxUploadSize(DEFAULT_MAX_UPLOAD_SIZE) {}
+	// redirection parameters
+	bool redirect;
+	std::string redirectUrl;
+	bool redirectPermanent;
+	int	redirectCode;
+
+	// CGI parameters
+	bool useCgi;
+	std::string cgiPath;
+	std::map<std::string, std::string> cgiExtensions;
+    std::string cgiWorkingDirectory;
+
+	// file upload parameters
+	std::string uploadStore;
+	size_t maxUploadSize;
+
+	Location() : autoindex(false), redirect(false),
+				redirectPermanent(false), useCgi(false),
+				maxUploadSize(DEFAULT_MAX_UPLOAD_SIZE)
+	{
+		// Default allowed methods
+		allowedMethods.push_back("GET");
+		allowedMethods.push_back("POST");
+		allowedMethods.push_back("DELETE");
+
+		// Default index
+		index = "index.html";
+	}
 };
 
 struct ServerConfig
@@ -53,11 +63,10 @@ struct ServerConfig
 	uint16_t port;
 	std::string host;
 	std::vector<std::string> serverNames;
-	std::string root;
 	std::map<int, std::string> errorPages;
 	std::vector<Location> locations;
 	// client max body size parameter (in bytes)
-    size_t clientMaxBodySize;
+	size_t clientMaxBodySize;
 
 	ServerConfig() : port(80), host("0.0.0.0"), clientMaxBodySize(DEFAULT_CLIENT_MAX_BODY_SIZE) {}
 };
@@ -67,7 +76,7 @@ class ConfigManager
 private:
 	static ConfigManager *_instance;
 
-	std::vector<ServerConfig> _servers; // List of servers instances 
+	std::vector<ServerConfig> _servers; // List of servers instances
 
 	ConfigManager();
 
