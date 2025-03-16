@@ -2,6 +2,9 @@
 
 #include "webserv.hpp"
 
+struct ServerConfig;
+struct Location;
+
 typedef uint8_t byte; // 8 bit unsigned integers
 
 // This is an enum to save the parsing state of the request
