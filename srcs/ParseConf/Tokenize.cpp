@@ -30,8 +30,12 @@ std::vector<Token> tokenize(std::string &input)
 
 	while (stream >> word)
 	{
+		if (word == "#")
+		{
+			stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			continue;
+		}
 		Token token;
-
 		if (word == "server")
 		{
 			token.type = SERVER;
@@ -59,6 +63,72 @@ std::vector<Token> tokenize(std::string &input)
 		else if (word == "location")
 		{
 			token.type = LOCATION;
+			token.value = word;
+			tokens.push_back(token);
+		}
+		else if (word == "autoindex")
+		{
+			token.type = AUTOINDEX;
+			token.value = word;
+			tokens.push_back(token);
+		}
+		else if (word == "index")
+		{
+			token.type = INDEX;
+			token.value = word;
+			tokens.push_back(token);
+		}
+		else if (word == "client_max_body_size")
+		{
+			token.type = CLIENT_MAX_BODY_SIZE;
+			token.value = word;
+			tokens.push_back(token);
+		}
+		else if (word == "allowed_methods")
+		{
+			token.type = ALLOWED_METHODS;
+			token.value = word;
+			tokens.push_back(token);
+		}
+		else if (word == "redirect")
+		{
+			token.type = REDIRECT;
+			token.value = word;
+			tokens.push_back(token);
+		}
+		else if (word == "redirect_permanent")
+		{
+			token.type = REDIRECT_PERMANENT;
+			token.value = word;
+			tokens.push_back(token);
+		}
+		else if (word == "cgi")
+		{
+			token.type = CGI;
+			token.value = word;
+			tokens.push_back(token);
+		}
+		else if (word == "cgi_path")
+		{
+			token.type = CGI_PATH;
+			token.value = word;
+			tokens.push_back(token);
+		}
+		else if (word == "cgi_extension")
+		{
+			token.type = CGI_EXTENSION;
+			token.value = word;
+			tokens.push_back(token);
+		}
+		else if (word == "upload_store")
+		{
+			token.type = UPLOAD_STORE;
+			token.value = word;
+			tokens.push_back(token);
+		}
+		else if (word == "max_upload_size")
+		{
+			token.type = MAX_UPLOAD_SIZE;
 			token.value = word;
 			tokens.push_back(token);
 		}

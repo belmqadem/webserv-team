@@ -3,37 +3,6 @@
 #include "Tokenize.hpp"
 #include "webserv.hpp"
 
-struct Location
-{
-	/* TO ADD
-		redirection ==> ie: (rewrite ^/old-page$ /new-page permanent)
-		execute cgi ==> (cgi_pass /usr/bin/php-cgi)
-		define where uploaded files should be saved ==> (upload_store /var/www/uploads)
-	*/
-	std::string location;
-	std::string root;
-	std::map<int, std::string> errorPages;
-	std::vector<std::string> allowedMethods;
-	bool autoindex;
-	std::string index;
-
-	Location() : autoindex(false) {}
-};
-
-struct ServerConfig
-{
-	/* TO ADD
-		client_max_body_size
-	*/
-	uint16_t port;
-	std::string host;
-	std::vector<std::string> serverNames;
-	std::string root;
-	std::map<int, std::string> errorPages;
-	std::vector<Location> locations;
-
-	ServerConfig() : port(80), host("0.0.0.0") {}
-};
 
 class Parser
 {
@@ -53,6 +22,11 @@ private:
 	void parseRootDirective();
 	void parseErrorPageDirective();
 	void parseLocationBlock();
+
+	void parseRedirectDirective(Location &location);
+    void parseCgiDirective(Location &location);
+    void parseUploadStoreDirective(Location &location);
+    void parseClientMaxBodySizeDirective();
 
 public:
 	Parser(const std::vector<Token> &tokens) : _tokens(tokens), _index(0), _currentServer(NULL) {}

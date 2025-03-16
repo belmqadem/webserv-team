@@ -4,21 +4,33 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <limits>
 
 enum TokenType
 {
-	SERVER,
-	LISTEN,
-	SERVER_NAME,
-	ROOT,
-	ERROR_PAGE,
-	LOCATION,
-	NUMBER,
-	STRING,
-	LBRACE,
-	RBRACE,
-	SEMICOLON,
-	END
+    SERVER,
+    LISTEN,
+    SERVER_NAME,
+    ROOT,
+    ERROR_PAGE,
+    LOCATION,
+    LBRACE,
+    RBRACE,
+    SEMICOLON,
+    NUMBER,
+    STRING,
+    END,
+    AUTOINDEX,
+    INDEX,
+    CLIENT_MAX_BODY_SIZE,
+    ALLOWED_METHODS,
+    REDIRECT,
+    REDIRECT_PERMANENT, 
+    CGI,
+    CGI_PATH,
+    CGI_EXTENSION,
+    UPLOAD_STORE,
+    MAX_UPLOAD_SIZE
 };
 
 struct Token
