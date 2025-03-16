@@ -93,7 +93,7 @@ void Parser::parseErrorPageDirective()
 	Token file = consume(STRING);
 	consume(SEMICOLON);
 	if (_currentServer)
-		for (size_t i ; i < error_codes.size(); i++) {
+		for (size_t i = 0 ; i < error_codes.size(); i++) {
 			_currentServer->errorPages[error_codes[i]] = file.value;
 		}
 }
