@@ -1,4 +1,5 @@
 #include "Tokenize.hpp"
+#include <algorithm>
 
 bool find_del(char b)
 {

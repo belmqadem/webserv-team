@@ -1,17 +1,9 @@
-<<<<<<< HEAD
 #include "ResponseBuilder.hpp"
 #include "Logger.hpp"
 
 // Here the default directives if not overrided in config file
 #define DEFAULT_ERROR_PAGE "error.html"
 #define CLIENT_MAX_BODY_SIZE 1048576
-=======
-#include "../../includes/ResponseBuilder.hpp"
-
-// Here the default directives if not overrided in config file
-#define DEFAULT_ERROR_PAGE "error.html"
-#define DEFAULT_CLIENT_BODY_SIZE 1048576
->>>>>>> mergeOne
 #define DEFAULT_INDEX "index.html"
 #define DIRECTORY_LISTING_ENABLED 1
 #define UPLOAD_ENABLED 1
@@ -19,20 +11,11 @@
 
 // Here i will define some value to work with (later extract from config file)
 #define ROOT_DIRECTORY "www/html"
-<<<<<<< HEAD
-=======
-#define HTTP_REDIRECTION "/redirected_path"
-#define UPLOAD_DIRECTORY "www/uploads"
->>>>>>> mergeOne
 #define ALLOW_GET 1
 #define ALLOW_POST 1
 #define ALLOW_DELETE 1
 
-<<<<<<< HEAD
 // Static function to initialize the mime types
-=======
-// function to initialize the mime types
->>>>>>> mergeOne
 std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 {
 	std::map<std::string, std::string> mime_types;
@@ -71,11 +54,6 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 	mime_types[".opus"] = "audio/opus";
 	mime_types[".flac"] = "audio/flac";
 	mime_types[".webm"] = "video/webm";
-<<<<<<< HEAD
-=======
-	mime_types[".mkv"] = "video/x-matroska";
-	mime_types[".avi"] = "video/x-msvideo";
->>>>>>> mergeOne
 	mime_types[".mpg"] = "video/mpeg";
 	mime_types[".mpeg"] = "video/mpeg";
 	mime_types[".mov"] = "video/quicktime";
@@ -84,15 +62,8 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 	mime_types[".yaml"] = "text/yaml";
 	mime_types[".yml"] = "text/yaml";
 	mime_types[".xhtml"] = "application/xhtml+xml";
-<<<<<<< HEAD
 	mime_types[".apk"] = "application/vnd.android.package-archive";
 	mime_types[".exe"] = "application/x-msdownload";
-=======
-	mime_types[".rss"] = "application/rss+xml";
-	mime_types[".apk"] = "application/vnd.android.package-archive";
-	mime_types[".exe"] = "application/x-msdownload";
-	mime_types[".dll"] = "application/x-msdownload";
->>>>>>> mergeOne
 	mime_types[".bin"] = "application/octet-stream";
 	mime_types[".iso"] = "application/x-iso9660-image";
 
@@ -102,7 +73,6 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 // All the mime types are stored in this map
 std::map<std::string, std::string> ResponseBuilder::mime_types = init_mime_types();
 
-<<<<<<< HEAD
 // Constructor Takes Request as parameter
 ResponseBuilder::ResponseBuilder(RequestParser &request)
 {
@@ -114,21 +84,6 @@ ResponseBuilder::ResponseBuilder(RequestParser &request)
 }
 
 // Method to initialize the routes (GET | POST | DELETE)
-=======
-// Default Constructor
-ResponseBuilder::ResponseBuilder(RequestParser &request)
-{
-	this->http_version = "HTTP/1.1"; // Only version 1.1 is implemented
-	this->status = STATUS_200;
-	this->headers = std::map<std::string, std::string>();
-	this->body = "";
-	this->status_code = 200;				  // Default value is success (if no error occurs)
-	init_routes();							  // init routes will check for method if allowed or not
-	this->response = build_response(request); // Here we build the response
-}
-
-// Method to initializ the routes
->>>>>>> mergeOne
 void ResponseBuilder::init_routes()
 {
 	if (ALLOW_GET)
@@ -139,11 +94,7 @@ void ResponseBuilder::init_routes()
 		routes["DELETE"] = &ResponseBuilder::doDELETE;
 }
 
-<<<<<<< HEAD
 // Method to process the response
-=======
-// Method to handle the request and build the response message
->>>>>>> mergeOne
 std::string ResponseBuilder::build_response(RequestParser &request)
 {
 	short request_error_code = request.get_error_code();
@@ -151,32 +102,19 @@ std::string ResponseBuilder::build_response(RequestParser &request)
 	if (request_error_code != 1) // If an error in request parsing
 	{
 		set_status(request_error_code);
-<<<<<<< HEAD
 		body = generate_error_page(status_code);
 		include_required_headers(request);
-=======
-		body = generate_error_page(request_error_code, "Invalid Request");
->>>>>>> mergeOne
 		return generate_response_string();
 	}
 
 	std::string method = request.get_http_method();
-<<<<<<< HEAD
-=======
-	std::string path = request.get_request_uri();
->>>>>>> mergeOne
 
 	// Return error if the method is not allowed
 	if (routes.find(method) == routes.end())
 	{
 		set_status(405);
-<<<<<<< HEAD
 		body = generate_error_page(status_code);
 		include_required_headers(request);
-=======
-		set_headers("Allow", "GET, POST, DELETE"); // Check later in nginx and compare
-		body = generate_error_page(405, "Method Not Allowed");
->>>>>>> mergeOne
 		return generate_response_string();
 	}
 
@@ -187,29 +125,12 @@ std::string ResponseBuilder::build_response(RequestParser &request)
 	// Route the request to the correct handler
 	(this->*routes[method])(request);
 
-<<<<<<< HEAD
 	// Set required headers
 	include_required_headers(request);
-=======
-	// Set required headers (Later i will write a function for that)
-	if (!headers.count("Content-Type"))
-		headers["Content-Type"] = detect_mime_type(path); // Set  the content type based on the extension of the request uri
-
-	if (!headers.count("Content-Length"))
-	{
-		std::ostringstream ss;
-		ss << body.size();
-		headers["Content-Length"] = ss.str();
-	}
-
-	if (!headers.count("Connection"))
-		headers["Connection"] = (request.is_keep_alive()) ? "keep-alive" : "close";
->>>>>>> mergeOne
 
 	return generate_response_string();
 }
 
-<<<<<<< HEAD
 // Method for creating the response
 std::string ResponseBuilder::generate_response_string()
 {
@@ -217,28 +138,18 @@ std::string ResponseBuilder::generate_response_string()
 	response << http_version << SP << status;
 	LOG_RESPONSE(response.str());
 	response << CRLF;
-=======
-std::string ResponseBuilder::generate_response_string()
-{
-	std::ostringstream response;
-	response << http_version << SP << status << CRLF;
->>>>>>> mergeOne
 	for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
 		response << it->first << ": " << it->second << CRLF;
 	response << CRLF << body;
 	return response.str();
 }
 
-<<<<<<< HEAD
 // GET method implementation
-=======
->>>>>>> mergeOne
 void ResponseBuilder::doGET(RequestParser &request)
 {
 	std::cout << "GET METHOD EXECUTED" << std::endl;
 	std::string uri = request.get_request_uri();
 	std::string path = ROOT_DIRECTORY + uri;
-<<<<<<< HEAD
 
 	// Check if the file exists
 	struct stat file_stat;
@@ -246,52 +157,26 @@ void ResponseBuilder::doGET(RequestParser &request)
 	{
 		set_status(404);
 		body = generate_error_page(status_code);
-=======
-	std::string index = DEFAULT_INDEX;
-	std::string file_path = path + index;
-
-	// Check if the file exists
-	struct stat file_stat;
-	if (stat(file_path.c_str(), &file_stat) == -1)
-	{
-		set_status(404);
-		body = generate_error_page(404, "File Not Found");
->>>>>>> mergeOne
 		return;
 	}
 
 	// Check if the file is a directory
 	if (S_ISDIR(file_stat.st_mode))
 	{
-<<<<<<< HEAD
-=======
-
->>>>>>> mergeOne
 		// If the URI does not end with '/', redirect to the correct URL
 		if (uri[uri.size() - 1] != '/')
 		{
 			set_status(301);
 			set_headers("Location", uri + "/");
-<<<<<<< HEAD
 			body = generate_error_page(status_code);
-=======
-			body = generate_error_page(301, "Moved Permanently");
->>>>>>> mergeOne
 			return;
 		}
 
 		// If an index file exists, use it
-<<<<<<< HEAD
 		std::string index_path = path + DEFAULT_INDEX;
 		if (stat(index_path.c_str(), &file_stat) == 0)
 		{
 			path = index_path;
-=======
-		std::string index_path = path + index;
-		if (stat(index_path.c_str(), &file_stat) == 0)
-		{
-			file_path = index_path;
->>>>>>> mergeOne
 		}
 		else if (DIRECTORY_LISTING_ENABLED) // If auto index is enabled in the config file
 		{
@@ -303,26 +188,15 @@ void ResponseBuilder::doGET(RequestParser &request)
 		else
 		{
 			set_status(403);
-<<<<<<< HEAD
 			body = generate_error_page(status_code);
-=======
-			body = generate_error_page(403, "Directory Listing Denied");
->>>>>>> mergeOne
 			return;
 		}
 	}
 
 	// CGI Execution
-<<<<<<< HEAD
 	if (is_cgi_request(path))
 	{
 		// HANDLE CGI IN GET
-=======
-	if (is_cgi_request(file_path))
-	{
-		// HANDLE CGI IN GET
-
->>>>>>> mergeOne
 		return;
 	}
 
@@ -330,7 +204,6 @@ void ResponseBuilder::doGET(RequestParser &request)
 	if (!(file_stat.st_mode & S_IRUSR))
 	{
 		set_status(403);
-<<<<<<< HEAD
 		body = generate_error_page(status_code);
 		return;
 	}
@@ -341,28 +214,11 @@ void ResponseBuilder::doGET(RequestParser &request)
 	{
 		set_status(500);
 		body = generate_error_page(status_code);
-=======
-		body = generate_error_page(403, "Forbidden");
-		return;
-	}
-
-
-	// 	Open The file
-	std::ifstream file(file_path.c_str(), std::ios::in | std::ios::binary);
-	if (!file)
-	{
-		set_status(500);
-		body = generate_error_page(500, "Internal Server Error");
->>>>>>> mergeOne
 		return;
 	}
 
 	// Determine mime type
-<<<<<<< HEAD
 	std::string extension = path.substr(path.find_last_of('.'));
-=======
-	std::string extension = file_path.substr(file_path.find_last_of('.'));
->>>>>>> mergeOne
 	std::map<std::string, std::string>::iterator it = mime_types.find(extension);
 	if (it != mime_types.end())
 		set_headers("Content-Type", it->second);
@@ -376,7 +232,6 @@ void ResponseBuilder::doGET(RequestParser &request)
 	set_status(200);
 }
 
-<<<<<<< HEAD
 // POST method implementation
 void ResponseBuilder::doPOST(RequestParser &request)
 {
@@ -532,30 +387,6 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 		set_status(500);
 		body = generate_error_page(status_code);
 	}
-=======
-void ResponseBuilder::doPOST(RequestParser &request)
-{
-	(void)request;
-	std::cout << "POST METHOD EXECUTED" << std::endl;
-}
-
-void ResponseBuilder::doDELETE(RequestParser &request)
-{
-	(void)request;
-	std::cout << "DELETE METHOD EXECUTED" << std::endl;
-	// std::string uri = request.get_request_uri();
-	// std::string path = ROOT_DIRECTORY + uri;
-	// if (remove(path.c_str()) == 0)
-	// {
-	// 	set_status(204);
-	// 	body = "";
-	// }
-	// else
-	// {
-	// 	set_status(404);
-	// 	body = generate_error_page(404, "File Not Found");
-	// }
->>>>>>> mergeOne
 }
 
 // Method to handle redirection
@@ -565,17 +396,12 @@ bool ResponseBuilder::handle_redirection()
 	{
 		short redirect_code = (headers["Location"].find("permanent") != std::string::npos) ? 301 : 302;
 		set_status(redirect_code);
-<<<<<<< HEAD
 		body = generate_error_page(status_code);
-=======
-		body = generate_error_page(redirect_code, "Redirecting...");
->>>>>>> mergeOne
 		return true;
 	}
 	return false;
 }
 
-<<<<<<< HEAD
 // Method to handle file upload (multipart/form-data)
 bool ResponseBuilder::handle_file_upload(RequestParser &request, const std::string &path)
 {
@@ -624,20 +450,6 @@ std::string ResponseBuilder::generate_error_page(short status_code)
 }
 
 // Method to detect the right mime type
-=======
-// Method to generate error page (temporary)
-/* Later This error will be built from reading the html page */
-std::string ResponseBuilder::generate_error_page(short status_code, const std::string &message)
-{
-	std::ostringstream page;
-	page << "<html>\n<head>\n  <title>Error " << status_code << "</title>\n</head>\n";
-	page << "<body>\n  <h1>" << status << "</h1>\n";
-	page << "  <p>" << message << "</p>\n</body>\n</html>";
-	return page.str();
-}
-
-// Method to find the mime type
->>>>>>> mergeOne
 std::string ResponseBuilder::detect_mime_type(const std::string &path)
 {
 	size_t ext_pos = path.find_last_of(".");
@@ -650,11 +462,7 @@ std::string ResponseBuilder::detect_mime_type(const std::string &path)
 	return "application/octet-stream"; // Default binary type
 }
 
-<<<<<<< HEAD
 // Method generates html page for directory listing
-=======
-// Method for directory listing
->>>>>>> mergeOne
 std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 {
 	std::ostringstream page;
@@ -679,17 +487,13 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 	return page.str();
 }
 
-<<<<<<< HEAD
 // Method to check if the requested uri is for cgi
-=======
->>>>>>> mergeOne
 bool ResponseBuilder::is_cgi_request(const std::string &file_path)
 {
 	(void)file_path;
 	return false;
 }
 
-<<<<<<< HEAD
 // Method to add the required headers into response
 void ResponseBuilder::include_required_headers(RequestParser &request)
 {
@@ -730,8 +534,6 @@ std::string ResponseBuilder::get_http_date()
 	return std::string(buffer);
 }
 
-=======
->>>>>>> mergeOne
 /****************************
 		START SETTERS
 ****************************/
@@ -750,27 +552,21 @@ void ResponseBuilder::set_status(short status_code)
 	case 204:
 		this->status = STATUS_204;
 		break;
-<<<<<<< HEAD
 	case 206:
 		this->status = STATUS_206;
 		break;
-=======
->>>>>>> mergeOne
 	case 301:
 		this->status = STATUS_301;
 		break;
 	case 302:
 		this->status = STATUS_302;
 		break;
-<<<<<<< HEAD
 	case 303:
 		this->status = STATUS_303;
 		break;
 	case 304:
 		this->status = STATUS_304;
 		break;
-=======
->>>>>>> mergeOne
 	case 400:
 		this->status = STATUS_400;
 		break;
@@ -795,13 +591,8 @@ void ResponseBuilder::set_status(short status_code)
 	case 414:
 		this->status = STATUS_414;
 		break;
-<<<<<<< HEAD
 	case 415:
 		this->status = STATUS_415;
-=======
-	case 417:
-		this->status = STATUS_417;
->>>>>>> mergeOne
 		break;
 	case 431:
 		this->status = STATUS_431;
@@ -816,11 +607,7 @@ void ResponseBuilder::set_status(short status_code)
 		this->status = STATUS_505;
 		break;
 	default:
-<<<<<<< HEAD
 		this->status = "UNDEFINED STATUS";
-=======
-		this->status = "UNDEFINED";
->>>>>>> mergeOne
 		break;
 	}
 }
@@ -837,11 +624,7 @@ std::string ResponseBuilder::get_response() { return response; }
 std::string ResponseBuilder::get_http_version() { return http_version; }
 std::string ResponseBuilder::get_status() { return status; }
 std::map<std::string, std::string> ResponseBuilder::get_headers() { return headers; }
-<<<<<<< HEAD
 std::string ResponseBuilder::get_header_value(std::string &key) { return headers[key]; }
-=======
-std::string ResponseBuilder::get_header(std::string &key) { return headers[key]; }
->>>>>>> mergeOne
 std::string ResponseBuilder::get_body() { return body; }
 short ResponseBuilder::get_status_code() { return status_code; }
 /****************************

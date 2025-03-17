@@ -8,88 +8,81 @@
 #define BLUE "\033[34m"
 #define MAGENTA "\033[35m"
 #define CYAN "\033[36m"
-#define BOLD_RED		"\033[1;31m"
-#define BOLD_GREEN		"\033[1;32m"
-#define BOLD_BLUE		"\033[1;34m"
-#define BOLD_MAGENTA	"\033[1;35m"
-#define BOLD_YELLOW		"\033[1;33m"
-#define BOLD_CYAN		"\033[1;36m"
+#define BOLD_RED "\033[1;31m"
+#define BOLD_GREEN "\033[1;32m"
+#define BOLD_BLUE "\033[1;34m"
+#define BOLD_MAGENTA "\033[1;35m"
+#define BOLD_YELLOW "\033[1;33m"
+#define BOLD_CYAN "\033[1;36m"
 
 // STATUS CODES
-#define STATUS_200 GREEN "200 OK" RESET
-#define STATUS_201 GREEN "201 Created" RESET
-#define STATUS_204 GREEN "204 No Content" RESET
-#define STATUS_301 YELLOW "301 Moved Permanently" RESET
-#define STATUS_302 YELLOW "302 Found"
-#define STATUS_400 RED "400 Bad Request" RESET
-#define STATUS_403 RED "403 Forbidden" RESET
-#define STATUS_404 RED "404 Not Found" RESET
-#define STATUS_405 RED "405 Method Not Allowed" RESET
-#define STATUS_409 RED "409 Conflict" RESET
-#define STATUS_410 RED "410 Gone" RESET
-#define STATUS_413 RED "413 Payload Too Large" RESET
-#define STATUS_414 RED "414 URI Too Long" RESET
-#define STATUS_417 RED "417 Expectation Failed" RESET
-#define STATUS_431 RED "431 Request Header Fields Too Large" RESET
-#define STATUS_500 RED "500 Internal Server Error" RESET
-#define STATUS_501 RED "501 Not Implemented" RESET
-#define STATUS_505 RED "505 HTTP Version Not Supported" RESET
+#define STATUS_200 "200 OK"
+#define STATUS_201 "201 Created"
+#define STATUS_204 "204 No Content"
+#define STATUS_206 "206 Partial Content"
+#define STATUS_301 "301 Moved Permanently"
+#define STATUS_302 "302 Found"
+#define STATUS_303 "303 See Other"
+#define STATUS_304 "304 Not Modified"
+#define STATUS_400 "400 Bad Request"
+#define STATUS_403 "403 Forbidden"
+#define STATUS_404 "404 Not Found"
+#define STATUS_405 "405 Method Not Allowed"
+#define STATUS_409 "409 Conflict"
+#define STATUS_410 "410 Gone"
+#define STATUS_413 "413 Payload Too Large"
+#define STATUS_414 "414 URI Too Long"
+#define STATUS_415 "415 Unsupported Media Type"
+#define STATUS_431 "431 Request Header Fields Too Large"
+#define STATUS_500 "500 Internal Server Error"
+#define STATUS_501 "501 Not Implemented"
+#define STATUS_505 "505 HTTP Version Not Supported"
 
 // SPECIAL CHARACTERS
 #define SP " "
 #define CR "\r"
 #define LF "\n"
 #define CRLF "\r\n"
-#define CRLF_DOUBLE "\r\n\r\n"
-
-// MAX LENGTH OF URI
-#define MAX_REQUEST_LINE_LENGTH 8192
-#define MAX_URI_LENGTH 2048
-#define MAX_HEADER_LENGTH 8192
-#define MAX_HEADER_COUNT 100
 
 // ERROR MESSAGES (Response: 400 Bad Request)
-#define HTTP_PARSE_INVALID_REQUEST RED "Error: client sent invalid request" RESET					  // DONE
-#define HTTP_PARSE_INVALID_METHOD RED "Error: client sent invalid method" RESET						  // DONE
-#define HTTP_PARSE_INVALID_VERSION RED "Error: client sent invalid version" RESET					  // DONE
-#define HTTP_PARSE_INVALID_REQUEST_LINE RED "Error: client sent invalid request line" RESET			  // DONE
-#define HTTP_PARSE_MISSING_REQUEST_LINE RED "Error: client sent a request without request line" RESET // DONE
-#define HTTP_PARSE_MISSING_REQUEST_URI RED "Error: client sent request without URI" RESET			  // DONE
-#define HTTP_PARSE_INVALID_URI RED "Error: client sent request with invalid URI" RESET				  // DONE
-#define HTTP_PARSE_MISSING_HOST RED "Error: client sent request without Host header" RESET
-#define HTTP_PARSE_INVALID_HOST RED "Error: client sent request with invalid Host header" RESET
-#define HTTP_PARSE_INVALID_CONTENT_LENGTH RED "Error: client sent request with invalid Content-Length value" RESET // DONE
-#define HTTP_PARSE_INVALID_HEADER_FIELD RED "Error: client sent request with malformed header field" RESET
-#define HTTP_PARSE_INVALID_CHUNKED_TRANSFER RED "Error: client sent request with invalid chunked body" RESET	 // DONE
-#define HTTP_PARSE_INVALID_PERCENT_ENCODING RED "Error: client sent request with invalid percent encoding" RESET // DONE
-#define HTTP_PARSE_INVALID_TRAILER_HEADER RED "Error: client sent request with invalid trailer header" RESET	 // DONE
-#define HTTP_PARSE_CONFLICTING_HEADERS RED "Error: client sent a request with Transfer-Encoding and Content-Length" RESET
-#define HTTP_PARSE_INVALID_CONNECTION_HEADER RED "Error: client sent a reauest with invalid value for Connection header" RESET
-#define HTTP_PARSE_INVALID_UPGRADE_HEADER RED "Error: client sent a request with invalid value for Upgrade header" RESET
-#define HTTP_PARSE_INVALID_TRANSFER_ENCODING RED "Error: client sent a request with invalid value of Transfer Encoding header" RESET
+#define HTTP_PARSE_INVALID_REQUEST_LINE "Client sent a request with invalid request line"			// DONE
+#define HTTP_PARSE_INVALID_METHOD "Client sent a request with invalid http method"					// DONE
+#define HTTP_PARSE_INVALID_VERSION "Client sent a request with invalid http version"				// DONE
+#define HTTP_PARSE_MISSING_REQUEST_URI "Client sent a request without uri"							// DONE
+#define HTTP_PARSE_INVALID_URI "Client sent a request with invalid uri"								// DONE
+#define HTTP_PARSE_MISSING_HOST "Client sent a request without host header"							// DONE
+#define HTTP_PARSE_INVALID_HOST "Client sent a request with invalid host header"					// DONE
+#define HTTP_PARSE_INVALID_CONTENT_LENGTH "Client sent a request with invalid content-length value" // DONE
+#define HTTP_PARSE_INVALID_HEADER_FIELD "Client sent a request with malformed header field"			// DONE
+#define HTTP_PARSE_INVALID_CHUNKED_TRANSFER "Client sent a request with invalid chunked body"		// DONE
+#define HTTP_PARSE_INVALID_TRANSFER_ENCODING "Client sent a request with invalid transfer-encoding value"
+#define HTTP_PARSE_INVALID_PERCENT_ENCODING "Client sent a request with invalid percent encoding"		 // DONE
+#define HTTP_PARSE_CONFLICTING_HEADERS "Client sent a request with transfer-encoding and content-length" // DONE
+
+// ERROR MESSAGES (Response: 404 Not Found)
+#define HTTP_PARSE_INVALID_LOCATION "Client sent a request with invalid location" // DONE
 
 // ERROR MESSAGES (Response: 411 Lenght Required)
-#define HTTP_PARSE_MISSING_CONTENT_LENGTH RED "Error: client sent request without Content-Length header" RESET // DONE
+#define HTTP_PARSE_MISSING_CONTENT_LENGTH "Client sent a request without content-length header" // DONE
 
 // ERROR MESSAGES (Response: 413 Payload Too Large)
-#define HTTP_PARSE_PAYLOAD_TOO_LARGE RED "Error: client sent request with payload too large" RESET
+#define HTTP_PARSE_PAYLOAD_TOO_LARGE "Client sent a request with payload too large"
 
 // ERROR MESSAGES (Response: 414 URI Too Long)
-#define HTTP_PARSE_URI_TOO_LONG RED "Error: client sent request with URI too long" RESET
-
-// ERROR MESSAGES (Response: 417 Expectation Failed)
-#define HTTP_PARSE_INVALID_EXPECT_HEADER RED "Error: client sent a request with invalid value for Expect header" RESET
+#define HTTP_PARSE_URI_TOO_LONG "Client sent a request with uri too long" // DONE
 
 // ERROR MESSAGES (Response: 431 Request Header Fields Too Large)
-#define HTTP_PARSE_HEADER_FIELDS_TOO_LARGE RED "Error: client sent request with header fields too large" RESET // DONE
+#define HTTP_PARSE_HEADER_FIELDS_TOO_LARGE "Client sent a request with too large header fields" // DONE
 
 // ERROR MESSAGES (Response: 501 Not Implemented)
-#define HTTP_PARSE_METHOD_NOT_IMPLEMENTED RED "Error: client sent request with method not implemented" RESET // DONE
+#define HTTP_PARSE_METHOD_NOT_IMPLEMENTED "Client sent a request with unimplemented method" // DONE
 
 // ERROR MESSAGES (Response: 505 HTTP Version Not Supported)
-#define HTTP_PARSE_HTTP_VERSION_NOT_SUPPORTED RED "Error: client sent request with unsupported HTTP version" RESET // DONE
+#define HTTP_PARSE_HTTP_VERSION_NOT_SUPPORTED "Client sent a request with unsupported http version" // DONE
 
 // HEADER FILES
+#include <ctime>
+#include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -112,22 +105,22 @@
 #include <cstring>
 #include <poll.h>
 #include <sys/epoll.h>
-#include <cstdlib>
-#include "RequestParser.hpp"
-#include "ResponseBuilder.hpp"
-#include "Logger.hpp"
-#include "ConfigManager.hpp"
 
 // Utils Functions
-std::string &to_upper(std::string &str);
-std::string &to_lower(std::string &str);
 std::vector<std::string> split(const char *start, const char *end, char delimiter);
 std::string trim(const std::string &str, const std::string &delim);
 std::string readFile(const std::string &filename);
 bool writeFile(const std::string &filename, const std::string &content);
-std::string getCurrentTime();
 bool is_numeric(const std::string &str);
+
+#define WEBSERV_NAME "Not Nginx/4.2"
 
 #define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
 
-typedef uint8_t byte; // 8 bit unsigned integers
+template <class T>
+std::string to_string(T t)
+{
+	std::stringstream str;
+	str << t;
+	return str.str();
+}
