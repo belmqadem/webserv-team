@@ -278,6 +278,7 @@ void Parser::parseLocationBlock()
 		else if (_tokens[_index].type == ALLOWED_METHODS)
 		{
 			consume(ALLOWED_METHODS);
+			location.allowedMethods.clear();
 			while (_tokens[_index].type == STRING)
 			{
 				location.allowedMethods.push_back(consume(STRING).value);
