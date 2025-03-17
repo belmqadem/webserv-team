@@ -38,9 +38,9 @@ struct Location
 	// file upload parameters
 	std::string uploadStore;
 
-	Location() : autoindex(false), isRedirect(false),
-				 isRedirectPermanent(false), useCgi(false),
-				 index("index.html")
+	Location() : autoindex(false), index("index.html"), isRedirect(false),
+				 isRedirectPermanent(false), useCgi(false)
+
 	{
 		allowedMethods.push_back("GET");
 		allowedMethods.push_back("POST");
@@ -58,7 +58,7 @@ struct ServerConfig
 	size_t clientMaxBodySize;
 	std::vector<Location> locations;
 
-	ServerConfig() : port(80), host("0.0.0.0"), clientMaxBodySize(DEFAULT_CLIENT_MAX_BODY_SIZE), defaultServer(false)
+	ServerConfig() : port(80), host("0.0.0.0"), defaultServer(false), clientMaxBodySize(DEFAULT_CLIENT_MAX_BODY_SIZE)
 	{
 		serverNames.push_back("localhost");
 		errorPages[400] = "/errors/400.html";
