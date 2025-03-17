@@ -1,3 +1,7 @@
+#include <fstream>
+#include <string>
+#include <iostream>
+#include <sstream>
 #include "webserv.hpp"
 
 std::string readConfig(const std::string &filename)

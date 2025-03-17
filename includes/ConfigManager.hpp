@@ -1,6 +1,11 @@
 #pragma once
 
-#include "webserv.hpp"
+#include <vector>
+#include <string>
+#include <map>
+#include "Parser.hpp"
+#include <string>
+#include <fstream>
 
 // Size constants
 #define SIZE_KB (1024UL)

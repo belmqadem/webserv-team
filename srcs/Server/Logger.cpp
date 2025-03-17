@@ -53,8 +53,6 @@ std::string Logger::getLevelString(LogLevel level)
 		return "INFO";
 	case REQUEST:
 		return "REQUEST";
-	case RESPONSE:
-		return "RESPONSE";
 	case WARNING:
 		return "WARNING";
 	case ERROR:
@@ -110,13 +108,11 @@ void Logger::log(LogLevel level, const std::string &message)
 	if (_toConsole)
 	{
 		if (level >= ERROR)
-			std::cerr << BOLD_RED << logMessage << RESET << std::endl;
+			std::cerr << RED << logMessage << RESET << std::endl;
 		else if (level == INFO)
 			std::cout << BOLD_CYAN << logMessage << RESET << std::endl;
 		else if (level == REQUEST)
-			std::cout << BOLD_GREEN << logMessage << RESET << std::endl;
-		else if (level == RESPONSE)
-			std::cout << BOLD_BLUE << logMessage << RESET << std::endl;
+			std::cout << GREEN << logMessage << RESET << std::endl;
 		else
 			std::cout << logMessage << std::endl;
 	}
@@ -140,11 +136,6 @@ void Logger::info(const std::string &message)
 void Logger::request(const std::string &message)
 {
 	log(REQUEST, message);
-}
-
-void Logger::response(const std::string &message)
-{
-	log(RESPONSE, message);
 }
 
 void Logger::warning(const std::string &message)

@@ -1,0 +1,15 @@
+
+
+config         -> server_block+
+server_block   -> "server" "{" directive* "}"
+directive      -> listen_directive
+                | server_name_directive
+                | root_directive
+                | error_page_directive
+                | location_block
+                | ... (other directives)
+listen_directive       -> "listen" NUMBER ";"
+server_name_directive  -> "server_name" STRING (STRING)* ";" 
+root_directive         -> "root" STRING ";"
+error_page_directive   -> "error_page" NUMBER STRING ";"
+location_block         -> "location" STRING "{" directive* "}"

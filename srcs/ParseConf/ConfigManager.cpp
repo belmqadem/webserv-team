@@ -1,4 +1,8 @@
-#include "Parser.hpp"
+#include "ConfigManager.hpp"
+#include "Tokenize.hpp"
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 // Initialize static instance to NULL
 ConfigManager *ConfigManager::_instance = NULL;

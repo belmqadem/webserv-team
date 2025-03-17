@@ -1,10 +1,8 @@
 #pragma once
 
 #include "Tokenize.hpp"
-#include "ConfigManager.hpp"
+#include "webserv.hpp"
 
-struct ServerConfig;
-struct Location;
 
 class Parser
 {
@@ -21,13 +19,14 @@ private:
 	void parseDirecive();
 	void parseListenDirective();
 	void parseServerNameDirective();
+	void parseRootDirective();
 	void parseErrorPageDirective();
 	void parseLocationBlock();
 
 	void parseRedirectDirective(Location &location);
-	void parseCgiDirective(Location &location);
-	void parseUploadStoreDirective(Location &location);
-	void parseClientMaxBodySizeDirective();
+    void parseCgiDirective(Location &location);
+    void parseUploadStoreDirective(Location &location);
+    void parseClientMaxBodySizeDirective();
 
 public:
 	Parser(const std::vector<Token> &tokens) : _tokens(tokens), _index(0), _currentServer(NULL) {}

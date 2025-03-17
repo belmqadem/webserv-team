@@ -1,4 +1,18 @@
-#include "webserv.hpp"
+#include "../../includes/webserv.hpp"
+
+std::string &to_upper(std::string &str)
+{
+	for (size_t i = 0; i < str.length(); i++)
+		str[i] = std::toupper(str[i]);
+	return str;
+}
+
+std::string &to_lower(std::string &str)
+{
+	for (size_t i = 0; i < str.length(); i++)
+		str[i] = std::tolower(str[i]);
+	return str;
+}
 
 std::vector<std::string> split(const char *start, const char *end, char delimiter)
 {
@@ -41,6 +55,15 @@ bool writeFile(const std::string &filename, const std::string &content)
 		return false;
 	file << content;
 	return true;
+}
+
+std::string getCurrentTime()
+{
+	time_t now = time(NULL);
+	struct tm *timeinfo = localtime(&now);
+	char buffer[20];
+	strftime(buffer, sizeof(buffer), YELLOW "%H:%M:%S" RESET, timeinfo);
+	return std::string(buffer);
 }
 
 bool is_numeric(const std::string &str)
