@@ -1,6 +1,5 @@
 #pragma once
 
-#include "webserv.hpp"
 #include "RequestParser.hpp"
 
 class ResponseBuilder
@@ -22,7 +21,9 @@ private:
 	// Helper Methods
 	void init_routes();
 	bool handle_redirection();
-	std::string generate_error_page(short status_code, const std::string &message);
+	bool handle_file_upload(RequestParser &request, const std::string &path);
+	bool handle_json_upload(RequestParser &request, const std::string &path);
+	std::string generate_error_page(short status_code);
 	std::string generate_directory_listing(const std::string &path);
 	std::string generate_response_string();
 	std::string detect_mime_type(const std::string &path);
