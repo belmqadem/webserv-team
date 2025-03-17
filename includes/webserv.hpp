@@ -33,8 +33,6 @@
 #define STATUS_413 "413 Payload Too Large"
 #define STATUS_414 "414 URI Too Long"
 #define STATUS_415 "415 Unsupported Media Type"
-#define STATUS_416 "416 Range Not Satisfiable"
-#define STATUS_417 "417 Expectation Failed"
 #define STATUS_431 "431 Request Header Fields Too Large"
 #define STATUS_500 "500 Internal Server Error"
 #define STATUS_501 "501 Not Implemented"
@@ -60,6 +58,9 @@
 #define HTTP_PARSE_INVALID_TRANSFER_ENCODING "Client sent a request with invalid transfer-encoding value"
 #define HTTP_PARSE_INVALID_PERCENT_ENCODING "Client sent a request with invalid percent encoding"		 // DONE
 #define HTTP_PARSE_CONFLICTING_HEADERS "Client sent a request with transfer-encoding and content-length" // DONE
+
+// ERROR MESSAGES (Response: 404 Not Found)
+#define HTTP_PARSE_INVALID_LOCATION "Client sent a request with invalid location" // DONE
 
 // ERROR MESSAGES (Response: 411 Lenght Required)
 #define HTTP_PARSE_MISSING_CONTENT_LENGTH "Client sent a request without content-length header" // DONE
@@ -113,6 +114,8 @@ bool writeFile(const std::string &filename, const std::string &content);
 bool is_numeric(const std::string &str);
 
 #define WEBSERV_NAME "Not Nginx/4.2"
+
+#define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
 
 template <class T>
 std::string to_string(T t)

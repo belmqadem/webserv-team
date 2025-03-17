@@ -1,31 +1,10 @@
 #pragma once
 
 #include "Tokenize.hpp"
-#include "webserv.hpp"
+#include "ConfigManager.hpp"
 
-struct Location
-{
-	std::string location;
-	std::string root;
-	std::map<int, std::string> errorPages;
-	std::vector<std::string> allowedMethods;
-	bool autoindex;
-	std::string index;
-
-	Location() : autoindex(false) {}
-};
-
-struct ServerConfig
-{
-	uint16_t port;
-	std::string host;
-	std::vector<std::string> serverNames;
-	std::string root;
-	std::map<int, std::string> errorPages;
-	std::vector<Location> locations;
-
-	ServerConfig() : port(80), host("0.0.0.0") {}
-};
+struct ServerConfig;
+struct Location;
 
 class Parser
 {
@@ -42,9 +21,13 @@ private:
 	void parseDirecive();
 	void parseListenDirective();
 	void parseServerNameDirective();
-	void parseRootDirective();
 	void parseErrorPageDirective();
 	void parseLocationBlock();
+
+	void parseRedirectDirective(Location &location);
+	void parseCgiDirective(Location &location);
+	void parseUploadStoreDirective(Location &location);
+	void parseClientMaxBodySizeDirective();
 
 public:
 	Parser(const std::vector<Token> &tokens) : _tokens(tokens), _index(0), _currentServer(NULL) {}

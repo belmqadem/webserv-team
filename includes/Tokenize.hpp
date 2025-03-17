@@ -4,6 +4,8 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <limits>
+#include <algorithm>
 
 enum TokenType
 {
@@ -13,12 +15,25 @@ enum TokenType
 	ROOT,
 	ERROR_PAGE,
 	LOCATION,
-	NUMBER,
-	STRING,
 	LBRACE,
 	RBRACE,
 	SEMICOLON,
-	END
+	NUMBER,
+	STRING,
+	END,
+	AUTOINDEX,
+	INDEX,
+	CLIENT_MAX_BODY_SIZE,
+	ALLOWED_METHODS,
+	REDIRECT,
+	REDIRECT_PERMANENT,
+	CGI,
+	CGI_PATH,
+	CGI_EXTENSION,
+	CGI_PASS,
+	CGI_WORKING_DIRECTORY,
+	UPLOAD_STORE,
+	MAX_UPLOAD_SIZE
 };
 
 struct Token

@@ -11,8 +11,6 @@
 
 // Here i will define some value to work with (later extract from config file)
 #define ROOT_DIRECTORY "www/html"
-#define HTTP_REDIRECTION "/redirected_path"
-#define UPLOAD_DIRECTORY "www/uploads"
 #define ALLOW_GET 1
 #define ALLOW_POST 1
 #define ALLOW_DELETE 1
@@ -104,7 +102,7 @@ std::string ResponseBuilder::build_response(RequestParser &request)
 	if (request_error_code != 1) // If an error in request parsing
 	{
 		set_status(request_error_code);
-		body = generate_error_page(request_error_code, "Invalid Request");
+		body = generate_error_page(status_code);
 		include_required_headers(request);
 		return generate_response_string();
 	}
@@ -115,7 +113,7 @@ std::string ResponseBuilder::build_response(RequestParser &request)
 	if (routes.find(method) == routes.end())
 	{
 		set_status(405);
-		body = generate_error_page(405, "Method Not Allowed");
+		body = generate_error_page(status_code);
 		include_required_headers(request);
 		return generate_response_string();
 	}
@@ -158,7 +156,7 @@ void ResponseBuilder::doGET(RequestParser &request)
 	if (stat(path.c_str(), &file_stat) == -1)
 	{
 		set_status(404);
-		body = generate_error_page(404, "File Not Found");
+		body = generate_error_page(status_code);
 		return;
 	}
 
@@ -170,7 +168,7 @@ void ResponseBuilder::doGET(RequestParser &request)
 		{
 			set_status(301);
 			set_headers("Location", uri + "/");
-			body = generate_error_page(301, "Moved Permanently");
+			body = generate_error_page(status_code);
 			return;
 		}
 
@@ -190,7 +188,7 @@ void ResponseBuilder::doGET(RequestParser &request)
 		else
 		{
 			set_status(403);
-			body = generate_error_page(403, "Directory Listing Denied");
+			body = generate_error_page(status_code);
 			return;
 		}
 	}
@@ -206,7 +204,7 @@ void ResponseBuilder::doGET(RequestParser &request)
 	if (!(file_stat.st_mode & S_IRUSR))
 	{
 		set_status(403);
-		body = generate_error_page(403, "Forbidden");
+		body = generate_error_page(status_code);
 		return;
 	}
 
@@ -215,7 +213,7 @@ void ResponseBuilder::doGET(RequestParser &request)
 	if (!file)
 	{
 		set_status(500);
-		body = generate_error_page(500, "Internal Server Error");
+		body = generate_error_page(status_code);
 		return;
 	}
 
@@ -252,20 +250,47 @@ void ResponseBuilder::doPOST(RequestParser &request)
 	if (req_body.size() == 0)
 	{
 		set_status(400);
-		body = generate_error_page(400, "POST request body is required");
+		body = generate_error_page(status_code);
 		return;
 	}
 
+	// Handle file upload if content type is multipart/form-data
+	if (content_type.find("multipart/form-data") != std::string::npos)
+	{
+		if (!handle_file_upload(request, path))
+		{
+			set_status(500);
+			set_body(generate_error_page(status_code));
+			return;
+		}
+		set_status(201);
+		set_body("File uploaded successfully");
+		return;
+	}
+
+	// Handle file upload if content type is application/octet-stream (binary)
+	if (content_type == "application/json")
+	{
+		if (!handle_json_upload(request, path))
+		{
+			set_status(500);
+			body = generate_error_page(status_code);
+			return;
+		}
+		set_status(201);
+		body = "File uploaded successfully";
+		return;
+	}
+
+	// Handle normal POST request -- Regular data
 	std::ofstream file(path.c_str(), std::ios::binary);
 	if (!file)
 	{
 		set_status(403);
-		body = generate_error_page(403, "Cannot write to destination");
+		body = generate_error_page(status_code);
 		return;
 	}
-
-	// Write to file
-
+	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
 	file.close();
 	set_status(201);
 	set_body("Data written successfully");
@@ -284,7 +309,7 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 	if (stat(path.c_str(), &path_stat) != 0)
 	{
 		set_status(404);
-		body = generate_error_page(404, "File Not Found");
+		body = generate_error_page(status_code);
 		return;
 	}
 
@@ -295,7 +320,7 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 		if (uri[uri.size() - 1] != '/')
 		{
 			set_status(409);
-			body = generate_error_page(409, "Conflict: Cannot Delete Non-Empty Directory");
+			body = generate_error_page(status_code);
 			return;
 		}
 
@@ -304,7 +329,7 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 		if (!dir)
 		{
 			set_status(403);
-			body = generate_error_page(403, "Permission Denied");
+			body = generate_error_page(status_code);
 			return;
 		}
 
@@ -323,7 +348,7 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 		if (!is_empty)
 		{
 			set_status(409);
-			body = generate_error_page(409, "Conflict: Directory is not empty");
+			body = generate_error_page(status_code);
 			return;
 		}
 
@@ -331,7 +356,7 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 		if (access(path.c_str(), W_OK) != 0)
 		{
 			set_status(403);
-			body = generate_error_page(403, "Permission Denied");
+			body = generate_error_page(status_code);
 			return;
 		}
 
@@ -345,7 +370,7 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 		else
 		{
 			set_status(500);
-			body = generate_error_page(500, "Internal Server Error");
+			body = generate_error_page(status_code);
 			return;
 		}
 	}
@@ -360,7 +385,7 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 	else
 	{
 		set_status(500);
-		body = generate_error_page(500, "Internal Server Error");
+		body = generate_error_page(status_code);
 	}
 }
 
@@ -371,20 +396,57 @@ bool ResponseBuilder::handle_redirection()
 	{
 		short redirect_code = (headers["Location"].find("permanent") != std::string::npos) ? 301 : 302;
 		set_status(redirect_code);
-		body = generate_error_page(redirect_code, "Redirecting...");
+		body = generate_error_page(status_code);
 		return true;
 	}
 	return false;
 }
 
-// Method to generate error pages
-std::string ResponseBuilder::generate_error_page(short status_code, const std::string &message)
+// Method to handle file upload (multipart/form-data)
+bool ResponseBuilder::handle_file_upload(RequestParser &request, const std::string &path)
 {
-	std::ostringstream page;
-	page << "<html>\n<head>\n  <title>Error " << status_code << "</title>\n</head>\n";
-	page << "<body>\n  <h1>" << status << "</h1></br>\n";
-	page << "  <p>" << message << "</p>\n</body>\n</html>";
-	return page.str();
+	std::string boundary = request.get_header_value("content-type");
+	boundary = boundary.substr(boundary.find("boundary=") + 9);
+	std::string end_boundary = "--" + boundary + "--";
+	std::string content = std::string(request.get_body().begin(), request.get_body().end());
+	size_t start = content.find(boundary);
+	size_t end = content.find(end_boundary);
+	if (start == std::string::npos || end == std::string::npos)
+		return false;
+
+	std::string file_content = content.substr(start, end - start);
+	std::string file_name = path + "uploaded_file";
+
+	/*Later the file name should be generated randomly*/
+
+	std::ofstream file(file_name.c_str(), std::ios::binary);
+	if (!file)
+		return false;
+	file.write(file_content.c_str(), file_content.size());
+	file.close();
+	return true;
+}
+
+// Method to handle json upload (application/json)
+bool ResponseBuilder::handle_json_upload(RequestParser &request, const std::string &path)
+{
+	// Implement this method later
+	(void)request;
+	(void)path;
+	return true;
+}
+
+// Method to generate error pages
+std::string ResponseBuilder::generate_error_page(short status_code)
+{
+	std::string error_page_name = "errors/" + to_string(status_code) + ".html";
+
+	/* Later I will Bring the name from the server config*/
+
+	std::string error_page_file = readFile(error_page_name);
+	if (error_page_file == "")
+		LOG_ERROR("Error: Open");
+	return error_page_file;
 }
 
 // Method to detect the right mime type
@@ -436,12 +498,8 @@ bool ResponseBuilder::is_cgi_request(const std::string &file_path)
 void ResponseBuilder::include_required_headers(RequestParser &request)
 {
 	// Include standard headers
-	headers["Date"] = get_http_date();
 	headers["Server"] = WEBSERV_NAME;
-
-	// Determine connection behavior
-	if (!headers.count("Connection"))
-		headers["Connection"] = (request.is_connection_keep_alive()) ? "keep-alive" : "close";
+	headers["Date"] = get_http_date();
 
 	// `Content-Type` header should always be present
 	if (!headers.count("Content-Type"))
@@ -456,6 +514,10 @@ void ResponseBuilder::include_required_headers(RequestParser &request)
 	{
 		headers.erase("Content-Length"); // Chunked encoding should NOT have Content-Length
 	}
+
+	// Determine connection behavior
+	if (!headers.count("Connection"))
+		headers["Connection"] = (request.is_connection_keep_alive()) ? "keep-alive" : "close";
 
 	// `Allow` header for 405 Method Not Allowed
 	if (status_code == 405 && !headers.count("Allow"))
@@ -531,12 +593,6 @@ void ResponseBuilder::set_status(short status_code)
 		break;
 	case 415:
 		this->status = STATUS_415;
-		break;
-	case 416:
-		this->status = STATUS_416;
-		break;
-	case 417:
-		this->status = STATUS_417;
 		break;
 	case 431:
 		this->status = STATUS_431;

@@ -1,16 +1,9 @@
-#include "ConfigManager.hpp"
-#include "Tokenize.hpp"
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include "Parser.hpp"
 
 // Initialize static instance to NULL
 ConfigManager *ConfigManager::_instance = NULL;
 
-ConfigManager::ConfigManager()
-{
-	// Initialize any needed properties
-}
+ConfigManager::ConfigManager() {}
 
 ConfigManager *ConfigManager::getInstance()
 {
