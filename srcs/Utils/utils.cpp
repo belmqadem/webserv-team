@@ -28,7 +28,7 @@ std::string readFile(const std::string &filename)
 {
 	std::ifstream file(filename.c_str());
 	if (!file)
-		return RED "Error: open" RESET;
+		return "";
 	std::ostringstream content;
 	content << file.rdbuf();
 	return content.str();
