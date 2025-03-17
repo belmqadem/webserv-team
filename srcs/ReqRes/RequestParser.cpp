@@ -1,6 +1,7 @@
 #include "RequestParser.hpp"
 #include "Logger.hpp"
 
+<<<<<<< HEAD
 // LIMITS FOR SOME REQUEST ELEMENTS
 #define MAX_REQUEST_LINE_LENGTH 8192
 #define MAX_URI_LENGTH 2048
@@ -10,11 +11,16 @@
 
 // Constructor
 RequestParser::RequestParser(const std::string &request, const std::vector<ServerConfig> &servers)
+=======
+// Constructor
+RequestParser::RequestParser(const std::string &request, const ServerConfig *v_server)
+>>>>>>> mergeOne
 {
 	this->state = REQUEST_LINE;
 	this->error_code = 1;
 	this->has_content_length = false;
 	this->has_transfer_encoding = false;
+<<<<<<< HEAD
 	this->bytes_read = 0;
 	this->server_config = NULL;
 	this->location_config = NULL;
@@ -24,6 +30,13 @@ RequestParser::RequestParser(const std::string &request, const std::vector<Serve
 	{
 		match_location(servers); // Match the request to the correct server and location block
 	}
+=======
+	this->server_config = v_server;
+	this->location_config = NULL;
+	this->bytes_read += parse_request(request);
+	if (this->bytes_read > 0)
+		match_location(); // Match the request to a location block
+>>>>>>> mergeOne
 }
 
 // Main Function that parses the request
@@ -48,6 +61,14 @@ size_t RequestParser::parse_request(const std::string &request)
 				return pos - start;
 			break;
 		case BODY:
+<<<<<<< HEAD
+=======
+			if (!has_content_length && !has_transfer_encoding)
+			{
+				state = DONE; // No body expected -> request is complete
+				return pos - start;
+			}
+>>>>>>> mergeOne
 			pos = parse_body(pos, end);
 			if (state == ERROR_PARSE || pos == end)
 				return pos - start;
@@ -56,6 +77,10 @@ size_t RequestParser::parse_request(const std::string &request)
 			state = ERROR_PARSE;
 		}
 	}
+<<<<<<< HEAD
+=======
+	set_request_line();
+>>>>>>> mergeOne
 	return (pos - start);
 }
 
@@ -64,11 +89,17 @@ const char *RequestParser::parse_request_line(const char *pos, const char *end)
 {
 	const char *line_end = find_line_end(pos, end); // Points to the end of the line (after CRLF)
 	if (line_end == end)
+<<<<<<< HEAD
 	{
 		return pos; // Wait for more data
 	}
 
 	if ((line_end - pos) > MAX_REQUEST_LINE_LENGTH) // Check for long Request line
+=======
+		return pos; // Wait for more data
+
+	if ((line_end - pos) > MAX_REQUEST_LINE_LENGTH) // Check for long Request line > 8k bytes
+>>>>>>> mergeOne
 	{
 		log_error(HTTP_PARSE_URI_TOO_LONG, 414);
 		return pos;
@@ -106,11 +137,14 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 				log_error(HTTP_PARSE_MISSING_HOST, 400);
 				return pos;
 			}
+<<<<<<< HEAD
 			if (has_content_length && has_transfer_encoding)
 			{
 				log_error(HTTP_PARSE_CONFLICTING_HEADERS, 400);
 				return pos;
 			}
+=======
+>>>>>>> mergeOne
 			if (!has_content_length && !has_transfer_encoding)
 			{
 				if (http_method == "POST")
@@ -119,20 +153,34 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 					log_error(HTTP_PARSE_MISSING_CONTENT_LENGTH, 411);
 					return pos;
 				}
+<<<<<<< HEAD
 				state = DONE; // Ignore the Body by marking the request as DONE
+=======
+				state = DONE;
+>>>>>>> mergeOne
 				return header_end;
 			}
 			state = BODY;
 			return header_end;
 		}
 
+<<<<<<< HEAD
 		if (*pos == ' ' || *pos == '\t') // Reject obsolete line folding
+=======
+		// Reject obsolete line folding
+		if (*pos == ' ' || *pos == '\t')
+>>>>>>> mergeOne
 		{
 			log_error(HTTP_PARSE_INVALID_HEADER_FIELD, 400);
 			return pos;
 		}
 
+<<<<<<< HEAD
 		if ((header_end - pos) > MAX_HEADER_LENGTH) // Header field too large
+=======
+		// Header field too large
+		if ((header_end - pos) > MAX_HEADER_LENGTH)
+>>>>>>> mergeOne
 		{
 			log_error(HTTP_PARSE_HEADER_FIELDS_TOO_LARGE, 431);
 			return pos;
@@ -174,8 +222,21 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			content_length_value = value;
 		}
 
+<<<<<<< HEAD
 		if (key == "transfer-encoding")
 			has_transfer_encoding = true;
+=======
+		// Special Handling for `Transfer-Encoding`
+		if (key == "transfer-encoding")
+		{
+			has_transfer_encoding = true;
+			if (has_content_length)
+			{
+				log_error(HTTP_PARSE_CONFLICTING_HEADERS, 400);
+				return pos;
+			}
+		}
+>>>>>>> mergeOne
 
 		// Special Handling for `Host`
 		if (key == "host")
@@ -194,9 +255,16 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			return pos;
 		}
 
+<<<<<<< HEAD
 		this->headers[key] = value;
 		pos = header_end;
 	}
+=======
+		headers[key] = value;
+		pos = header_end;
+	}
+	std::cout << "hello" << std::endl;
+>>>>>>> mergeOne
 	return pos;
 }
 
@@ -224,40 +292,68 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 	{
 		char *endptr = NULL;
 		std::string content_length_str = headers["content-length"];
+<<<<<<< HEAD
 		size_t content_length = std::strtoul(content_length_str.c_str(), &endptr, 10);
 		size_t bytes_in_body = static_cast<size_t>(end - pos);
 
 		// Check for invalid content length value
 		if (*endptr != '\0' || content_length > bytes_in_body)
+=======
+		unsigned long content_length = std::strtoul(content_length_str.c_str(), &endptr, 10);
+
+		// Check for invalid content length
+		if (*endptr != '\0' || content_length > static_cast<size_t>(end - pos))
+>>>>>>> mergeOne
 		{
 			log_error(HTTP_PARSE_INVALID_CONTENT_LENGTH, 400);
 			return pos;
 		}
 
 		size_t remaining_bytes = content_length - body.size();
+<<<<<<< HEAD
 		size_t bytes_to_read = std::min(remaining_bytes, bytes_in_body);
 		body.insert(body.end(), pos, pos + bytes_to_read);
 		pos += bytes_to_read;
 
 		// If body is fully received -> Parse is done
+=======
+		size_t bytes_to_read = std::min(remaining_bytes, static_cast<size_t>(end - pos));
+
+		body.insert(body.end(), pos, pos + bytes_to_read);
+		pos += bytes_to_read;
+
+		// If body is fully received ==> Parse done
+>>>>>>> mergeOne
 		if (body.size() == content_length)
 			state = DONE;
 
 		return pos;
 	}
+<<<<<<< HEAD
 	return pos;
 }
 
 // Method to extract chunked body
+=======
+
+	return pos;
+}
+
+// Method to handle transfer encoding: chunked
+>>>>>>> mergeOne
 const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 {
 	while (pos < end)
 	{
 		const char *chunk_size_end = find_line_end(pos, end);
 		if (chunk_size_end == end)
+<<<<<<< HEAD
 		{
 			return pos; // wait for more data
 		}
+=======
+			return pos;
+>>>>>>> mergeOne
 
 		// Convert hex size to int
 		std::string chunk_size_str = trim(std::string(pos, chunk_size_end - pos), "\r\n \t");
@@ -275,19 +371,26 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 		{
 			if (pos + 2 > end)
 				return pos; // Wait for final CRLF
+<<<<<<< HEAD
 
+=======
+>>>>>>> mergeOne
 			if (pos[0] != '\r' || pos[1] != '\n')
 			{
 				log_error(HTTP_PARSE_INVALID_CHUNKED_TRANSFER, 400);
 				return pos;
 			}
+<<<<<<< HEAD
 
+=======
+>>>>>>> mergeOne
 			pos += 2;
 			state = DONE;
 			return pos;
 		}
 
 		// Ensure Enough bytes in this segment
+<<<<<<< HEAD
 		size_t remaining_bytes = static_cast<size_t>(end - pos);
 		size_t bytes_to_read = std::min(chunk_size, remaining_bytes);
 		body.insert(body.end(), pos, pos + bytes_to_read);
@@ -295,6 +398,15 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 
 		if (body.size() < chunk_size) // If not enough bytes received, wait for the next segment
 			return pos;
+=======
+		size_t bytes_to_read = std::min(chunk_size, static_cast<size_t>(end - pos));
+		body.insert(body.end(), pos, pos + bytes_to_read);
+		pos += bytes_to_read;
+
+		// If not enough bytes received, wait for the next segment
+		if (body.size() < chunk_size)
+			return pos; // Wait for next data segment
+>>>>>>> mergeOne
 
 		// Ensure chunk ends with CRLF
 		if (pos + 2 > end || pos[0] != '\r' || pos[1] != '\n')
@@ -302,12 +414,20 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 			log_error(HTTP_PARSE_INVALID_CHUNKED_TRANSFER, 400);
 			return pos;
 		}
+<<<<<<< HEAD
 		pos += 2;
+=======
+		pos += 2; // Move past CRLF
+>>>>>>> mergeOne
 	}
 	return pos;
 }
 
+<<<<<<< HEAD
 // Helper method returns the end of the line (after \r\n)
+=======
+// Helper function returns the end of the line
+>>>>>>> mergeOne
 const char *RequestParser::find_line_end(const char *pos, const char *end)
 {
 	while (pos < end - 1)
@@ -323,6 +443,7 @@ const char *RequestParser::find_line_end(const char *pos, const char *end)
 std::string RequestParser::normalize_uri(const std::string &uri)
 {
 	std::string decoded = decode_percent_encoding(uri);
+<<<<<<< HEAD
 	if (decoded.empty())
 		return "";
 
@@ -331,6 +452,12 @@ std::string RequestParser::normalize_uri(const std::string &uri)
 	std::string segment;
 	bool is_absolute = (decoded[0] == '/');
 	bool has_trailing_slash = (decoded[decoded.size() - 1] == '/');
+=======
+	std::vector<std::string> parts;
+	std::istringstream stream(decoded);
+	std::string segment;
+	bool is_absolute = (!decoded.empty() && decoded[0] == '/');
+>>>>>>> mergeOne
 
 	while (std::getline(stream, segment, '/'))
 	{
@@ -341,11 +468,16 @@ std::string RequestParser::normalize_uri(const std::string &uri)
 		{
 			// Prevent directory traversal (`/../../etc/passwd`)
 			if (!is_absolute || parts.empty())
+<<<<<<< HEAD
 			{
 				log_error(HTTP_PARSE_INVALID_URI, 400);
 				return "";
 			}
 			parts.pop_back();
+=======
+				return "";
+			parts.pop_back(); // Move up one directory level
+>>>>>>> mergeOne
 		}
 		else
 			parts.push_back(segment);
@@ -358,14 +490,22 @@ std::string RequestParser::normalize_uri(const std::string &uri)
 	for (size_t i = 0; i < parts.size(); ++i)
 	{
 		normalized << parts[i];
+<<<<<<< HEAD
 		if (i < parts.size() - 1 || has_trailing_slash)
+=======
+		if (i < parts.size() - 1)
+>>>>>>> mergeOne
 			normalized << "/";
 	}
 
 	return normalized.str().empty() ? "/" : normalized.str();
 }
 
+<<<<<<< HEAD
 // Helper method to handle percent encoding in uri
+=======
+// Helper method to decode the percent encoding in uri
+>>>>>>> mergeOne
 std::string RequestParser::decode_percent_encoding(const std::string &str)
 {
 	std::ostringstream decoded;
@@ -385,7 +525,12 @@ std::string RequestParser::decode_percent_encoding(const std::string &str)
 			}
 			else
 			{
+<<<<<<< HEAD
 				log_error(HTTP_PARSE_INVALID_PERCENT_ENCODING, 400);
+=======
+				std::cerr << HTTP_PARSE_INVALID_PERCENT_ENCODING << std::endl;
+				error_code = 400;
+>>>>>>> mergeOne
 				return "";
 			}
 		}
@@ -398,7 +543,11 @@ std::string RequestParser::decode_percent_encoding(const std::string &str)
 }
 
 // Helper method to check if the connection is keep-alive
+<<<<<<< HEAD
 bool RequestParser::is_connection_keep_alive()
+=======
+bool RequestParser::is_keep_alive()
+>>>>>>> mergeOne
 {
 	std::map<std::string, std::string>::iterator it = headers.find("connection");
 	if (it != headers.end())
@@ -409,6 +558,7 @@ bool RequestParser::is_connection_keep_alive()
 	return false;
 }
 
+<<<<<<< HEAD
 // Helper method to check if the connection is close
 bool RequestParser::is_connection_close()
 {
@@ -421,6 +571,8 @@ bool RequestParser::is_connection_close()
 	return false;
 }
 
+=======
+>>>>>>> mergeOne
 // Method to check if the header name is valid
 bool RequestParser::is_valid_header_name(const std::string &name)
 {
@@ -453,18 +605,27 @@ void RequestParser::log_error(const std::string &error_str, short error_code)
 	state = ERROR_PARSE;
 }
 
+<<<<<<< HEAD
 // Method to check if `Content-Length` exists in headers
+=======
+// Method to check in `Content-Length` exists in headers
+>>>>>>> mergeOne
 bool RequestParser::content_length_exists()
 {
 	return (has_content_length ? true : false);
 }
 
+<<<<<<< HEAD
 // Method to check if `Transfer-Encoding` exists in headers
+=======
+// Method to check in `Transfer-Encoding` exists in headers
+>>>>>>> mergeOne
 bool RequestParser::transfer_encoding_exists()
 {
 	return (has_transfer_encoding ? true : false);
 }
 
+<<<<<<< HEAD
 // Method for setting the right location for the request
 void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 {
@@ -520,6 +681,8 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 		request_uri += location_config->index;
 }
 
+=======
+>>>>>>> mergeOne
 /****************************
 		START SETTERS
 ****************************/
@@ -573,8 +736,11 @@ bool RequestParser::set_request_uri(const std::string &request_uri)
 
 	// Decode and Normalize URI
 	uri = normalize_uri(uri);
+<<<<<<< HEAD
 	if (uri.empty())
 		return false;
+=======
+>>>>>>> mergeOne
 
 	// Extract query string if present
 	size_t query_start = uri.find('?');
@@ -598,8 +764,11 @@ bool RequestParser::set_request_uri(const std::string &request_uri)
 		return false;
 	}
 
+<<<<<<< HEAD
 	// Match the location for setting the complete path
 
+=======
+>>>>>>> mergeOne
 	this->request_uri = uri;
 	return true;
 }
@@ -637,6 +806,11 @@ std::string &RequestParser::get_header_value(const std::string &key) { return he
 std::vector<byte> &RequestParser::get_body() { return body; }
 short RequestParser::get_error_code() { return error_code; }
 ParseState &RequestParser::get_state() { return state; }
+<<<<<<< HEAD
+=======
+const ServerConfig *RequestParser::get_server_config() { return server_config; }
+const Location *RequestParser::get_location_config() { return location_config; }
+>>>>>>> mergeOne
 /****************************
 		END GETTERS
 ****************************/
@@ -662,4 +836,32 @@ void RequestParser::print_request()
 		}
 		std::cout << std::endl;
 	}
+<<<<<<< HEAD
 }
+=======
+	std::cout << CYAN "** REQUEST PARSING DONE **" RESET << std::endl;
+}
+
+// void RequestParser::match_location()
+// {
+// 	const std::map<std::string, Location> &locations = server_config->locations;
+
+// 	std::string best_match;
+// 	for (std::map<std::string, Location>::const_iterator it = locations.begin(); it != locations.end(); ++it)
+// 	{
+// 		if (request_uri.find(it->first) == 0) // Check if URI starts with a location path
+// 		{
+// 			if (it->first.size() > best_match.size()) // Find the longest match
+// 			{
+// 				best_match = it->first;
+// 				location_config = &it->second;
+// 			}
+// 		}
+// 	}
+
+// 	if (!location_config)
+// 	{
+// 		log_error("No matching location found", 404);
+// 	}
+// }
+>>>>>>> mergeOne
