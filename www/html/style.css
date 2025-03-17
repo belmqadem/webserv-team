@@ -1,73 +1,172 @@
 :root {
   --main-color: #1f1f1f;
   --main-bg-img: url(./images/background.jpg);
-  --main-bg-color: rgba(235, 235, 235, 0.6);
-  --main-font-familly: font-family: "Ubuntu", sans-serif;
+  --main-bg-color: rgba(235, 235, 235, 0.8);
+  --main-font-familly: "Ubuntu", sans-serif;
+  --main-border-radius: 28px;
 }
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-	font-family: var(--main-font-familly);
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--main-font-familly);
 }
 html {
   scroll-behavior: smooth;
 }
 body {
-  background-image: var(--main-bg-img);
-  background-repeat: no-repeat;
-  background-size: cover;
-  width: 100%;
-  height: 100vh;
+  color: var(--main-color);
+  text-align: center;
 }
-.container {
-	height: 100%;
-	width: 100%;
-	padding: 25px 70px;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
+ul {
+  list-style: none;
 }
-header {
-	background-color: var(--main-bg-color);
-	padding: 60px 10px;
-	width: 900px;
-	text-align: center;
-	margin: 0 auto;
-	border-radius: 32px;
+a {
+  color: inherit;
+  font-weight: lighter;
 }
-header h1 {
-	font-size: 128px;
-	font-weight: bold;
-	text-transform: uppercase;
-	color: var(--main-color);
-	position: relative;
-}
-header h1::before {
-	position: absolute;
-	bottom: 0;
-	right: 120px;
-	content: "";
-	width: 340px;
-	height: 18px;
-	border-radius: 8px;
-	background-color: var(--main-color);
-}
+
+/* Start Main */
 main {
-	display: flex;
-	justify-content: space-between;
+  height: 100vh;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  background-image: var(--main-bg-img);
+  background-color: var(--main-color);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
-main img {
-	width: 300px;
-	height: 300px;
-	border-radius: 50%;
-	filter: blur(4px);
-	margin-bottom: 30px;
+main header {
+  background-color: var(--main-bg-color);
+  padding: 50px 140px;
+  margin: 0 auto;
+  border-radius: var(--main-border-radius);
 }
-main h3 {
-	font-size: 32px;
-	text-align: center;
-	background-color: var(--main-bg-color);
-	padding: 20px 0;
-	border-radius: 12px;
+main header h1 {
+  font-size: 112px;
+  text-transform: uppercase;
+  color: var(--main-color);
+  display: inline;
+  position: relative;
+  font-weight: 400;
 }
+main header h1::before {
+  position: absolute;
+  content: "";
+  left: 0;
+  bottom: -7px;
+  width: 80%;
+  height: 12px;
+  border-radius: 8px;
+  background-color: var(--main-color);
+}
+main header h1::after {
+  position: absolute;
+  content: "Not Nginx";
+  right: 0;
+  bottom: -10px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.link {
+  background-color: var(--main-bg-color);
+  width: fit-content;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: var(--main-border-radius);
+  transition-duration: 0.2s;
+}
+.link:hover {
+  background-color: var(--main-color);
+  color: var(--main-bg-color);
+}
+/* End Main */
+
+/* Start Profiles */
+.profiles {
+  display: flex;
+  justify-content: space-between;
+}
+.profile {
+  background-color: rgba(41, 41, 41, 0.6);
+  padding: 35px 50px;
+  border-radius: var(--main-border-radius);
+  transition-duration: 0.2s;
+}
+.profile:hover {
+  background-color: rgba(41, 41, 41, 0.8);
+  box-shadow: 0 1px 20px -2px var(--main-bg-color);
+  cursor: pointer;
+}
+.profiles img {
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  margin-bottom: 30px;
+  box-shadow: 0 1px 20px -2px var(--main-bg-color);
+  transition-duration: 0.2s;
+}
+.profile:hover img {
+  box-shadow: none;
+}
+.profiles h3 {
+  font-size: 20px;
+  text-align: center;
+  background-color: var(--main-bg-color);
+  padding: 15px 0;
+  border-radius: var(--main-border-radius);
+  transition-duration: 0.2s;
+}
+.profile:hover h3 {
+  letter-spacing: 0.5px;
+  background-color: var(--main-color);
+  color: var(--main-bg-color);
+}
+
+/* End Profiles */
+
+/* Start Testing */
+.testing {
+  height: 100vh;
+  padding: 40px;
+  background-image: var(--main-bg-img);
+  background-color: var(--main-color);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+.test-section {
+  background-color: var(--main-bg-color);
+  padding: 20px;
+  width: 70%;
+  border-radius: var(--main-border-radius);
+  box-shadow: 0 1px 20px -2px var(--main-color);
+}
+.test-section h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+button,
+input[type="submit"] {
+  padding: 10px;
+  margin: 10px;
+  cursor: pointer;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+input[type="file"],
+input[type="text"] {
+  padding: 8px;
+}
+/* End Testing */

@@ -1,0 +1,5 @@
+----NOTNGINX
+Content-Disposition: form-data; name="file"; filename="file.txt"
+Content-Type: text/plain
+
+Hello World!

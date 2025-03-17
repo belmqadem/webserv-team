@@ -1,0 +1,8 @@
+[2025-03-17 07:09:35] [ERROR] Client sent a request with invalid location (code: 404)
+[2025-03-17 07:09:35] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-17 07:10:01] [REQUEST] POST /about/ HTTP/1.1
+[2025-03-17 07:10:01] [RESPONSE] HTTP/1.1 500 Internal Server Error
+[2025-03-17 07:22:41] [ERROR] Client sent a request with invalid location (code: 404)
+[2025-03-17 07:22:41] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-17 07:22:56] [REQUEST] POST /about/ HTTP/1.1
+[2025-03-17 07:22:56] [RESPONSE] HTTP/1.1 500 Internal Server Error
