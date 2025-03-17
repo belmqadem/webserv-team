@@ -4,25 +4,18 @@ RESET = \033[0m
 
 NAME = webserv
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
-
-UTILS = srcs/utils
-REQUEST = srcs/request
-
-SRCS =	srcs/main.cpp \
-		$(UTILS)/utils.cpp \
-		$(REQUEST)/RequestParser.cpp \
-		$(REQUEST)/ResponseBuilder.cpp
-
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
+SRCS = $(shell find srcs -name "*.cpp")
 OBJS = $(SRCS:.cpp=.o)
+INC=includes
 
 %.o : %.cpp
-	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -I$(INC)
 
 all : $(NAME)
 
 $(NAME) : $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ -o $(NAME)
+	$(CXX) $(CXXFLAGS) $^ -o $(NAME) 
 	@echo "$(GREEN)$(NAME) compiled.$(RESET)"
 
 clean :

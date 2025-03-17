@@ -1,0 +1,88 @@
+:root {
+  --main-color: #1f1f1f;
+  --main-bg-img: url(background.jpg);
+  --main-bg-color: rgba(235, 235, 235, 0.8);
+  --main-font-familly: "Ubuntu", sans-serif;
+  --main-border-radius: 28px;
+}
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--main-font-familly);
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  color: var(--main-color);
+  text-align: center;
+}
+ul {
+  list-style: none;
+}
+a {
+  color: inherit;
+  font-weight: lighter;
+}
+
+/* Start Main */
+main {
+  height: 100vh;
+  padding: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  background-image: var(--main-bg-img);
+  background-color: var(--main-color);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+main header {
+  background-color: var(--main-bg-color);
+  padding: 50px 140px;
+  margin: 0 auto;
+  border-radius: var(--main-border-radius);
+}
+main header h1 {
+  font-size: 112px;
+  text-transform: uppercase;
+  color: var(--main-color);
+  display: inline;
+  position: relative;
+  font-weight: 400;
+}
+main header h1::before {
+  position: absolute;
+  content: "";
+  left: 0;
+  bottom: -7px;
+  width: 80%;
+  height: 12px;
+  border-radius: 8px;
+  background-color: var(--main-color);
+}
+main header h1::after {
+  position: absolute;
+  content: "Not Nginx";
+  right: 0;
+  bottom: -10px;
+  font-size: 16px;
+  font-weight: 700;
+}
+/* End Main */
+
+/* Start About */
+.about {
+  background-color: var(--main-bg-color);
+  padding: 100px;
+  border-radius: var(--main-border-radius);
+}
+.about p {
+  font-size: 28px;
+  font-weight: 700;
+}
+/* End About */
