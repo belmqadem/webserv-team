@@ -9,14 +9,6 @@
 
 #define RD_SIZE 1024
 
-template <class T>
-std::string to_string(T t)
-{
-	std::stringstream str;
-	str << t;
-	return str.str();
-}
-
 class Server : public IEvenetListeners
 {
 private:

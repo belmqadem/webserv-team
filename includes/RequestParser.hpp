@@ -1,9 +1,7 @@
 #pragma once
 
 #include "webserv.hpp"
-
-struct ServerConfig;
-struct Location;
+#include "ConfigManager.hpp"
 
 typedef uint8_t byte; // 8 bit unsigned integers
 
@@ -20,6 +18,7 @@ enum ParseState
 class RequestParser
 {
 private:
+	ParseState state;
 	std::string request_line;
 	std::string http_method;
 	std::string request_uri;
@@ -28,14 +27,12 @@ private:
 	std::map<std::string, std::string> headers;
 	std::vector<byte> body;
 	size_t bytes_read;
-
-	const ServerConfig *server_config; // Store the server block handling the request
-	const Location *location_config;   // Store the matched location block
-
-	ParseState state;
 	short error_code;
 	bool has_content_length;
 	bool has_transfer_encoding;
+
+	const ServerConfig *server_config; // Pointer to the matched server block
+	const Location *location_config;  // Pointer to the matched location block
 
 	// Private Helper Methods
 	const char *parse_request_line(const char *pos, const char *end);
@@ -48,15 +45,15 @@ private:
 	bool is_valid_header_name(const std::string &name);
 	bool is_valid_header_value(const std::string &value);
 	void log_error(const std::string &error_str, short error_code);
+	void match_location(const std::vector<ServerConfig> &servers);
 
 	// Restrict copying and assigning object
 	RequestParser(const RequestParser &other);
 	RequestParser &operator=(const RequestParser &other);
 
 public:
-	RequestParser(const std::string &request, const ServerConfig *);
+	RequestParser(const std::string &request, const std::vector<ServerConfig> &servers);
 
-	// Main Methods
 	size_t parse_request(const std::string &request);
 	void print_request();
 
@@ -81,12 +78,10 @@ public:
 	std::vector<byte> &get_body();
 	short get_error_code();
 	ParseState &get_state();
-	const ServerConfig *get_server_config();
-	const Location *get_location_config();
 
 	// Public Helper methods
-	void match_location();
-	bool is_keep_alive();
+	bool is_connection_keep_alive();
+	bool is_connection_close();
 	bool content_length_exists();
 	bool transfer_encoding_exists();
 };

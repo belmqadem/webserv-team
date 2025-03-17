@@ -2,7 +2,10 @@
 
 #include "Tokenize.hpp"
 #include "webserv.hpp"
+#include "ConfigManager.hpp"
 
+struct ServerConfig;
+struct Location;
 
 class Parser
 {
@@ -24,9 +27,9 @@ private:
 	void parseLocationBlock();
 
 	void parseRedirectDirective(Location &location);
-    void parseCgiDirective(Location &location);
-    void parseUploadStoreDirective(Location &location);
-    void parseClientMaxBodySizeDirective();
+	void parseCgiDirective(Location &location);
+	void parseUploadStoreDirective(Location &location);
+	void parseClientMaxBodySizeDirective();
 
 public:
 	Parser(const std::vector<Token> &tokens) : _tokens(tokens), _index(0), _currentServer(NULL) {}

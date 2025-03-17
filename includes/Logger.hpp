@@ -12,6 +12,7 @@ enum LogLevel
 	DEBUG,
 	INFO,
 	REQUEST,
+	RESPONSE,
 	WARNING,
 	ERROR,
 	FATAL
@@ -46,6 +47,7 @@ public:
 	void debug(const std::string &message);
 	void info(const std::string &message);
 	void request(const std::string &message);
+	void response(const std::string &message);
 	void warning(const std::string &message);
 	void error(const std::string &message);
 	void fatal(const std::string &message);
@@ -55,6 +57,7 @@ public:
 #define LOG_DEBUG(msg) Logger::getInstance().debug(msg)
 #define LOG_INFO(msg) Logger::getInstance().info(msg)
 #define LOG_REQUEST(msg) Logger::getInstance().request(msg)
+#define LOG_RESPONSE(msg) Logger::getInstance().response(msg)
 #define LOG_WARNING(msg) Logger::getInstance().warning(msg)
 #define LOG_ERROR(msg) Logger::getInstance().error(msg)
 #define LOG_FATAL(msg) Logger::getInstance().fatal(msg)
