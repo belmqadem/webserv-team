@@ -97,7 +97,7 @@ public:
 
 	// Getters for configuration data
 	const std::vector<ServerConfig> &getServers() const;
-	const ServerConfig *getServerByPort(int port) const;
+	const ServerConfig *getServerByPort(uint16_t port) const;
 	const ServerConfig *getServerByName(const std::string &name) const;
 
 	// Helper methods for parsingz

@@ -25,13 +25,15 @@ private:
 	std::string http_version;
 	std::map<std::string, std::string> headers;
 	std::vector<byte> body;
+	uint16_t port;
 	size_t bytes_read;
+	size_t body_size;
 	short error_code;
 	bool has_content_length;
 	bool has_transfer_encoding;
 
-	ServerConfig *server_config; // Pointer to the matched server block
-	Location *location_config;	 // Pointer to the matched location block
+	const ServerConfig *server_config; // Pointer to the matched server block
+	const Location *location_config;   // Pointer to the matched location block
 
 	// Private Helper Methods
 	const char *parse_request_line(const char *pos, const char *end);
@@ -75,10 +77,12 @@ public:
 	std::map<std::string, std::string> &get_headers();
 	std::string &get_header_value(const std::string &key);
 	std::vector<byte> &get_body();
-	short get_error_code();
+	size_t &get_body_size();
+	short &get_error_code();
+	uint16_t &get_port_number();
 	ParseState &get_state();
-	ServerConfig *get_server_config();
-	Location *get_location_config();
+	const ServerConfig *get_server_config();
+	const Location *get_location_config();
 
 	// Public Helper methods
 	bool is_connection_keep_alive();
