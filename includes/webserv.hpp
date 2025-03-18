@@ -58,6 +58,7 @@
 #define HTTP_PARSE_INVALID_TRANSFER_ENCODING "Client sent a request with invalid transfer-encoding value"
 #define HTTP_PARSE_INVALID_PERCENT_ENCODING "Client sent a request with invalid percent encoding"		 // DONE
 #define HTTP_PARSE_CONFLICTING_HEADERS "Client sent a request with transfer-encoding and content-length" // DONE
+#define HTTP_PARSE_INVALID_PORT "Client sent a request with invalid port number" // DONE
 
 // ERROR MESSAGES (Response: 404 Not Found)
 #define HTTP_PARSE_INVALID_LOCATION "Client sent a request with invalid location" // DONE

@@ -87,14 +87,14 @@ ResponseBuilder::ResponseBuilder(RequestParser &request)
 	this->status = STATUS_200;				  // Set to success
 	this->status_code = 200;				  // Set to success
 	this->init_config(request);				  // Init the config from request match
-	init_routes();							  // set routes with allowed methods
+	// init_routes();							  // set routes with allowed methods
 	this->response = build_response(request); // Here we build the response
 }
 
 // Method to initialize the routes (GET | POST | DELETE)
 void ResponseBuilder::init_routes()
 {
-	std::vector<std::string>::iterator it = location_config->allowedMethods.begin();
+	std::vector<std::string>::const_iterator it = location_config->allowedMethods.begin();
 	for (; it != location_config->allowedMethods.end(); ++it)
 	{
 		if (*it == "GET")
@@ -110,6 +110,7 @@ void ResponseBuilder::init_routes()
 std::string ResponseBuilder::build_response(RequestParser &request)
 {
 	short request_error_code = request.get_error_code();
+	std::cout <<  "hello erorr coode" << request_error_code << std::endl;
 
 	if (request_error_code != 1) // If an error in request parsing
 	{
