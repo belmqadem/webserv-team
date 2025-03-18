@@ -89,7 +89,7 @@ int main()
 		ConfigManager::getInstance()->loadConfig("config/webserv.conf");
 		std::vector<ServerConfig> servers = ConfigManager::getInstance()->getServers();
 
-		std::string request = "POST /about/ HTTP/1.1\r\n"
+		std::string request = "POST / HTTP/1.1\r\n"
 							  "Host: webserv.com:8080\r\n"
 							  "Content-Type: multipart/form-data; boundary=----NOTNGINX\r\n"
 							  "Content-Length: 140\r\n"
@@ -106,10 +106,10 @@ int main()
 		parser.print_request();
 		std::cout << CYAN "** REQUEST PARSING DONE **" RESET << std::endl;
 
-		// ResponseBuilder response(parser);
-		// std::cout << CYAN "** START RESPONSE GENERATING **" RESET << std::endl;
-		// std::cout << response.get_response() << std::endl;
-		// std::cout << CYAN "** RESPONSE GENERATING DONE**" RESET << std::endl;
+		ResponseBuilder response(parser);
+		std::cout << CYAN "** START RESPONSE GENERATING **" RESET << std::endl;
+		std::cout << response.get_response() << std::endl;
+		std::cout << CYAN "** RESPONSE GENERATING DONE**" RESET << std::endl;
 	}
 	catch (std::exception &e)
 	{
