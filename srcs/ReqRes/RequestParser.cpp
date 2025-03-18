@@ -9,7 +9,7 @@
 #define CLIENT_MAX_BODY_SIZE 1048576
 
 // Constructor
-RequestParser::RequestParser(const std::string &request, const std::vector<ServerConfig> &servers)
+RequestParser::RequestParser(const std::string &request, std::vector<ServerConfig> &servers)
 {
 	this->state = REQUEST_LINE;
 	this->error_code = 1;
@@ -466,7 +466,7 @@ bool RequestParser::transfer_encoding_exists()
 }
 
 // Method for setting the right location for the request
-void RequestParser::match_location(const std::vector<ServerConfig> &servers)
+void RequestParser::match_location(std::vector<ServerConfig> &servers)
 {
 	std::string host = headers["host"];
 	std::string port = "80";
@@ -484,14 +484,14 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 		if (std::find(servers[i].serverNames.begin(), servers[i].serverNames.end(), host) != servers[i].serverNames.end() &&
 			to_string(servers[i].port) == port)
 		{
-			server_config = &servers[i];
+			this->server_config = &servers[i];
 			break;
 		}
 	}
 
 	// If no exact match -> point to the first configured server
 	if (!server_config && !servers.empty())
-		server_config = &servers[0];
+		this->server_config = &servers[0];
 
 	// If no server found
 	if (!server_config)
@@ -501,23 +501,23 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 	}
 
 	// Find the matching Location
-	size_t match_length = 0;
-	for (size_t j = 0; j < server_config->locations.size(); ++j)
+	for (size_t i = 0; i < server_config->locations.size(); ++i)
 	{
-		const std::string &location_path = server_config->locations[j].location;
+		if (request_uri.find(server_config->locations[i].location) == 0)
+			this->location_config = &server_config->locations[i];
+	}
 
-		if (request_uri.find(location_path) == 0 && location_path.length() > match_length)
-		{
-			match_length = location_path.length();
-			location_config = &server_config->locations[j];
-		}
+	if (!location_config)
+	{
+		log_error(HTTP_PARSE_INVALID_LOCATION, 404);
+		return;
 	}
 
 	// Here update `request_uri` to point to `/root/location`
-	request_uri = location_config->root + request_uri;
+	this->request_uri = location_config->root + request_uri;
 	// If the request uri ends with a '/' -> append the index file
 	if (request_uri[request_uri.size() - 1] == '/')
-		request_uri += location_config->index;
+		this->request_uri += location_config->index;
 }
 
 /****************************
@@ -637,6 +637,8 @@ std::string &RequestParser::get_header_value(const std::string &key) { return he
 std::vector<byte> &RequestParser::get_body() { return body; }
 short RequestParser::get_error_code() { return error_code; }
 ParseState &RequestParser::get_state() { return state; }
+ServerConfig *RequestParser::get_server_config() { return server_config; }
+Location *RequestParser::get_location_config() { return location_config; }
 /****************************
 		END GETTERS
 ****************************/
