@@ -15,3 +15,6 @@
 - Always validate the uploaded file’s size, type, and content.
 - Use a random or unique naming strategy for uploaded files to avoid overwriting existing files.
 - For security, avoid directly exposing uploaded files and always sanitize file names.
+
+
+==> Add a parse for empty config file
