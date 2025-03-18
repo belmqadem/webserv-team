@@ -73,12 +73,20 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 // All the mime types are stored in this map
 std::map<std::string, std::string> ResponseBuilder::mime_types = init_mime_types();
 
+// Method for initializing the Request Matching configuration for server and location
+void ResponseBuilder::init_config(RequestParser &request)
+{
+	this->server_config = request.get_server_config();
+	this->location_config = request.get_location_config();
+}
+
 // Constructor Takes Request as parameter
 ResponseBuilder::ResponseBuilder(RequestParser &request)
 {
 	this->http_version = "HTTP/1.1";		  // Only version 1.1 is implemented
 	this->status = STATUS_200;				  // Set to success
 	this->status_code = 200;				  // Set to success
+	this->init_config(request);				  // Init the config from request match
 	init_routes();							  // set routes with allowed methods
 	this->response = build_response(request); // Here we build the response
 }
@@ -86,12 +94,16 @@ ResponseBuilder::ResponseBuilder(RequestParser &request)
 // Method to initialize the routes (GET | POST | DELETE)
 void ResponseBuilder::init_routes()
 {
-	if (ALLOW_GET)
-		routes["GET"] = &ResponseBuilder::doGET;
-	if (ALLOW_POST)
-		routes["POST"] = &ResponseBuilder::doPOST;
-	if (ALLOW_DELETE)
-		routes["DELETE"] = &ResponseBuilder::doDELETE;
+	std::vector<std::string>::iterator it = location_config->allowedMethods.begin();
+	for (; it != location_config->allowedMethods.end(); ++it)
+	{
+		if (*it == "GET")
+			routes["GET"] = &ResponseBuilder::doGET;
+		else if (*it == "POST")
+			routes["POST"] = &ResponseBuilder::doPOST;
+		else if (*it == "DELETE")
+			routes["DELETE"] = &ResponseBuilder::doDELETE;
+	}
 }
 
 // Method to process the response
