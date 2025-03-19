@@ -112,7 +112,7 @@ void ClientServer::handleIncomingData()
 			_response_buffer = response.get_response();
 			_response_ready = true;
 			
-			_response_buffer.clear();
+			_request_buffer.clear();
 			parser.print_request();
 
 			modifyEpollEvent(EPOLLIN | EPOLLOUT);
@@ -128,7 +128,7 @@ bool ClientServer::shouldKeepAlive() const
 	if (!_parser) {
 		return false;
 	}
-	return true;
+	return false;
 }
 //     // Get HTTP version and Connection header
 //     const std::string& version = _parser->get_http_version();
@@ -167,7 +167,6 @@ void ClientServer::handleResponse()
 
     ssize_t bytes_sent = send(_peer_socket_fd, _response_buffer.c_str(),
                              _response_buffer.size(), MSG_DONTWAIT);
-                             
     if (bytes_sent <= 0) {
         LOG_ERROR("Error sending response to client");
         this->terminate();
