@@ -23,8 +23,10 @@ RequestParser::RequestParser(const std::string &request, std::vector<ServerConfi
 	set_request_line();
 	if (this->bytes_read > 0)
 	{
-		body_size = this->body.size();
 		match_location(servers); // Match the request to the correct server and location block
+		body_size = this->body.size();
+		if (body_size > server_config->clientMaxBodySize)
+			log_error(HTTP_PARSE_PAYLOAD_TOO_LARGE, 413);
 	}
 }
 

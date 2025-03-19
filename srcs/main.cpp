@@ -23,7 +23,7 @@ void printServerConfig(const ServerConfig &server)
 
 	// Print error pages
 	std::cout << "  Error Pages:" << std::endl;
-	for (std::map<int, std::string>::const_iterator it = server.errorPages.begin();
+	for (std::map<short, std::string>::const_iterator it = server.errorPages.begin();
 		 it != server.errorPages.end(); ++it)
 	{
 		std::cout << "    " << it->first << ": " << it->second << std::endl;
