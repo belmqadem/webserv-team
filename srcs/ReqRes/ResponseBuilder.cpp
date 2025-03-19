@@ -1,14 +1,6 @@
 #include "ResponseBuilder.hpp"
 #include "Logger.hpp"
 
-// Here the default directives if not overrided in config file
-#define DEFAULT_ERROR_PAGE "error.html"
-#define CLIENT_MAX_BODY_SIZE 1048576
-#define DEFAULT_INDEX "index.html"
-#define DIRECTORY_LISTING_ENABLED 1
-#define UPLOAD_ENABLED 1
-#define MAX_UPLOAD_SIZE 5242880
-
 // Static function to initialize the mime types
 std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 {

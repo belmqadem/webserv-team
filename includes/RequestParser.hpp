@@ -31,6 +31,8 @@ private:
 	short error_code;
 	bool has_content_length;
 	bool has_transfer_encoding;
+	bool is_headers_completed;
+	bool is_body_completed;
 
 	const ServerConfig *server_config; // Pointer to the matched server block
 	const Location *location_config;   // Pointer to the matched location block
@@ -89,4 +91,6 @@ public:
 	bool is_connection_close();
 	bool content_length_exists();
 	bool transfer_encoding_exists();
+	bool headers_completed();
+	bool body_completed();
 };
