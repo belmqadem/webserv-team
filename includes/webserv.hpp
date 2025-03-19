@@ -67,7 +67,7 @@
 #define HTTP_PARSE_MISSING_CONTENT_LENGTH "Client sent a request without content-length header" // DONE
 
 // ERROR MESSAGES (Response: 413 Payload Too Large)
-#define HTTP_PARSE_PAYLOAD_TOO_LARGE "Client sent a request with payload too large"
+#define HTTP_PARSE_PAYLOAD_TOO_LARGE "Client sent a request with payload too large" // DONE
 
 // ERROR MESSAGES (Response: 414 URI Too Long)
 #define HTTP_PARSE_URI_TOO_LONG "Client sent a request with uri too long" // DONE

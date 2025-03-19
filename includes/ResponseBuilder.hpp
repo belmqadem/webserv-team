@@ -14,7 +14,7 @@ private:
 	std::map<std::string, void (ResponseBuilder::*)(RequestParser &)> routes; // A map to route the request to the correct method
 
 	const ServerConfig *server_config; // Pointer to the matched server block
-	const Location *location_config;	 // Pointer to the matched location block
+	const Location *location_config;   // Pointer to the matched location block
 
 	// Required HTTP Methods
 	void doGET(RequestParser &request);

@@ -9,12 +9,6 @@
 #define UPLOAD_ENABLED 1
 #define MAX_UPLOAD_SIZE 5242880
 
-// Here i will define some value to work with (later extract from config file)
-#define ROOT_DIRECTORY "www/html"
-#define ALLOW_GET 1
-#define ALLOW_POST 1
-#define ALLOW_DELETE 1
-
 // Static function to initialize the mime types
 std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 {
@@ -87,7 +81,7 @@ ResponseBuilder::ResponseBuilder(RequestParser &request)
 	this->status = STATUS_200;				  // Set to success
 	this->status_code = 200;				  // Set to success
 	this->init_config(request);				  // Init the config from request match
-	// init_routes();							  // set routes with allowed methods
+	init_routes();							  // set routes with allowed methods
 	this->response = build_response(request); // Here we build the response
 }
 
@@ -110,7 +104,6 @@ void ResponseBuilder::init_routes()
 std::string ResponseBuilder::build_response(RequestParser &request)
 {
 	short request_error_code = request.get_error_code();
-	std::cout <<  "hello erorr coode" << request_error_code << std::endl;
 
 	if (request_error_code != 1) // If an error in request parsing
 	{
@@ -162,7 +155,7 @@ void ResponseBuilder::doGET(RequestParser &request)
 {
 	std::cout << "GET METHOD EXECUTED" << std::endl;
 	std::string uri = request.get_request_uri();
-	std::string path = ROOT_DIRECTORY + uri;
+	std::string path = location_config->root + uri;
 
 	// Check if the file exists
 	struct stat file_stat;
@@ -186,12 +179,12 @@ void ResponseBuilder::doGET(RequestParser &request)
 		}
 
 		// If an index file exists, use it
-		std::string index_path = path + DEFAULT_INDEX;
+		std::string index_path = path + location_config->index;
 		if (stat(index_path.c_str(), &file_stat) == 0)
 		{
 			path = index_path;
 		}
-		else if (DIRECTORY_LISTING_ENABLED) // If auto index is enabled in the config file
+		else if (location_config->autoindex) // If auto index is enabled in the config file
 		{
 			body = generate_directory_listing(path);
 			set_status(200);
@@ -250,7 +243,7 @@ void ResponseBuilder::doPOST(RequestParser &request)
 {
 	std::cout << "POST METHOD EXECUTED" << std::endl;
 	std::string uri = request.get_request_uri();
-	std::string path = "www" + uri;
+	std::string path = location_config->root + uri;
 	std::vector<byte> req_body = request.get_body();
 	std::string content_type = request.get_header_value("content-type");
 
@@ -315,7 +308,7 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 	std::cout << "DELETE METHOD EXECUTED" << std::endl;
 
 	std::string uri = request.get_request_uri();
-	std::string path = ROOT_DIRECTORY + uri;
+	std::string path = location_config->root + uri;
 	struct stat path_stat;
 
 	// Check if the file exists
@@ -452,10 +445,7 @@ bool ResponseBuilder::handle_json_upload(RequestParser &request, const std::stri
 // Method to generate error pages
 std::string ResponseBuilder::generate_error_page(short status_code)
 {
-	std::string error_page_name = "errors/" + to_string(status_code) + ".html";
-
-	/* Later I will Bring the name from the server config*/
-
+	std::string error_page_name = server_config->errorPages.at(status_code);
 	std::string error_page_file = readFile(error_page_name);
 	if (error_page_file == "")
 		LOG_ERROR("Error: Open");
