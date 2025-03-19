@@ -527,12 +527,6 @@ void RequestParser::match_location(std::vector<ServerConfig> &servers)
 		log_error(HTTP_PARSE_INVALID_LOCATION, 404);
 		return;
 	}
-
-	// Here update `request_uri` to point to `/root/location`
-	this->request_uri = location_config->root + request_uri;
-	// If the request uri ends with a '/' -> append the index file
-	if (request_uri[request_uri.size() - 1] == '/')
-		this->request_uri += location_config->index;
 }
 
 bool RequestParser::headers_completed() { return is_headers_completed; }
@@ -615,8 +609,6 @@ bool RequestParser::set_request_uri(const std::string &request_uri)
 		log_error(HTTP_PARSE_URI_TOO_LONG, 414);
 		return false;
 	}
-
-	// Match the location for setting the complete path
 
 	this->request_uri = uri;
 	return true;
