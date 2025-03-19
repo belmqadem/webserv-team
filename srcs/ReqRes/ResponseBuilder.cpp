@@ -194,7 +194,13 @@ void ResponseBuilder::doGET(RequestParser &request)
 	// CGI Execution
 	if (is_cgi_request(path))
 	{
-		// HANDLE CGI IN GET
+		std::cout << "hello from get===================================================================================================================================================================================="<< std::endl; 
+		CGIHandler cgi(request);
+		cgi.executeCGI();
+		exit(23);
+		body = cgi.getOut();  // Store CGI output in the response bodys
+		set_status(200);  // Assuming CGI executed successfully
+		set_headers("Content-Type", "text/html"); // Adjust based on CGI output
 		return;
 	}
 
@@ -241,7 +247,12 @@ void ResponseBuilder::doPOST(RequestParser &request)
 
 	if (is_cgi_request(path))
 	{
-		// HANDLE CGI IN POST
+		std::cout << "hello from post"<< std::endl; 
+		CGIHandler cgi(request);
+		cgi.executeCGI();
+		body = cgi.getOut();  // Store CGI output in the response bodys
+		set_status(200);  // Assuming CGI executed successfully
+		set_headers("Content-Type", "text/html"); // Adjust based on CGI output
 		return;
 	}
 
@@ -485,9 +496,24 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 // Method to check if the requested uri is for cgi
 bool ResponseBuilder::is_cgi_request(const std::string &file_path)
 {
+    // std::vector<std::string> cgi_extensions;
+	// cgi_extensions.push_back(".php");
+	// cgi_extensions.push_back(".py");
+	// cgi_extensions.push_back(".js");
+    // size_t dot_pos = file_path.find_last_of('.');
+    
+    // if (dot_pos != std::string::npos) {
+    //     std::string ext = file_path.substr(dot_pos);
+    //     for (size_t i = 0; i < cgi_extensions.size(); i++) {
+    //         if (ext == cgi_extensions[i])
+    //             return true;
+    //     }
+    // }
+    // return false;
 	(void)file_path;
-	return false;
+	return true;
 }
+
 
 // Method to add the required headers into response
 void ResponseBuilder::include_required_headers(RequestParser &request)
