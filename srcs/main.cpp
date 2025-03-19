@@ -89,7 +89,7 @@ int main()
 		ConfigManager::getInstance()->loadConfig("config/webserv.conf");
 		std::vector<ServerConfig> servers = ConfigManager::getInstance()->getServers();
 
-		std::string request = "POST / HTTP/1.1\r\n"
+		std::string request = "GET / HTTP/1.1\r\n"
 							  "Host: webserv.com:8080\r\n"
 							  "Content-Type: multipart/form-data; boundary=----NOTNGINX\r\n"
 							  "Content-Length: 140\r\n"
