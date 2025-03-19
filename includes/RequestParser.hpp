@@ -48,11 +48,11 @@ private:
 	void match_location(const std::vector<ServerConfig> &servers);
 
 	// Restrict copying and assigning object
+	
+	public:
 	RequestParser(const RequestParser &other);
-	RequestParser &operator=(const RequestParser &other);
-
-public:
 	RequestParser(const std::string &request, const std::vector<ServerConfig> &servers);
+	RequestParser &operator=(const RequestParser &other);
 
 	size_t parse_request(const std::string &request);
 	void print_request();

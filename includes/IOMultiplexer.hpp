@@ -29,6 +29,7 @@ public:
 	void runEventLoop();
 	void terminate();
 	void addListener(IEvenetListeners *listener, epoll_event ev);
+	void modifyListener(IEvenetListeners *listener, epoll_event ev);
 	void removeListener(epoll_event ev, int fd);
 
 public:

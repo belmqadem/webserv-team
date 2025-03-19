@@ -2,11 +2,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug Parser CGI Processing",
+            "name": "Debug Webserv",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/config_tester",
-            "args": ["${workspaceFolder}/config/test.conf"],
+            "program": "${workspaceFolder}/webserv",
+            "args": ["${workspaceFolder}/config/test.conf"],  // Changed to test.conf
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
@@ -17,14 +17,15 @@
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
+                },
+                {
+                    "description": "Set disassembly flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "build config_tester",
-            "miDebuggerPath": "/usr/bin/gdb",
-            "symbolLoadInfo": {
-                "loadAll": true,
-                "exceptionList": ""
-            }
+            "preLaunchTask": "build webserv",
+            "miDebuggerPath": "/usr/bin/gdb"
         }
     ]
 }
