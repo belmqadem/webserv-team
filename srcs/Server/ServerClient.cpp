@@ -57,7 +57,8 @@ ClientServer::~ClientServer()
 
 void ClientServer::terminate()
 {
-	if (_parser) {
+	if (_parser)
+	{
 		delete _parser;
 		_parser = NULL;
 	}
@@ -98,25 +99,28 @@ void ClientServer::handleIncomingData()
 	size_t header_end = _request_buffer.find(CRLF CRLF);
 	if (header_end != std::string::npos)
 	{
-		try {
-			RequestParser parser(_request_buffer, 
-				ConfigManager::getInstance()->getServers());
+		try
+		{
+			RequestParser parser(_request_buffer, ConfigManager::getInstance()->getServers());
 			if (_parser)
 				delete _parser;
 			_parser = new RequestParser(parser);
-			if (parser.get_error_code() != 1) {
+			if (parser.get_error_code() != 1)
+			{
 				LOG_ERROR("Error parsing request: " + to_string(parser.get_error_code()));
 			}
 			ResponseBuilder response(parser);
 
 			_response_buffer = response.get_response();
 			_response_ready = true;
-			
+
 			_request_buffer.clear();
 			parser.print_request();
 
 			modifyEpollEvent(EPOLLIN | EPOLLOUT);
-			} catch (std::exception &e) {
+		}
+		catch (std::exception &e)
+		{
 			LOG_ERROR("Exception in request processing " + std::string(e.what()));
 		}
 	}
@@ -125,7 +129,8 @@ void ClientServer::handleIncomingData()
 bool ClientServer::shouldKeepAlive() const
 {
 	// If we don't have a parser object stored, we can't check
-	if (!_parser) {
+	if (!_parser)
+	{
 		return false;
 	}
 	return false;
@@ -133,64 +138,74 @@ bool ClientServer::shouldKeepAlive() const
 //     // Get HTTP version and Connection header
 //     const std::string& version = _parser->get_http_version();
 //     // const std::string& connection = _parser->get_header("Connection");
-    
+
 //     // HTTP/1.1: keep-alive by default unless "Connection: close"
 //     if (version == "HTTP/1.1") {
 //         return connection != "close";
 //     }
-    
+
 //     // HTTP/1.0: close by default unless "Connection: keep-alive"
 //     if (version == "HTTP/1.0") {
 //         return connection == "keep-alive";
 //     }
-    
+
 //     // Unknown HTTP version or other cases: close the connection
 //     return false;
 
-
 void ClientServer::modifyEpollEvent(uint32_t events)
 {
-    _epoll_ev.events = events;
-    
-    try {
-        IOMultiplexer::getInstance().modifyListener(this, _epoll_ev);
-    } catch (std::exception &e) {
-        LOG_ERROR("Failed to modify epoll event: " + std::string(e.what()));
-    }
+	_epoll_ev.events = events;
+
+	try
+	{
+		IOMultiplexer::getInstance().modifyListener(this, _epoll_ev);
+	}
+	catch (std::exception &e)
+	{
+		LOG_ERROR("Failed to modify epoll event: " + std::string(e.what()));
+	}
 }
 
 void ClientServer::handleResponse()
 {
-    if (!_response_ready || _response_buffer.empty()) {
-        return;
-    }
+	if (!_response_ready || _response_buffer.empty())
+	{
+		return;
+	}
 
-    ssize_t bytes_sent = send(_peer_socket_fd, _response_buffer.c_str(),
-                             _response_buffer.size(), MSG_DONTWAIT);
-    if (bytes_sent <= 0) {
-        LOG_ERROR("Error sending response to client");
-        this->terminate();
-        return;
-    }
-    
-    if (static_cast<size_t>(bytes_sent) < _response_buffer.size()) {
-        _response_buffer = _response_buffer.substr(bytes_sent);
-    } else {
-        _response_buffer.clear();
-        _response_ready = false;
+	ssize_t bytes_sent = send(_peer_socket_fd, _response_buffer.c_str(),
+							  _response_buffer.size(), MSG_DONTWAIT);
+	if (bytes_sent <= 0)
+	{
+		LOG_ERROR("Error sending response to client");
+		this->terminate();
+		return;
+	}
 
-		if (!shouldKeepAlive()) {
+	if (static_cast<size_t>(bytes_sent) < _response_buffer.size())
+	{
+		_response_buffer = _response_buffer.substr(bytes_sent);
+	}
+	else
+	{
+		_response_buffer.clear();
+		_response_ready = false;
+
+		if (!shouldKeepAlive())
+		{
 			this->terminate();
-		} else {
+		}
+		else
+		{
 			modifyEpollEvent(EPOLLIN);
-		}   
-    }
+		}
+	}
 }
 
 // void ClientServer::enableWriteEvent()
 // {
 // 	_epoll_ev.events = EPOLLIN | EPOLLOUT;
-	
+
 // 	try {
 //         IOMultiplexer::getInstance().modifyListener(this, _epoll_ev);
 //     } catch (std::exception &e) {

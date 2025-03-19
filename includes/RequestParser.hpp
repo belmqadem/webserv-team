@@ -1,6 +1,5 @@
 #pragma once
 
-#include "webserv.hpp"
 #include "ConfigManager.hpp"
 
 typedef uint8_t byte; // 8 bit unsigned integers
@@ -26,13 +25,17 @@ private:
 	std::string http_version;
 	std::map<std::string, std::string> headers;
 	std::vector<byte> body;
+	uint16_t port;
 	size_t bytes_read;
+	size_t body_size;
 	short error_code;
 	bool has_content_length;
 	bool has_transfer_encoding;
+	bool is_headers_completed;
+	bool is_body_completed;
 
 	const ServerConfig *server_config; // Pointer to the matched server block
-	const Location *location_config;  // Pointer to the matched location block
+	const Location *location_config;   // Pointer to the matched location block
 
 	// Private Helper Methods
 	const char *parse_request_line(const char *pos, const char *end);
@@ -47,11 +50,9 @@ private:
 	void log_error(const std::string &error_str, short error_code);
 	void match_location(const std::vector<ServerConfig> &servers);
 
-	// Restrict copying and assigning object
-	
-	public:
-	RequestParser(const RequestParser &other);
+public:
 	RequestParser(const std::string &request, const std::vector<ServerConfig> &servers);
+	RequestParser(const RequestParser &other);
 	RequestParser &operator=(const RequestParser &other);
 
 	size_t parse_request(const std::string &request);
@@ -76,12 +77,18 @@ private:
 	std::map<std::string, std::string> &get_headers();
 	std::string &get_header_value(const std::string &key);
 	std::vector<byte> &get_body();
-	short get_error_code();
+	size_t &get_body_size();
+	short &get_error_code();
+	uint16_t &get_port_number();
 	ParseState &get_state();
+	const ServerConfig *get_server_config();
+	const Location *get_location_config();
 
 	// Public Helper methods
 	bool is_connection_keep_alive();
 	bool is_connection_close();
 	bool content_length_exists();
 	bool transfer_encoding_exists();
+	bool headers_completed();
+	bool body_completed();
 };

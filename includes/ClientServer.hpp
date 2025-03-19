@@ -2,11 +2,9 @@
 
 #include "ConfigManager.hpp"
 #include "IOMultiplexer.hpp"
-#include "RequestParser.hpp"
 #include "ResponseBuilder.hpp"
 
 #define RD_SIZE 1024
-
 
 class ClientServer : IEvenetListeners
 {
@@ -20,7 +18,8 @@ private:
 	// RequestParser request;
 	std::string _request_buffer;
 	std::string _response_buffer;
-	bool	_response_ready; 
+	bool _response_ready;
+
 private:
 	void handleIncomingData();
 	void handleResponse();
@@ -34,7 +33,6 @@ public:
 	void setClientAddr(sockaddr_in addr);
 	void RegisterWithIOMultiplexer();
 	bool shouldKeepAlive() const;
-
 
 	ClientServer(const int &server_socket_fd, const int &peer_socket_fd);
 	~ClientServer();

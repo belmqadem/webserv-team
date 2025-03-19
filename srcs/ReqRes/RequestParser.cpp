@@ -6,7 +6,6 @@
 #define MAX_URI_LENGTH 2048
 #define MAX_HEADER_LENGTH 8192
 #define MAX_HEADER_COUNT 100
-#define CLIENT_MAX_BODY_SIZE 1048576
 
 // Constructor
 RequestParser::RequestParser(const std::string &request, const std::vector<ServerConfig> &servers)
@@ -16,34 +15,40 @@ RequestParser::RequestParser(const std::string &request, const std::vector<Serve
 	this->has_content_length = false;
 	this->has_transfer_encoding = false;
 	this->bytes_read = 0;
+	this->body_size = 0;
 	this->server_config = NULL;
 	this->location_config = NULL;
+	this->is_headers_completed = false;
+	this->is_body_completed = false;
 	this->bytes_read += parse_request(request);
 	set_request_line();
 	if (this->bytes_read > 0)
 	{
 		match_location(servers); // Match the request to the correct server and location block
+		body_size = this->body.size();
+		if (body_size > server_config->clientMaxBodySize)
+			log_error(HTTP_PARSE_PAYLOAD_TOO_LARGE, 413);
 	}
 }
 
-RequestParser::RequestParser(const RequestParser &other) :
-    state(other.state),
-    request_line(other.request_line),
-    http_method(other.http_method),
-    request_uri(other.request_uri),
-    query_string(other.query_string),
-    http_version(other.http_version),
-    headers(other.headers),
-    body(other.body),
-    bytes_read(other.bytes_read),
-    error_code(other.error_code),
-    has_content_length(other.has_content_length),
-    has_transfer_encoding(other.has_transfer_encoding),
-    server_config(other.server_config),
-    location_config(other.location_config)
+// Copy Constructor
+RequestParser::RequestParser(const RequestParser &other) : state(other.state),
+														   request_line(other.request_line),
+														   http_method(other.http_method),
+														   request_uri(other.request_uri),
+														   query_string(other.query_string),
+														   http_version(other.http_version),
+														   headers(other.headers),
+														   body(other.body),
+														   bytes_read(other.bytes_read),
+														   error_code(other.error_code),
+														   has_content_length(other.has_content_length),
+														   has_transfer_encoding(other.has_transfer_encoding),
+														   server_config(other.server_config),
+														   location_config(other.location_config)
 {
-    // Note: No need to deep-copy server_config and location_config
-    // as they are pointers to configurations owned by ConfigManager
+	// Note: No need to deep-copy server_config and location_config
+	// as they are pointers to configurations owned by ConfigManager
 }
 
 // Main Function that parses the request
@@ -140,9 +145,12 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 					return pos;
 				}
 				state = DONE; // Ignore the Body by marking the request as DONE
+				this->is_headers_completed = true;
+				this->is_body_completed = true;
 				return header_end;
 			}
 			state = BODY;
+			this->is_headers_completed = true;
 			return header_end;
 		}
 
@@ -200,12 +208,34 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 		// Special Handling for `Host`
 		if (key == "host")
 		{
-			if (has_host) // Later check if this host is in the config file and the right location
+			if (has_host)
 			{
 				log_error(HTTP_PARSE_INVALID_HOST, 400);
 				return pos;
 			}
+
 			has_host = true;
+			std::string host_value = value;
+			uint16_t port = 80;
+
+			size_t colon_pos = host_value.find(':');
+			if (colon_pos != std::string::npos)
+			{
+				std::string port_str = host_value.substr(colon_pos + 1);
+				host_value = host_value.substr(0, colon_pos);
+
+				char *endptr;
+				long parsed_port = std::strtol(port_str.c_str(), &endptr, 10);
+
+				if (*endptr != '\0' || parsed_port < 1 || parsed_port > 65535)
+				{
+					log_error(HTTP_PARSE_INVALID_PORT, 400);
+					return pos;
+				}
+
+				port = static_cast<uint16_t>(parsed_port);
+			}
+			this->port = port;
 		}
 
 		if (headers.size() >= MAX_HEADER_COUNT)
@@ -223,12 +253,6 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 // Method to extract body of the request
 const char *RequestParser::parse_body(const char *pos, const char *end)
 {
-	if (!has_content_length && !has_transfer_encoding)
-	{
-		state = DONE; // No body expected -> Mark as complete
-		return 0;
-	}
-
 	// Case 1: Transfer-Encoding: chunked
 	if (has_transfer_encoding)
 	{
@@ -261,7 +285,10 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 
 		// If body is fully received -> Parse is done
 		if (body.size() == content_length)
+		{
+			this->is_body_completed = true;
 			state = DONE;
+		}
 
 		return pos;
 	}
@@ -304,6 +331,7 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 
 			pos += 2;
 			state = DONE;
+			this->is_body_completed = true;
 			return pos;
 		}
 
@@ -489,56 +517,40 @@ bool RequestParser::transfer_encoding_exists()
 void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 {
 	std::string host = headers["host"];
-	std::string port = "80";
 
-	size_t colon_pos = host.find(':');
-	if (colon_pos != std::string::npos)
+	this->server_config = ConfigManager::getInstance()->getServerByName(host);
+	if (!this->server_config)
 	{
-		port = host.substr(colon_pos + 1);
-		host = host.substr(0, colon_pos);
-	}
-
-	// Find the Matching Server
-	for (size_t i = 0; i < servers.size(); ++i)
-	{
-		if (std::find(servers[i].serverNames.begin(), servers[i].serverNames.end(), host) != servers[i].serverNames.end() &&
-			to_string(servers[i].port) == port)
-		{
-			server_config = &servers[i];
-			break;
-		}
+		this->server_config = ConfigManager::getInstance()->getServerByPort(port);
 	}
 
 	// If no exact match -> point to the first configured server
 	if (!server_config && !servers.empty())
-		server_config = &servers[0];
+		this->server_config = &servers[0];
 
-	// If no server found
-	if (!server_config)
+	// Find the best matching Location
+	size_t best_match_length = 0;
+	for (size_t i = 0; i < server_config->locations.size(); ++i)
+	{
+		const std::string &location_path = server_config->locations[i].location;
+
+		if (request_uri.find(location_path) == 0 && location_path.length() > best_match_length)
+		{
+			best_match_length = location_path.length();
+			this->location_config = &server_config->locations[i];
+		}
+	}
+
+	// this check will be in config parse (Remove later)
+	if (!location_config)
 	{
 		log_error(HTTP_PARSE_INVALID_LOCATION, 404);
 		return;
 	}
-
-	// Find the matching Location
-	size_t match_length = 0;
-	for (size_t j = 0; j < server_config->locations.size(); ++j)
-	{
-		const std::string &location_path = server_config->locations[j].location;
-
-		if (request_uri.find(location_path) == 0 && location_path.length() > match_length)
-		{
-			match_length = location_path.length();
-			location_config = &server_config->locations[j];
-		}
-	}
-
-	// Here update `request_uri` to point to `/root/location`
-	request_uri = location_config->root + request_uri;
-	// If the request uri ends with a '/' -> append the index file
-	if (request_uri[request_uri.size() - 1] == '/')
-		request_uri += location_config->index;
 }
+
+bool RequestParser::headers_completed() { return is_headers_completed; }
+bool RequestParser::body_completed() { return is_body_completed; }
 
 /****************************
 		START SETTERS
@@ -618,8 +630,6 @@ bool RequestParser::set_request_uri(const std::string &request_uri)
 		return false;
 	}
 
-	// Match the location for setting the complete path
-
 	this->request_uri = uri;
 	return true;
 }
@@ -655,8 +665,12 @@ std::string &RequestParser::get_http_version() { return http_version; }
 std::map<std::string, std::string> &RequestParser::get_headers() { return headers; }
 std::string &RequestParser::get_header_value(const std::string &key) { return headers[key]; }
 std::vector<byte> &RequestParser::get_body() { return body; }
-short RequestParser::get_error_code() { return error_code; }
+size_t &RequestParser::get_body_size() { return body_size; }
+short &RequestParser::get_error_code() { return error_code; }
+uint16_t &RequestParser::get_port_number() { return port; }
 ParseState &RequestParser::get_state() { return state; }
+const ServerConfig *RequestParser::get_server_config() { return server_config; }
+const Location *RequestParser::get_location_config() { return location_config; }
 /****************************
 		END GETTERS
 ****************************/
@@ -667,6 +681,7 @@ void RequestParser::print_request()
 	if (error_code == 1)
 	{
 		LOG_REQUEST(request_line);
+		std::cout << "PORT NUMBER = " << port << std::endl;
 		std::cout << BLUE "Method: " RESET << http_method << std::endl;
 		std::cout << BLUE "PATH: " RESET << request_uri << std::endl;
 		if (!query_string.empty())
@@ -675,7 +690,7 @@ void RequestParser::print_request()
 		std::cout << BLUE "Headers:" RESET << std::endl;
 		for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); it++)
 			std::cout << MAGENTA "-- " << it->first << ": " RESET << it->second << std::endl;
-		std::cout << BLUE "Body:" RESET << std::endl;
+		std::cout << BLUE "Body: " RESET << std::endl;
 		for (std::vector<byte>::iterator it = body.begin(); it != body.end(); ++it)
 		{
 			std::cout << *it;

@@ -43,7 +43,7 @@ main {
 }
 main header {
   background-color: var(--main-bg-color);
-  padding: 50px 140px;
+  padding: 50px 100px;
   margin: 0 auto;
   border-radius: var(--main-border-radius);
 }
@@ -75,15 +75,34 @@ main header h1::after {
 }
 .link {
   background-color: var(--main-bg-color);
-  width: fit-content;
   margin: 0 auto;
-  padding: 20px;
+  padding: 0;
   border-radius: var(--main-border-radius);
   transition-duration: 0.2s;
+}
+.link a {
+	font-size: 18px;
+	display: block;
+	padding: 20px 40px;
 }
 .link:hover {
   background-color: var(--main-color);
   color: var(--main-bg-color);
+}
+@media (max-width: 1200px) {
+	main header {
+		padding: 30px 80px;
+	}
+	main header h1 {
+		font-size: 64px;
+	}
+	main header h1::before {
+		width: 75%;
+		height: 8px;
+	}
+	main header h1::after {
+		font-size: 12px;
+	}
 }
 /* End Main */
 
@@ -121,6 +140,30 @@ main header h1::after {
   padding: 15px 0;
   border-radius: var(--main-border-radius);
   transition-duration: 0.2s;
+}
+.profile:hover h3 {
+  letter-spacing: 0.5px;
+  background-color: var(--main-color);
+  color: var(--main-bg-color);
+}
+@media (max-width: 1200px) {
+	.profiles {
+		flex-direction: column;
+		gap: 15px;
+	}
+	.profile {
+		width: 70%;
+		margin: 0 auto;
+		/* background-color: transparent; */
+	}
+	.profiles img {
+		width: 200px;
+		height: 200px;
+		margin-bottom: 15px;
+	}
+	.profiles h3 {
+		padding: 10px 0;
+	}
 }
 .profile:hover h3 {
   letter-spacing: 0.5px;

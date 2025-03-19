@@ -1,20 +1,6 @@
 #include "ResponseBuilder.hpp"
 #include "Logger.hpp"
 
-// Here the default directives if not overrided in config file
-#define DEFAULT_ERROR_PAGE "error.html"
-#define CLIENT_MAX_BODY_SIZE 1048576
-#define DEFAULT_INDEX "index.html"
-#define DIRECTORY_LISTING_ENABLED 1
-#define UPLOAD_ENABLED 1
-#define MAX_UPLOAD_SIZE 5242880
-
-// Here i will define some value to work with (later extract from config file)
-#define ROOT_DIRECTORY "www/html"
-#define ALLOW_GET 1
-#define ALLOW_POST 1
-#define ALLOW_DELETE 1
-
 // Static function to initialize the mime types
 std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 {
@@ -73,12 +59,20 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 // All the mime types are stored in this map
 std::map<std::string, std::string> ResponseBuilder::mime_types = init_mime_types();
 
+// Method for initializing the Request Matching configuration for server and location
+void ResponseBuilder::init_config(RequestParser &request)
+{
+	this->server_config = request.get_server_config();
+	this->location_config = request.get_location_config();
+}
+
 // Constructor Takes Request as parameter
 ResponseBuilder::ResponseBuilder(RequestParser &request)
 {
 	this->http_version = "HTTP/1.1";		  // Only version 1.1 is implemented
 	this->status = STATUS_200;				  // Set to success
 	this->status_code = 200;				  // Set to success
+	this->init_config(request);				  // Init the config from request match
 	init_routes();							  // set routes with allowed methods
 	this->response = build_response(request); // Here we build the response
 }
@@ -86,12 +80,16 @@ ResponseBuilder::ResponseBuilder(RequestParser &request)
 // Method to initialize the routes (GET | POST | DELETE)
 void ResponseBuilder::init_routes()
 {
-	if (ALLOW_GET)
-		routes["GET"] = &ResponseBuilder::doGET;
-	if (ALLOW_POST)
-		routes["POST"] = &ResponseBuilder::doPOST;
-	if (ALLOW_DELETE)
-		routes["DELETE"] = &ResponseBuilder::doDELETE;
+	std::vector<std::string>::const_iterator it = location_config->allowedMethods.begin();
+	for (; it != location_config->allowedMethods.end(); ++it)
+	{
+		if (*it == "GET")
+			routes["GET"] = &ResponseBuilder::doGET;
+		else if (*it == "POST")
+			routes["POST"] = &ResponseBuilder::doPOST;
+		else if (*it == "DELETE")
+			routes["DELETE"] = &ResponseBuilder::doDELETE;
+	}
 }
 
 // Method to process the response
@@ -149,7 +147,7 @@ void ResponseBuilder::doGET(RequestParser &request)
 {
 	std::cout << "GET METHOD EXECUTED" << std::endl;
 	std::string uri = request.get_request_uri();
-	std::string path = ROOT_DIRECTORY + uri;
+	std::string path = location_config->root + uri;
 
 	// Check if the file exists
 	struct stat file_stat;
@@ -173,12 +171,12 @@ void ResponseBuilder::doGET(RequestParser &request)
 		}
 
 		// If an index file exists, use it
-		std::string index_path = path + DEFAULT_INDEX;
+		std::string index_path = path + location_config->index;
 		if (stat(index_path.c_str(), &file_stat) == 0)
 		{
 			path = index_path;
 		}
-		else if (DIRECTORY_LISTING_ENABLED) // If auto index is enabled in the config file
+		else if (location_config->autoindex) // If auto index is enabled in the config file
 		{
 			body = generate_directory_listing(path);
 			set_status(200);
@@ -237,7 +235,7 @@ void ResponseBuilder::doPOST(RequestParser &request)
 {
 	std::cout << "POST METHOD EXECUTED" << std::endl;
 	std::string uri = request.get_request_uri();
-	std::string path = "www" + uri;
+	std::string path = location_config->root + uri;
 	std::vector<byte> req_body = request.get_body();
 	std::string content_type = request.get_header_value("content-type");
 
@@ -302,7 +300,7 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 	std::cout << "DELETE METHOD EXECUTED" << std::endl;
 
 	std::string uri = request.get_request_uri();
-	std::string path = ROOT_DIRECTORY + uri;
+	std::string path = location_config->root + uri;
 	struct stat path_stat;
 
 	// Check if the file exists
@@ -439,10 +437,7 @@ bool ResponseBuilder::handle_json_upload(RequestParser &request, const std::stri
 // Method to generate error pages
 std::string ResponseBuilder::generate_error_page(short status_code)
 {
-	std::string error_page_name = "errors/" + to_string(status_code) + ".html";
-
-	/* Later I will Bring the name from the server config*/
-
+	std::string error_page_name = server_config->errorPages.at(status_code);
 	std::string error_page_file = readFile(error_page_name);
 	if (error_page_file == "")
 		LOG_ERROR("Error: Open");

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "webserv.hpp"
 #include "RequestParser.hpp"
 
 class ResponseBuilder
@@ -13,6 +12,9 @@ private:
 	std::string body;
 	short status_code;
 	std::map<std::string, void (ResponseBuilder::*)(RequestParser &)> routes; // A map to route the request to the correct method
+
+	const ServerConfig *server_config; // Pointer to the matched server block
+	const Location *location_config;   // Pointer to the matched location block
 
 	// Required HTTP Methods
 	void doGET(RequestParser &request);
@@ -61,4 +63,5 @@ public:
 
 	// Core Function that builds the response
 	std::string build_response(RequestParser &request);
+	void init_config(RequestParser &request);
 };

@@ -58,6 +58,7 @@
 #define HTTP_PARSE_INVALID_TRANSFER_ENCODING "Client sent a request with invalid transfer-encoding value"
 #define HTTP_PARSE_INVALID_PERCENT_ENCODING "Client sent a request with invalid percent encoding"		 // DONE
 #define HTTP_PARSE_CONFLICTING_HEADERS "Client sent a request with transfer-encoding and content-length" // DONE
+#define HTTP_PARSE_INVALID_PORT "Client sent a request with invalid port number" // DONE
 
 // ERROR MESSAGES (Response: 404 Not Found)
 #define HTTP_PARSE_INVALID_LOCATION "Client sent a request with invalid location" // DONE
@@ -66,7 +67,7 @@
 #define HTTP_PARSE_MISSING_CONTENT_LENGTH "Client sent a request without content-length header" // DONE
 
 // ERROR MESSAGES (Response: 413 Payload Too Large)
-#define HTTP_PARSE_PAYLOAD_TOO_LARGE "Client sent a request with payload too large"
+#define HTTP_PARSE_PAYLOAD_TOO_LARGE "Client sent a request with payload too large" // DONE
 
 // ERROR MESSAGES (Response: 414 URI Too Long)
 #define HTTP_PARSE_URI_TOO_LONG "Client sent a request with uri too long" // DONE
