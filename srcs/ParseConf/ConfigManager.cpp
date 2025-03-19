@@ -65,7 +65,7 @@ const std::vector<ServerConfig> &ConfigManager::getServers() const
 	return _servers;
 }
 
-const ServerConfig *ConfigManager::getServerByPort(int port) const
+const ServerConfig *ConfigManager::getServerByPort(uint16_t port) const
 {
 	for (size_t i = 0; i < _servers.size(); i++)
 	{

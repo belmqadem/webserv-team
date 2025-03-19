@@ -1,0 +1,91 @@
+[2025-03-19 00:12:08] [ERROR] Client sent a request with payload too large (code: 413)
+[2025-03-19 00:12:08] [ERROR] Error: Open
+[2025-03-19 00:12:08] [RESPONSE] HTTP/1.1 413 Payload Too Large
+[2025-03-19 00:12:38] [ERROR] Client sent a request with payload too large (code: 413)
+[2025-03-19 00:12:38] [ERROR] Error: Open
+[2025-03-19 00:12:38] [RESPONSE] HTTP/1.1 413 Payload Too Large
+[2025-03-19 00:14:04] [ERROR] Client sent a request with payload too large (code: 413)
+[2025-03-19 00:14:04] [RESPONSE] HTTP/1.1 413 Payload Too Large
+[2025-03-19 03:38:35] [ERROR] Client sent a request with payload too large (code: 413)
+[2025-03-19 03:38:35] [RESPONSE] HTTP/1.1 413 Payload Too Large
+[2025-03-19 03:38:45] [REQUEST] GET / HTTP/1.1
+[2025-03-19 03:38:45] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 03:39:00] [REQUEST] GET / HTTP/1.1
+[2025-03-19 03:39:00] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:49:56] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 03:49:56] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 03:49:56] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-19 03:50:00] [INFO] Client Connected: 127.0.0.1:55604 Fd 7
+[2025-03-19 03:50:00] [INFO] Client Connected: 127.0.0.1:55616 Fd 8
+[2025-03-19 03:50:00] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:00] [REQUEST] GET / HTTP/1.1
+[2025-03-19 03:50:00] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 03:50:00] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:00] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-19 03:50:00] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-19 03:50:00] [INFO] Client Connected: 127.0.0.1:55626 Fd 7
+[2025-03-19 03:50:00] [INFO] Client Connected: 127.0.0.1:55636 Fd 8
+[2025-03-19 03:50:00] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:00] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-19 03:50:00] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 03:50:00] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:00] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-19 03:50:00] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-19 03:50:00] [INFO] Client Connected: 127.0.0.1:55650 Fd 7
+[2025-03-19 03:50:00] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:00] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-19 03:50:00] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 03:50:00] [INFO] Client Connected: 127.0.0.1:55662 Fd 7
+[2025-03-19 03:50:00] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:00] [REQUEST] GET /script.js HTTP/1.1
+[2025-03-19 03:50:00] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 03:50:00] [INFO] Client Connected: 127.0.0.1:55664 Fd 7
+[2025-03-19 03:50:00] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:00] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-19 03:50:00] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 03:50:08] [INFO] Client Connected: 127.0.0.1:40962 Fd 7
+[2025-03-19 03:50:08] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:08] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-19 03:50:08] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 03:50:43] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 03:50:43] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 03:50:43] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-19 03:50:44] [INFO] Client Connected: 127.0.0.1:42096 Fd 7
+[2025-03-19 03:50:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:44] [REQUEST] GET / HTTP/1.1
+[2025-03-19 03:50:44] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 03:50:44] [INFO] Client Connected: 127.0.0.1:42102 Fd 7
+[2025-03-19 03:50:44] [INFO] Client Connected: 127.0.0.1:42112 Fd 8
+[2025-03-19 03:50:44] [INFO] Client Connected: 127.0.0.1:42120 Fd 9
+[2025-03-19 03:50:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:44] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-19 03:50:44] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 03:50:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:44] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-19 03:50:44] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-19 03:50:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:44] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-19 03:50:44] [INFO] Client 127.0.0.1 Fd 9 Disconnected!
+[2025-03-19 03:50:44] [INFO] Client Connected: 127.0.0.1:42126 Fd 7
+[2025-03-19 03:50:44] [INFO] Client Connected: 127.0.0.1:42130 Fd 8
+[2025-03-19 03:50:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:44] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-19 03:50:44] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 03:50:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:44] [REQUEST] GET /script.js HTTP/1.1
+[2025-03-19 03:50:44] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-19 03:50:44] [INFO] Client Connected: 127.0.0.1:42138 Fd 7
+[2025-03-19 03:50:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 03:50:44] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-19 03:50:44] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 03:50:54] [INFO] Client Connected: 127.0.0.1:57296 Fd 7
+[2025-03-19 03:50:54] [INFO] Client Connected: 127.0.0.1:57306 Fd 8
+[2025-03-19 03:50:54] [ERROR] Client sent a request with invalid content-length value (code: 400)
+[2025-03-19 03:50:54] [ERROR] Error parsing request: 400
+[2025-03-19 03:50:54] [RESPONSE] HTTP/1.1 400 Bad Request
+[2025-03-19 03:50:54] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 03:51:09] [INFO] Client Connected: 127.0.0.1:37150 Fd 7
+[2025-03-19 03:51:09] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 03:51:09] [REQUEST] GET /about/about.html HTTP/1.1
+[2025-03-19 03:51:09] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-19 03:51:53] [INFO] Client 127.0.0.1 Fd 7 Disconnected!

@@ -1,0 +1,20 @@
+==> i will check for uri in request if a cgi set a bool
+==> the connection must be closed after responding to transfer-encoding
+==> Should we handle permanent ?
+==> If bad request -> Connection: close and close the connection
+==> Test post with this form
+
+<!-- <form action="/submit" method="post">
+    <input type="text" name="username" />
+    <input type="password" name="password" />
+    <input type="submit" value="Submit" />
+</form> -->
+
+==> Best Practices and Tips for multipart/form-data
+
+- Always validate the uploaded file’s size, type, and content.
+- Use a random or unique naming strategy for uploaded files to avoid overwriting existing files.
+- For security, avoid directly exposing uploaded files and always sanitize file names.
+
+
+==> Add a parse for empty config file
