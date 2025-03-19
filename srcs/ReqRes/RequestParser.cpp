@@ -6,7 +6,6 @@
 #define MAX_URI_LENGTH 2048
 #define MAX_HEADER_LENGTH 8192
 #define MAX_HEADER_COUNT 100
-#define CLIENT_MAX_BODY_SIZE 1048576
 
 // Constructor
 RequestParser::RequestParser(const std::string &request, std::vector<ServerConfig> &servers)
@@ -19,6 +18,8 @@ RequestParser::RequestParser(const std::string &request, std::vector<ServerConfi
 	this->body_size = 0;
 	this->server_config = NULL;
 	this->location_config = NULL;
+	this->is_headers_completed = false;
+	this->is_body_completed = false;
 	this->bytes_read += parse_request(request);
 	set_request_line();
 	if (this->bytes_read > 0)
@@ -124,9 +125,12 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 					return pos;
 				}
 				state = DONE; // Ignore the Body by marking the request as DONE
+				this->is_headers_completed = true;
+				this->is_body_completed = true;
 				return header_end;
 			}
 			state = BODY;
+			this->is_headers_completed = true;
 			return header_end;
 		}
 
@@ -211,8 +215,6 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 
 				port = static_cast<uint16_t>(parsed_port);
 			}
-
-			// this->headers["host"] = host_value;
 			this->port = port;
 		}
 
@@ -231,12 +233,6 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 // Method to extract body of the request
 const char *RequestParser::parse_body(const char *pos, const char *end)
 {
-	if (!has_content_length && !has_transfer_encoding)
-	{
-		state = DONE; // No body expected -> Mark as complete
-		return 0;
-	}
-
 	// Case 1: Transfer-Encoding: chunked
 	if (has_transfer_encoding)
 	{
@@ -269,7 +265,10 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 
 		// If body is fully received -> Parse is done
 		if (body.size() == content_length)
+		{
+			this->is_body_completed = true;
 			state = DONE;
+		}
 
 		return pos;
 	}
@@ -312,6 +311,7 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 
 			pos += 2;
 			state = DONE;
+			this->is_body_completed = true;
 			return pos;
 		}
 
@@ -535,6 +535,9 @@ void RequestParser::match_location(std::vector<ServerConfig> &servers)
 		this->request_uri += location_config->index;
 }
 
+bool RequestParser::headers_completed() { return is_headers_completed; }
+bool RequestParser::body_completed() { return is_body_completed; }
+
 /****************************
 		START SETTERS
 ****************************/
@@ -675,7 +678,7 @@ void RequestParser::print_request()
 		std::cout << BLUE "Headers:" RESET << std::endl;
 		for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); it++)
 			std::cout << MAGENTA "-- " << it->first << ": " RESET << it->second << std::endl;
-		std::cout << BLUE "Body: (" << body_size << ")" RESET << std::endl;
+		std::cout << BLUE "Body: " RESET << std::endl;
 		for (std::vector<byte>::iterator it = body.begin(); it != body.end(); ++it)
 		{
 			std::cout << *it;
