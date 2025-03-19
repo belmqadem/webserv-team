@@ -1,17 +1,13 @@
 #pragma once
 
-#include "Logger.hpp"
-#include "IEvenetListeners.hpp"
 #include "ConfigManager.hpp"
 #include "IOMultiplexer.hpp"
-#include "webserv.hpp"
 #include "ClientServer.hpp"
 
-#define RD_SIZE 1024
 
 class Server : public IEvenetListeners
 {
-private:
+	private:
 	/* List of Server configs */
 	std::vector<ServerConfig> _config;
 	/* State of our Server */

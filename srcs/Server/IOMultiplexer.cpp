@@ -65,6 +65,28 @@ void IOMultiplexer::runEventLoop(void)
 	terminate();
 }
 
+// Add this method to IOMultiplexer class in IOMultiplexer.cpp
+void IOMultiplexer::modifyListener(IEvenetListeners *listener, epoll_event ev)
+{
+    std::map<int, IEvenetListeners *>::iterator it = _listeners.find(ev.data.fd);
+    if (it == _listeners.end())
+    {
+        throw IOMultiplexerExceptions("modifyListener() event listener not found.");
+    }
+    
+    if (it->second != listener)
+    {
+        throw IOMultiplexerExceptions("modifyListener() listener mismatch.");
+    }
+    
+    if (epoll_ctl(_epoll_fd, EPOLL_CTL_MOD, ev.data.fd, &ev) == -1)
+    {
+        throw IOMultiplexerExceptions("epoll_ctl() failed in modifyListener.");
+    }
+    
+    // LOG_INFO("EventListener modified " + to_string(ev.data.fd));
+}
+
 void IOMultiplexer::addListener(IEvenetListeners *listener, epoll_event ev)
 {
 	std::map<int, IEvenetListeners *>::iterator it = _listeners.find(ev.data.fd);

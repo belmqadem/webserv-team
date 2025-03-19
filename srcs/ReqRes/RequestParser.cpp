@@ -26,6 +26,26 @@ RequestParser::RequestParser(const std::string &request, const std::vector<Serve
 	}
 }
 
+RequestParser::RequestParser(const RequestParser &other) :
+    state(other.state),
+    request_line(other.request_line),
+    http_method(other.http_method),
+    request_uri(other.request_uri),
+    query_string(other.query_string),
+    http_version(other.http_version),
+    headers(other.headers),
+    body(other.body),
+    bytes_read(other.bytes_read),
+    error_code(other.error_code),
+    has_content_length(other.has_content_length),
+    has_transfer_encoding(other.has_transfer_encoding),
+    server_config(other.server_config),
+    location_config(other.location_config)
+{
+    // Note: No need to deep-copy server_config and location_config
+    // as they are pointers to configurations owned by ConfigManager
+}
+
 // Main Function that parses the request
 size_t RequestParser::parse_request(const std::string &request)
 {
