@@ -1,2 +1,4 @@
 *.o
 webserv
+.vscode
+WebServe.log

@@ -1,18 +1,34 @@
 #include "RequestParser.hpp"
 #include "Logger.hpp"
 
+// LIMITS FOR SOME REQUEST ELEMENTS
+#define MAX_REQUEST_LINE_LENGTH 8192
+#define MAX_URI_LENGTH 2048
+#define MAX_HEADER_LENGTH 8192
+#define MAX_HEADER_COUNT 100
+
 // Constructor
-RequestParser::RequestParser(const std::string &request, const ServerConfig *v_server)
+RequestParser::RequestParser(const std::string &request, std::vector<ServerConfig> &servers)
 {
 	this->state = REQUEST_LINE;
 	this->error_code = 1;
 	this->has_content_length = false;
 	this->has_transfer_encoding = false;
-	this->server_config = v_server;
+	this->bytes_read = 0;
+	this->body_size = 0;
+	this->server_config = NULL;
 	this->location_config = NULL;
+	this->is_headers_completed = false;
+	this->is_body_completed = false;
 	this->bytes_read += parse_request(request);
+	set_request_line();
 	if (this->bytes_read > 0)
-		match_location(); // Match the request to a location block
+	{
+		match_location(servers); // Match the request to the correct server and location block
+		body_size = this->body.size();
+		if (body_size > server_config->clientMaxBodySize)
+			log_error(HTTP_PARSE_PAYLOAD_TOO_LARGE, 413);
+	}
 }
 
 // Main Function that parses the request
@@ -37,11 +53,6 @@ size_t RequestParser::parse_request(const std::string &request)
 				return pos - start;
 			break;
 		case BODY:
-			if (!has_content_length && !has_transfer_encoding)
-			{
-				state = DONE; // No body expected -> request is complete
-				return pos - start;
-			}
 			pos = parse_body(pos, end);
 			if (state == ERROR_PARSE || pos == end)
 				return pos - start;
@@ -50,7 +61,6 @@ size_t RequestParser::parse_request(const std::string &request)
 			state = ERROR_PARSE;
 		}
 	}
-	set_request_line();
 	return (pos - start);
 }
 
@@ -59,9 +69,11 @@ const char *RequestParser::parse_request_line(const char *pos, const char *end)
 {
 	const char *line_end = find_line_end(pos, end); // Points to the end of the line (after CRLF)
 	if (line_end == end)
+	{
 		return pos; // Wait for more data
+	}
 
-	if ((line_end - pos) > MAX_REQUEST_LINE_LENGTH) // Check for long Request line > 8k bytes
+	if ((line_end - pos) > MAX_REQUEST_LINE_LENGTH) // Check for long Request line
 	{
 		log_error(HTTP_PARSE_URI_TOO_LONG, 414);
 		return pos;
@@ -99,6 +111,11 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 				log_error(HTTP_PARSE_MISSING_HOST, 400);
 				return pos;
 			}
+			if (has_content_length && has_transfer_encoding)
+			{
+				log_error(HTTP_PARSE_CONFLICTING_HEADERS, 400);
+				return pos;
+			}
 			if (!has_content_length && !has_transfer_encoding)
 			{
 				if (http_method == "POST")
@@ -107,22 +124,23 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 					log_error(HTTP_PARSE_MISSING_CONTENT_LENGTH, 411);
 					return pos;
 				}
-				state = DONE;
+				state = DONE; // Ignore the Body by marking the request as DONE
+				this->is_headers_completed = true;
+				this->is_body_completed = true;
 				return header_end;
 			}
 			state = BODY;
+			this->is_headers_completed = true;
 			return header_end;
 		}
 
-		// Reject obsolete line folding
-		if (*pos == ' ' || *pos == '\t')
+		if (*pos == ' ' || *pos == '\t') // Reject obsolete line folding
 		{
 			log_error(HTTP_PARSE_INVALID_HEADER_FIELD, 400);
 			return pos;
 		}
 
-		// Header field too large
-		if ((header_end - pos) > MAX_HEADER_LENGTH)
+		if ((header_end - pos) > MAX_HEADER_LENGTH) // Header field too large
 		{
 			log_error(HTTP_PARSE_HEADER_FIELDS_TOO_LARGE, 431);
 			return pos;
@@ -164,26 +182,40 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			content_length_value = value;
 		}
 
-		// Special Handling for `Transfer-Encoding`
 		if (key == "transfer-encoding")
-		{
 			has_transfer_encoding = true;
-			if (has_content_length)
-			{
-				log_error(HTTP_PARSE_CONFLICTING_HEADERS, 400);
-				return pos;
-			}
-		}
 
 		// Special Handling for `Host`
 		if (key == "host")
 		{
-			if (has_host) // Later check if this host is in the config file and the right location
+			if (has_host)
 			{
 				log_error(HTTP_PARSE_INVALID_HOST, 400);
 				return pos;
 			}
+
 			has_host = true;
+			std::string host_value = value;
+			uint16_t port = 80;
+
+			size_t colon_pos = host_value.find(':');
+			if (colon_pos != std::string::npos)
+			{
+				std::string port_str = host_value.substr(colon_pos + 1);
+				host_value = host_value.substr(0, colon_pos);
+
+				char *endptr;
+				long parsed_port = std::strtol(port_str.c_str(), &endptr, 10);
+
+				if (*endptr != '\0' || parsed_port < 1 || parsed_port > 65535)
+				{
+					log_error(HTTP_PARSE_INVALID_PORT, 400);
+					return pos;
+				}
+
+				port = static_cast<uint16_t>(parsed_port);
+			}
+			this->port = port;
 		}
 
 		if (headers.size() >= MAX_HEADER_COUNT)
@@ -192,22 +224,15 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			return pos;
 		}
 
-		headers[key] = value;
+		this->headers[key] = value;
 		pos = header_end;
 	}
-	std::cout << "hello" << std::endl;
 	return pos;
 }
 
 // Method to extract body of the request
 const char *RequestParser::parse_body(const char *pos, const char *end)
 {
-	if (!has_content_length && !has_transfer_encoding)
-	{
-		state = DONE; // No body expected -> Mark as complete
-		return 0;
-	}
-
 	// Case 1: Transfer-Encoding: chunked
 	if (has_transfer_encoding)
 	{
@@ -223,39 +248,43 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 	{
 		char *endptr = NULL;
 		std::string content_length_str = headers["content-length"];
-		unsigned long content_length = std::strtoul(content_length_str.c_str(), &endptr, 10);
+		size_t content_length = std::strtoul(content_length_str.c_str(), &endptr, 10);
+		size_t bytes_in_body = static_cast<size_t>(end - pos);
 
-		// Check for invalid content length
-		if (*endptr != '\0' || content_length > static_cast<size_t>(end - pos))
+		// Check for invalid content length value
+		if (*endptr != '\0' || content_length > bytes_in_body)
 		{
 			log_error(HTTP_PARSE_INVALID_CONTENT_LENGTH, 400);
 			return pos;
 		}
 
 		size_t remaining_bytes = content_length - body.size();
-		size_t bytes_to_read = std::min(remaining_bytes, static_cast<size_t>(end - pos));
-
+		size_t bytes_to_read = std::min(remaining_bytes, bytes_in_body);
 		body.insert(body.end(), pos, pos + bytes_to_read);
 		pos += bytes_to_read;
 
-		// If body is fully received ==> Parse done
+		// If body is fully received -> Parse is done
 		if (body.size() == content_length)
+		{
+			this->is_body_completed = true;
 			state = DONE;
+		}
 
 		return pos;
 	}
-
 	return pos;
 }
 
-// Method to handle transfer encoding: chunked
+// Method to extract chunked body
 const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 {
 	while (pos < end)
 	{
 		const char *chunk_size_end = find_line_end(pos, end);
 		if (chunk_size_end == end)
-			return pos;
+		{
+			return pos; // wait for more data
+		}
 
 		// Convert hex size to int
 		std::string chunk_size_str = trim(std::string(pos, chunk_size_end - pos), "\r\n \t");
@@ -278,19 +307,21 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 				log_error(HTTP_PARSE_INVALID_CHUNKED_TRANSFER, 400);
 				return pos;
 			}
+
 			pos += 2;
 			state = DONE;
+			this->is_body_completed = true;
 			return pos;
 		}
 
 		// Ensure Enough bytes in this segment
-		size_t bytes_to_read = std::min(chunk_size, static_cast<size_t>(end - pos));
+		size_t remaining_bytes = static_cast<size_t>(end - pos);
+		size_t bytes_to_read = std::min(chunk_size, remaining_bytes);
 		body.insert(body.end(), pos, pos + bytes_to_read);
 		pos += bytes_to_read;
 
-		// If not enough bytes received, wait for the next segment
-		if (body.size() < chunk_size)
-			return pos; // Wait for next data segment
+		if (body.size() < chunk_size) // If not enough bytes received, wait for the next segment
+			return pos;
 
 		// Ensure chunk ends with CRLF
 		if (pos + 2 > end || pos[0] != '\r' || pos[1] != '\n')
@@ -298,12 +329,12 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 			log_error(HTTP_PARSE_INVALID_CHUNKED_TRANSFER, 400);
 			return pos;
 		}
-		pos += 2; // Move past CRLF
+		pos += 2;
 	}
 	return pos;
 }
 
-// Helper function returns the end of the line
+// Helper method returns the end of the line (after \r\n)
 const char *RequestParser::find_line_end(const char *pos, const char *end)
 {
 	while (pos < end - 1)
@@ -319,10 +350,14 @@ const char *RequestParser::find_line_end(const char *pos, const char *end)
 std::string RequestParser::normalize_uri(const std::string &uri)
 {
 	std::string decoded = decode_percent_encoding(uri);
+	if (decoded.empty())
+		return "";
+
 	std::vector<std::string> parts;
 	std::istringstream stream(decoded);
 	std::string segment;
-	bool is_absolute = (!decoded.empty() && decoded[0] == '/');
+	bool is_absolute = (decoded[0] == '/');
+	bool has_trailing_slash = (decoded[decoded.size() - 1] == '/');
 
 	while (std::getline(stream, segment, '/'))
 	{
@@ -333,8 +368,11 @@ std::string RequestParser::normalize_uri(const std::string &uri)
 		{
 			// Prevent directory traversal (`/../../etc/passwd`)
 			if (!is_absolute || parts.empty())
+			{
+				log_error(HTTP_PARSE_INVALID_URI, 400);
 				return "";
-			parts.pop_back(); // Move up one directory level
+			}
+			parts.pop_back();
 		}
 		else
 			parts.push_back(segment);
@@ -347,14 +385,14 @@ std::string RequestParser::normalize_uri(const std::string &uri)
 	for (size_t i = 0; i < parts.size(); ++i)
 	{
 		normalized << parts[i];
-		if (i < parts.size() - 1)
+		if (i < parts.size() - 1 || has_trailing_slash)
 			normalized << "/";
 	}
 
 	return normalized.str().empty() ? "/" : normalized.str();
 }
 
-// Helper method to decode the percent encoding in uri
+// Helper method to handle percent encoding in uri
 std::string RequestParser::decode_percent_encoding(const std::string &str)
 {
 	std::ostringstream decoded;
@@ -374,8 +412,7 @@ std::string RequestParser::decode_percent_encoding(const std::string &str)
 			}
 			else
 			{
-				std::cerr << HTTP_PARSE_INVALID_PERCENT_ENCODING << std::endl;
-				error_code = 400;
+				log_error(HTTP_PARSE_INVALID_PERCENT_ENCODING, 400);
 				return "";
 			}
 		}
@@ -388,12 +425,24 @@ std::string RequestParser::decode_percent_encoding(const std::string &str)
 }
 
 // Helper method to check if the connection is keep-alive
-bool RequestParser::is_keep_alive()
+bool RequestParser::is_connection_keep_alive()
 {
 	std::map<std::string, std::string>::iterator it = headers.find("connection");
 	if (it != headers.end())
 	{
 		if (it->second == "keep-alive")
+			return true;
+	}
+	return false;
+}
+
+// Helper method to check if the connection is close
+bool RequestParser::is_connection_close()
+{
+	std::map<std::string, std::string>::iterator it = headers.find("connection");
+	if (it != headers.end())
+	{
+		if (it->second == "close")
 			return true;
 	}
 	return false;
@@ -431,17 +480,62 @@ void RequestParser::log_error(const std::string &error_str, short error_code)
 	state = ERROR_PARSE;
 }
 
-// Method to check in `Content-Length` exists in headers
+// Method to check if `Content-Length` exists in headers
 bool RequestParser::content_length_exists()
 {
 	return (has_content_length ? true : false);
 }
 
-// Method to check in `Transfer-Encoding` exists in headers
+// Method to check if `Transfer-Encoding` exists in headers
 bool RequestParser::transfer_encoding_exists()
 {
 	return (has_transfer_encoding ? true : false);
 }
+
+// Method for setting the right location for the request
+void RequestParser::match_location(std::vector<ServerConfig> &servers)
+{
+	std::string host = headers["host"];
+
+	this->server_config = ConfigManager::getInstance()->getServerByName(host);
+	if (!this->server_config)
+	{
+		this->server_config = ConfigManager::getInstance()->getServerByPort(port);
+	}
+
+	// If no exact match -> point to the first configured server
+	if (!server_config && !servers.empty())
+		this->server_config = &servers[0];
+
+	// Find the best matching Location
+	size_t best_match_length = 0;
+	for (size_t i = 0; i < server_config->locations.size(); ++i)
+	{
+		const std::string &location_path = server_config->locations[i].location;
+
+		if (request_uri.find(location_path) == 0 && location_path.length() > best_match_length)
+		{
+			best_match_length = location_path.length();
+			this->location_config = &server_config->locations[i];
+		}
+	}
+
+	// this check will be in config parse (Remove later)
+	if (!location_config)
+	{
+		log_error(HTTP_PARSE_INVALID_LOCATION, 404);
+		return;
+	}
+
+	// Here update `request_uri` to point to `/root/location`
+	this->request_uri = location_config->root + request_uri;
+	// If the request uri ends with a '/' -> append the index file
+	if (request_uri[request_uri.size() - 1] == '/')
+		this->request_uri += location_config->index;
+}
+
+bool RequestParser::headers_completed() { return is_headers_completed; }
+bool RequestParser::body_completed() { return is_body_completed; }
 
 /****************************
 		START SETTERS
@@ -496,6 +590,8 @@ bool RequestParser::set_request_uri(const std::string &request_uri)
 
 	// Decode and Normalize URI
 	uri = normalize_uri(uri);
+	if (uri.empty())
+		return false;
 
 	// Extract query string if present
 	size_t query_start = uri.find('?');
@@ -518,6 +614,8 @@ bool RequestParser::set_request_uri(const std::string &request_uri)
 		log_error(HTTP_PARSE_URI_TOO_LONG, 414);
 		return false;
 	}
+
+	// Match the location for setting the complete path
 
 	this->request_uri = uri;
 	return true;
@@ -554,7 +652,9 @@ std::string &RequestParser::get_http_version() { return http_version; }
 std::map<std::string, std::string> &RequestParser::get_headers() { return headers; }
 std::string &RequestParser::get_header_value(const std::string &key) { return headers[key]; }
 std::vector<byte> &RequestParser::get_body() { return body; }
-short RequestParser::get_error_code() { return error_code; }
+size_t &RequestParser::get_body_size() { return body_size; }
+short &RequestParser::get_error_code() { return error_code; }
+uint16_t &RequestParser::get_port_number() { return port; }
 ParseState &RequestParser::get_state() { return state; }
 const ServerConfig *RequestParser::get_server_config() { return server_config; }
 const Location *RequestParser::get_location_config() { return location_config; }
@@ -568,6 +668,7 @@ void RequestParser::print_request()
 	if (error_code == 1)
 	{
 		LOG_REQUEST(request_line);
+		std::cout << "PORT NUMBER = " << port << std::endl;
 		std::cout << BLUE "Method: " RESET << http_method << std::endl;
 		std::cout << BLUE "PATH: " RESET << request_uri << std::endl;
 		if (!query_string.empty())
@@ -576,35 +677,11 @@ void RequestParser::print_request()
 		std::cout << BLUE "Headers:" RESET << std::endl;
 		for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); it++)
 			std::cout << MAGENTA "-- " << it->first << ": " RESET << it->second << std::endl;
-		std::cout << BLUE "Body:" RESET << std::endl;
+		std::cout << BLUE "Body: " RESET << std::endl;
 		for (std::vector<byte>::iterator it = body.begin(); it != body.end(); ++it)
 		{
 			std::cout << *it;
 		}
 		std::cout << std::endl;
 	}
-	std::cout << CYAN "** REQUEST PARSING DONE **" RESET << std::endl;
 }
-
-// void RequestParser::match_location()
-// {
-// 	const std::map<std::string, Location> &locations = server_config->locations;
-
-// 	std::string best_match;
-// 	for (std::map<std::string, Location>::const_iterator it = locations.begin(); it != locations.end(); ++it)
-// 	{
-// 		if (request_uri.find(it->first) == 0) // Check if URI starts with a location path
-// 		{
-// 			if (it->first.size() > best_match.size()) // Find the longest match
-// 			{
-// 				best_match = it->first;
-// 				location_config = &it->second;
-// 			}
-// 		}
-// 	}
-
-// 	if (!location_config)
-// 	{
-// 		log_error("No matching location found", 404);
-// 	}
-// }

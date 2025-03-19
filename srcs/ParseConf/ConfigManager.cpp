@@ -1,8 +1,4 @@
-#include "ConfigManager.hpp"
-#include "Tokenize.hpp"
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include "Parser.hpp"
 
 // Initialize static instance to NULL
 ConfigManager *ConfigManager::_instance = NULL;
@@ -65,7 +61,7 @@ const std::vector<ServerConfig> &ConfigManager::getServers() const
 	return _servers;
 }
 
-const ServerConfig *ConfigManager::getServerByPort(int port) const
+const ServerConfig *ConfigManager::getServerByPort(uint16_t port) const
 {
 	for (size_t i = 0; i < _servers.size(); i++)
 	{

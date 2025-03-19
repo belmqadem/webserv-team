@@ -1,0 +1,83 @@
+A server config might be like that (multiple virtual hosts)
+
+server {
+    listen 0.0.0.0:8080;
+
+    location /api {
+        root /www/html;
+    }
+
+	location / {
+		root /www/html;
+	}
+}
+
+server {
+    listen 9090;
+    root /var/www/test;
+}
+
+So in the request i should check for the request uri if it match any of the loaction in any virrtual server
+For that i added a pointer to serverConfig and Location like that:
+	ServerConfig *server_config;
+	Location *location_config;
+
+The structs :
+struct Location
+{
+	std::string location;
+	std::string root;
+	std::map<int, std::string> errorPages;
+	std::vector<std::string> allowedMethods;
+	bool autoindex;
+	std::string index;
+
+	Location() : autoindex(false) {}
+};
+
+struct ServerConfig
+{
+	uint16_t port;
+	std::string host;
+	std::vector<std::string> serverNames;
+	std::string root;
+	std::map<int, std::string> errorPages;
+	std::vector<Location> locations;
+
+	ServerConfig() : port(80), host("0.0.0.0") {}
+};
+
+and in my request constructor i added a method for matching the locaion void match_location()
+
+implement this function and merge it with set_request_uri()
+bool RequestParser::set_request_uri(const std::string &request_uri)
+{
+	// Add a check here or something
+
+	size_t fragment_start = request_uri.find('#');
+	std::string uri = (fragment_start != std::string::npos) ? request_uri.substr(0, fragment_start) : request_uri;
+
+	uri = normalize_uri(uri);
+
+	size_t query_start = uri.find('?');
+	if (query_start != std::string::npos)
+	{
+		set_query_string(uri.substr(query_start + 1));
+		uri = uri.substr(0, query_start);
+	}
+
+	if (uri.empty() || uri[0] != '/')
+	{
+		log_error(HTTP_PARSE_INVALID_URI, 400);
+		return false;
+	}
+
+	if (uri.size() > MAX_URI_LENGTH)
+	{
+		log_error(HTTP_PARSE_URI_TOO_LONG, 414);
+		return false;
+	}
+
+	this->request_uri = uri;
+	return true;
+}

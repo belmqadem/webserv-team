@@ -8,6 +8,7 @@ CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
 SRCS = $(shell find srcs -name "*.cpp" -not -name "test_parser.cpp")
 OBJS = $(SRCS:.cpp=.o)
+INC=includes
 
 # Sources for the config tester
 CONFIG_SRCS = srcs/ParseConf/ConfigManager.cpp \

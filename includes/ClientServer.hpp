@@ -3,6 +3,7 @@
 #include "IEvenetListeners.hpp"
 #include "ConfigManager.hpp"
 #include "IOMultiplexer.hpp"
+#include "RequestParser.hpp"
 
 class ClientServer : IEvenetListeners
 {
@@ -12,7 +13,7 @@ private:
 	int _peer_socket_fd;
 	epoll_event _epoll_ev;
 	sockaddr_in _client_addr;
-	RequestParser request;
+	// RequestParser request;
 	std::string _request_buffer;
 	std::string _response_buffer;
 
