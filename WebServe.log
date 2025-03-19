@@ -89,3 +89,377 @@
 [2025-03-19 03:51:09] [REQUEST] GET /about/about.html HTTP/1.1
 [2025-03-19 03:51:09] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
 [2025-03-19 03:51:53] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 05:31:35] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 05:31:35] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 05:31:35] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-19 05:31:44] [INFO] Client Connected: 127.0.0.1:36382 Fd 7
+[2025-03-19 05:31:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:31:44] [REQUEST] GET / HTTP/1.1
+[2025-03-19 05:31:44] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 05:31:45] [INFO] Client Connected: 127.0.0.1:36392 Fd 7
+[2025-03-19 05:31:45] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:31:45] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-19 05:31:45] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 05:31:45] [INFO] Client Connected: 127.0.0.1:36398 Fd 7
+[2025-03-19 05:31:45] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:31:45] [REQUEST] GET /script.js HTTP/1.1
+[2025-03-19 05:31:45] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 05:31:45] [INFO] Client Connected: 127.0.0.1:36414 Fd 7
+[2025-03-19 05:31:45] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:31:45] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-19 05:31:45] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 05:31:45] [INFO] Client Connected: 127.0.0.1:36428 Fd 7
+[2025-03-19 05:31:47] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:31:47] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-19 05:31:47] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 05:31:47] [INFO] Client Connected: 127.0.0.1:36436 Fd 7
+[2025-03-19 05:31:47] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:31:47] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-19 05:31:47] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 05:31:47] [INFO] Client Connected: 127.0.0.1:36440 Fd 7
+[2025-03-19 05:31:48] [INFO] Client Connected: 127.0.0.1:36450 Fd 8
+[2025-03-19 05:31:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:31:50] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-19 05:31:50] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-19 05:31:52] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 05:32:45] [INFO] Client Connected: 127.0.0.1:60102 Fd 7
+[2025-03-19 05:32:46] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 05:32:46] [REQUEST] GET /cgi-bin/test.py HTTP/1.1
+[2025-03-19 05:32:46] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 05:44:29] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 05:44:29] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-19 05:45:01] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 05:45:01] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-19 05:45:37] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 05:45:37] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-19 05:45:46] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 05:45:46] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 05:46:18] [INFO] Client Connected: 127.0.0.1:56758 Fd 6
+[2025-03-19 05:46:18] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 05:46:18] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 05:46:18] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:46:22] [INFO] Client Connected: 127.0.0.1:56764 Fd 6
+[2025-03-19 05:46:22] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 05:46:22] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 05:46:22] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:46:32] [INFO] Client Connected: 127.0.0.1:45428 Fd 6
+[2025-03-19 05:46:32] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:46:32] [REQUEST] GET / HTTP/1.1
+[2025-03-19 05:46:32] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:46:32] [INFO] Client Connected: 127.0.0.1:45430 Fd 6
+[2025-03-19 05:46:32] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:46:32] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-19 05:46:32] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:46:32] [INFO] Client Connected: 127.0.0.1:45440 Fd 6
+[2025-03-19 05:46:33] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:46:33] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-19 05:46:33] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:46:33] [INFO] Client Connected: 127.0.0.1:45446 Fd 6
+[2025-03-19 05:46:34] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:46:34] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-19 05:46:34] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:46:34] [INFO] Client Connected: 127.0.0.1:57750 Fd 6
+[2025-03-19 05:46:35] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:46:35] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-19 05:46:35] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:46:35] [INFO] Client Connected: 127.0.0.1:57754 Fd 6
+[2025-03-19 05:46:35] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:46:35] [REQUEST] GET /script.js HTTP/1.1
+[2025-03-19 05:46:35] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:46:36] [INFO] Client Connected: 127.0.0.1:57768 Fd 6
+[2025-03-19 05:46:36] [INFO] Client Connected: 127.0.0.1:57778 Fd 7
+[2025-03-19 05:46:36] [INFO] Client Connected: 127.0.0.1:57792 Fd 8
+[2025-03-19 05:46:36] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 05:46:36] [REQUEST] GET /favicon.ico HTTP/1.1
+[2025-03-19 05:46:36] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 05:46:36] [ERROR] Error sending response to client
+[2025-03-19 05:46:36] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-19 05:46:36] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:47:58] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 05:47:58] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 05:48:45] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-19 05:48:55] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 05:48:55] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 05:49:01] [INFO] Client Connected: 127.0.0.1:55342 Fd 6
+[2025-03-19 05:49:01] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 05:49:01] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 05:49:01] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:49:24] [INFO] Client Connected: 127.0.0.1:44990 Fd 6
+[2025-03-19 05:49:24] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 05:49:24] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-19 05:49:24] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:49:34] [INFO] Client Connected: 127.0.0.1:59996 Fd 6
+[2025-03-19 05:49:34] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:49:34] [REQUEST] GET / HTTP/1.1
+[2025-03-19 05:49:34] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:49:34] [INFO] Client Connected: 127.0.0.1:60004 Fd 6
+[2025-03-19 05:49:34] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:49:34] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-19 05:49:34] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:49:35] [INFO] Client Connected: 127.0.0.1:60018 Fd 6
+[2025-03-19 05:49:35] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:49:35] [REQUEST] GET /script.js HTTP/1.1
+[2025-03-19 05:49:35] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:49:35] [INFO] Client Connected: 127.0.0.1:60024 Fd 6
+[2025-03-19 05:49:35] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:49:35] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-19 05:49:35] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:49:35] [INFO] Client Connected: 127.0.0.1:60032 Fd 6
+[2025-03-19 05:49:35] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:49:35] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-19 05:49:35] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:49:35] [INFO] Client Connected: 127.0.0.1:60042 Fd 6
+[2025-03-19 05:49:35] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:49:35] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-19 05:49:35] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:49:35] [INFO] Client Connected: 127.0.0.1:60048 Fd 6
+[2025-03-19 05:49:36] [INFO] Client Connected: 127.0.0.1:60064 Fd 7
+[2025-03-19 05:49:38] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 05:49:39] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-19 05:49:39] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 05:49:40] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:49:43] [INFO] Client Connected: 127.0.0.1:60076 Fd 6
+[2025-03-19 05:49:48] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-19 05:52:42] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 05:52:42] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-19 16:49:39] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 16:49:39] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-19 16:57:40] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 16:57:40] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 16:57:40] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-19 16:57:59] [INFO] Client Connected: 127.0.0.1:40242 Fd 7
+[2025-03-19 16:57:59] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 16:57:59] [REQUEST] GET / HTTP/1.1
+[2025-03-19 16:57:59] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 16:58:00] [INFO] Client Connected: 127.0.0.1:40252 Fd 7
+[2025-03-19 16:58:00] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 16:58:00] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-19 16:58:00] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 16:58:00] [INFO] Client Connected: 127.0.0.1:40264 Fd 7
+[2025-03-19 16:58:00] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 16:58:00] [REQUEST] GET /script.js HTTP/1.1
+[2025-03-19 16:58:00] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 16:58:00] [INFO] Client Connected: 127.0.0.1:40268 Fd 7
+[2025-03-19 16:58:01] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 16:58:01] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-19 16:58:01] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 16:58:01] [INFO] Client Connected: 127.0.0.1:40278 Fd 7
+[2025-03-19 16:58:01] [INFO] Client Connected: 127.0.0.1:40286 Fd 8
+[2025-03-19 16:58:01] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 16:58:02] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-19 16:58:02] [INFO] Client Connected: 127.0.0.1:40302 Fd 9
+[2025-03-19 16:58:02] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 16:58:02] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 16:58:02] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-19 16:58:02] [INFO] Client Connected: 127.0.0.1:40308 Fd 7
+[2025-03-19 16:58:02] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-19 16:58:03] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 16:58:04] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-19 16:58:04] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 16:58:05] [INFO] Client Connected: 127.0.0.1:58136 Fd 7
+[2025-03-19 16:58:07] [INFO] Client 127.0.0.1 Fd 9 Disconnected!
+[2025-03-19 16:58:10] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 16:58:19] [INFO] Client Connected: 127.0.0.1:49918 Fd 7
+[2025-03-19 16:58:19] [ERROR] Error: Open
+[2025-03-19 16:58:19] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 16:58:19] [REQUEST] GET /php-cgi/test.php HTTP/1.1
+[2025-03-19 16:58:19] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 16:59:47] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 16:59:47] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 16:59:47] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-19 16:59:55] [INFO] Client Connected: 127.0.0.1:38170 Fd 7
+[2025-03-19 16:59:55] [ERROR] Error: Open
+[2025-03-19 16:59:55] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 16:59:55] [REQUEST] GET /php-cgi/test.php HTTP/1.1
+[2025-03-19 16:59:55] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 16:59:59] [INFO] Client Connected: 127.0.0.1:38176 Fd 7
+[2025-03-19 16:59:59] [ERROR] Error: Open
+[2025-03-19 16:59:59] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 16:59:59] [REQUEST] GET /php-cgi/test.php HTTP/1.1
+[2025-03-19 16:59:59] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:01:46] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 17:01:46] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 17:01:46] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-19 17:01:49] [INFO] Client Connected: 127.0.0.1:56962 Fd 7
+[2025-03-19 17:01:49] [ERROR] Error: Open
+[2025-03-19 17:01:49] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:01:49] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:01:49] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:01:50] [INFO] Client Connected: 127.0.0.1:56968 Fd 7
+[2025-03-19 17:01:50] [ERROR] Error: Open
+[2025-03-19 17:01:50] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:01:50] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:01:50] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:01:51] [INFO] Client Connected: 127.0.0.1:56982 Fd 7
+[2025-03-19 17:01:51] [ERROR] Error: Open
+[2025-03-19 17:01:51] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:01:51] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:01:51] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:01:52] [INFO] Client Connected: 127.0.0.1:56984 Fd 7
+[2025-03-19 17:01:52] [ERROR] Error: Open
+[2025-03-19 17:01:52] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:01:52] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:01:52] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:01:54] [INFO] Client Connected: 127.0.0.1:56988 Fd 7
+[2025-03-19 17:01:54] [ERROR] Error: Open
+[2025-03-19 17:01:54] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:01:54] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:01:54] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:02:08] [INFO] Client Connected: 127.0.0.1:42764 Fd 7
+[2025-03-19 17:02:08] [ERROR] Client sent a request with invalid location (code: 404)
+[2025-03-19 17:02:08] [ERROR] Error parsing request: 404
+[2025-03-19 17:04:02] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 17:04:02] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 17:04:02] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-19 17:04:47] [INFO] Client Connected: 127.0.0.1:51046 Fd 7
+[2025-03-19 17:04:47] [ERROR] Error: Open
+[2025-03-19 17:04:47] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:04:47] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:04:47] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:07:52] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 17:07:52] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 17:07:52] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-19 17:08:00] [INFO] Client Connected: 127.0.0.1:57266 Fd 7
+[2025-03-19 17:08:00] [ERROR] Error: Open
+[2025-03-19 17:08:00] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:08:00] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:08:00] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:08:02] [INFO] Client Connected: 127.0.0.1:57270 Fd 7
+[2025-03-19 17:08:02] [ERROR] Error: Open
+[2025-03-19 17:08:02] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:08:02] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:08:02] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:08:02] [INFO] Client Connected: 127.0.0.1:57272 Fd 7
+[2025-03-19 17:08:02] [ERROR] Error: Open
+[2025-03-19 17:08:02] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:08:02] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:08:02] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:08:24] [INFO] Client Connected: 127.0.0.1:49274 Fd 7
+[2025-03-19 17:08:24] [ERROR] Error: Open
+[2025-03-19 17:08:24] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:08:24] [REQUEST] GET /www/cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:08:24] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:08:30] [INFO] Client Connected: 127.0.0.1:57868 Fd 7
+[2025-03-19 17:08:30] [ERROR] Error: Open
+[2025-03-19 17:08:30] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:08:30] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-19 17:08:30] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:08:31] [INFO] Client Connected: 127.0.0.1:57876 Fd 7
+[2025-03-19 17:08:31] [ERROR] Error: Open
+[2025-03-19 17:08:31] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:08:31] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-19 17:08:31] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:08:31] [INFO] Client Connected: 127.0.0.1:57892 Fd 7
+[2025-03-19 17:08:31] [ERROR] Error: Open
+[2025-03-19 17:08:31] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:08:31] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-19 17:08:31] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:08:32] [INFO] Client Connected: 127.0.0.1:57900 Fd 7
+[2025-03-19 17:08:32] [ERROR] Error: Open
+[2025-03-19 17:08:32] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:08:32] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-19 17:08:32] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:09:17] [INFO] Client Connected: 127.0.0.1:36606 Fd 7
+[2025-03-19 17:09:17] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 17:09:17] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-19 17:09:17] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:09:32] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 17:09:32] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 17:09:32] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-19 17:09:38] [INFO] Client Connected: 127.0.0.1:40008 Fd 7
+[2025-03-19 17:09:38] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 17:09:38] [REQUEST] GET / HTTP/1.1
+[2025-03-19 17:09:38] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:09:38] [INFO] Client Connected: 127.0.0.1:40016 Fd 7
+[2025-03-19 17:09:38] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 17:09:38] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-19 17:09:38] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:09:38] [INFO] Client Connected: 127.0.0.1:40028 Fd 7
+[2025-03-19 17:09:38] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 17:09:38] [REQUEST] GET /script.js HTTP/1.1
+[2025-03-19 17:09:38] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:09:38] [INFO] Client Connected: 127.0.0.1:40034 Fd 7
+[2025-03-19 17:09:39] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 17:09:39] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-19 17:09:39] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:09:39] [INFO] Client Connected: 127.0.0.1:40048 Fd 7
+[2025-03-19 17:09:39] [INFO] Client Connected: 127.0.0.1:40060 Fd 8
+[2025-03-19 17:09:39] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 17:09:39] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-19 17:09:39] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:09:39] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 17:09:39] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-19 17:09:39] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-19 17:09:39] [INFO] Client Connected: 127.0.0.1:40062 Fd 7
+[2025-03-19 17:09:39] [ERROR] Error: Open
+[2025-03-19 17:09:39] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:09:39] [REQUEST] GET /favicon.ico HTTP/1.1
+[2025-03-19 17:09:39] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:09:39] [INFO] Client Connected: 127.0.0.1:40066 Fd 7
+[2025-03-19 17:09:39] [INFO] Client Connected: 127.0.0.1:40070 Fd 8
+[2025-03-19 17:09:40] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-19 17:09:40] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-19 17:09:40] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-19 17:09:40] [ERROR] Error sending response to client
+[2025-03-19 17:09:40] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:11:54] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 17:11:54] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 17:11:54] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-19 17:12:17] [INFO] Client Connected: 127.0.0.1:53354 Fd 7
+[2025-03-19 17:12:17] [ERROR] Error: Open
+[2025-03-19 17:12:17] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:12:17] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:12:17] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:18:58] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 17:18:58] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-19 17:19:13] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 17:19:13] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 17:19:13] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-19 17:19:23] [INFO] Client Connected: 127.0.0.1:55186 Fd 7
+[2025-03-19 17:19:23] [ERROR] Error: Open
+[2025-03-19 17:19:23] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:19:23] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:19:23] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:19:27] [INFO] Client Connected: 127.0.0.1:43216 Fd 7
+[2025-03-19 17:19:27] [ERROR] Error: Open
+[2025-03-19 17:19:27] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:19:27] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:19:27] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:20:43] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 17:20:43] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 17:20:43] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-19 17:20:51] [INFO] Client Connected: 127.0.0.1:54370 Fd 7
+[2025-03-19 17:20:51] [ERROR] Error: Open
+[2025-03-19 17:20:51] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:20:51] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:20:51] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:20:53] [INFO] Client Connected: 127.0.0.1:54372 Fd 7
+[2025-03-19 17:20:53] [ERROR] Error: Open
+[2025-03-19 17:20:53] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:20:53] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:20:53] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:20:54] [INFO] Client Connected: 127.0.0.1:54380 Fd 7
+[2025-03-19 17:20:54] [ERROR] Error: Open
+[2025-03-19 17:20:54] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:20:54] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:20:54] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:21:46] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-19 17:21:46] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-19 17:21:46] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-19 17:21:52] [INFO] Client Connected: 127.0.0.1:50796 Fd 7
+[2025-03-19 17:21:52] [ERROR] Error: Open
+[2025-03-19 17:21:52] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:21:52] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-19 17:21:52] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:22:02] [INFO] Client Connected: 127.0.0.1:56410 Fd 7
+[2025-03-19 17:22:02] [ERROR] Error: Open
+[2025-03-19 17:22:02] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:22:02] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-19 17:22:02] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:22:07] [INFO] Client Connected: 127.0.0.1:49016 Fd 7
+[2025-03-19 17:22:07] [ERROR] Error: Open
+[2025-03-19 17:22:07] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-19 17:22:07] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-19 17:22:07] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-19 17:22:29] [INFO] Client Connected: 127.0.0.1:52176 Fd 7
+[2025-03-19 17:22:30] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
