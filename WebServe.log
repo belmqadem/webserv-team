@@ -264,3 +264,18 @@
 [2025-03-20 20:06:34] [RESPONSE] HTTP/1.1 200 OK
 [2025-03-20 20:06:34] [REQUEST] GET /test.php HTTP/1.1
 [2025-03-20 20:06:34] [ERROR] Failed to modify epoll event: [IOMultiplexerExceptions] [REASON]: epoll_ctl() failed in modifyListener.
+[2025-03-20 21:21:18] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 21:21:18] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 21:21:18] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 21:21:27] [INFO] Client Connected: 127.0.0.1:36142 Fd 7
+[2025-03-20 21:21:27] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 21:21:27] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 21:21:27] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 21:21:27] [ERROR] Failed to modify epoll event: [IOMultiplexerExceptions] [REASON]: epoll_ctl() failed in modifyListener.
+[2025-03-20 21:27:45] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 21:27:45] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 21:27:45] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 21:27:48] [INFO] Client Connected: 127.0.0.1:45906 Fd 7
+[2025-03-20 21:27:48] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 21:27:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 21:27:49] [REQUEST] GET /test.php HTTP/1.1
