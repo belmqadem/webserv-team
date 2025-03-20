@@ -89,3 +89,178 @@
 [2025-03-19 03:51:09] [REQUEST] GET /about/about.html HTTP/1.1
 [2025-03-19 03:51:09] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
 [2025-03-19 03:51:53] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:20:05] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 03:20:05] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 03:20:05] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 03:20:09] [INFO] Client Connected: 127.0.0.1:34418 Fd 7
+[2025-03-20 03:20:09] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 03:20:09] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-20 03:20:10] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:20:14] [INFO] Client Connected: 127.0.0.1:33706 Fd 7
+[2025-03-20 03:20:19] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:20:20] [INFO] Client Connected: 127.0.0.1:33718 Fd 7
+[2025-03-20 03:20:20] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-20 03:20:20] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 03:20:20] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:20:49] [INFO] Client Connected: 127.0.0.1:37136 Fd 7
+[2025-03-20 03:20:49] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-20 03:20:49] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-20 03:20:49] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:21:51] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 03:21:51] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 03:21:51] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 03:21:56] [INFO] Client Connected: 127.0.0.1:44162 Fd 7
+[2025-03-20 03:21:56] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-20 03:21:56] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-20 03:21:56] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:24:32] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 03:24:32] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 03:24:32] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 03:24:37] [INFO] Client Connected: 127.0.0.1:49492 Fd 7
+[2025-03-20 03:24:37] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:24:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 03:24:44] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-20 03:24:44] [ERROR] Failed to modify epoll event: [IOMultiplexerExceptions] [REASON]: epoll_ctl() failed in modifyListener.
+[2025-03-20 03:26:53] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 03:26:53] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 03:26:53] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 03:27:27] [INFO] Client Connected: 127.0.0.1:33774 Fd 7
+[2025-03-20 03:27:27] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:27:28] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 03:27:28] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-20 03:27:28] [ERROR] Failed to modify epoll event: [IOMultiplexerExceptions] [REASON]: epoll_ctl() failed in modifyListener.
+[2025-03-20 03:28:06] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 03:28:06] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 03:28:06] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 03:28:20] [INFO] Client Connected: 127.0.0.1:40974 Fd 7
+[2025-03-20 03:28:20] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:28:21] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 03:28:21] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 03:28:21] [ERROR] Failed to modify epoll event: [IOMultiplexerExceptions] [REASON]: epoll_ctl() failed in modifyListener.
+[2025-03-20 03:31:45] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 03:31:45] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 03:31:45] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 03:31:58] [INFO] Client Connected: 127.0.0.1:53028 Fd 7
+[2025-03-20 03:31:58] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:32:00] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 03:32:00] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-20 03:32:00] [ERROR] Failed to modify epoll event: [IOMultiplexerExceptions] [REASON]: epoll_ctl() failed in modifyListener.
+[2025-03-20 03:36:31] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 03:36:31] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 03:36:31] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 03:37:35] [INFO] Client Connected: 127.0.0.1:55610 Fd 7
+[2025-03-20 03:37:35] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-20 03:37:35] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-20 03:37:35] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:38:12] [INFO] Client Connected: 127.0.0.1:46932 Fd 7
+[2025-03-20 03:38:12] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-20 03:38:12] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 03:38:12] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:59:37] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 03:59:37] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 03:59:37] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 03:59:39] [INFO] Client Connected: 127.0.0.1:57312 Fd 7
+[2025-03-20 03:59:39] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:59:41] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 03:59:41] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 03:59:41] [ERROR] Failed to modify epoll event: [IOMultiplexerExceptions] [REASON]: epoll_ctl() failed in modifyListener.
+[2025-03-20 04:07:35] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 04:07:35] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 04:07:35] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 04:07:42] [INFO] Client Connected: 127.0.0.1:49808 Fd 7
+[2025-03-20 04:07:42] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 04:07:43] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 04:07:43] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 04:07:43] [ERROR] Failed to modify epoll event: [IOMultiplexerExceptions] [REASON]: epoll_ctl() failed in modifyListener.
+[2025-03-20 04:13:33] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 04:13:33] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 04:13:33] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 04:13:49] [INFO] Client Connected: 127.0.0.1:40178 Fd 7
+[2025-03-20 04:13:49] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 04:13:52] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 04:13:52] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 04:13:52] [ERROR] Failed to modify epoll event: [IOMultiplexerExceptions] [REASON]: epoll_ctl() failed in modifyListener.
+[2025-03-20 18:17:32] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 18:17:37] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 18:17:37] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 19:42:55] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 19:42:55] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 19:42:55] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 19:43:14] [INFO] Client Connected: 127.0.0.1:52354 Fd 7
+[2025-03-20 19:43:14] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 19:43:16] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 19:43:16] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 19:43:16] [ERROR] Failed to modify epoll event: [IOMultiplexerExceptions] [REASON]: epoll_ctl() failed in modifyListener.
+[2025-03-20 19:50:57] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 19:50:57] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 19:50:57] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 19:51:01] [INFO] Client Connected: 127.0.0.1:37528 Fd 7
+[2025-03-20 19:51:01] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 19:51:01] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 19:51:01] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 19:51:19] [INFO] Client Connected: 127.0.0.1:55922 Fd 7
+[2025-03-20 19:51:19] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 19:51:19] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 19:51:19] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 19:51:32] [INFO] Client Connected: 127.0.0.1:57060 Fd 7
+[2025-03-20 19:51:32] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 19:51:32] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-20 19:51:32] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 19:51:51] [INFO] Client Connected: 127.0.0.1:44086 Fd 7
+[2025-03-20 19:51:51] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 19:51:51] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 19:51:51] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 19:52:42] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 19:52:42] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 19:52:42] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 19:52:50] [INFO] Client Connected: 127.0.0.1:38104 Fd 7
+[2025-03-20 19:52:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 19:52:50] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 19:52:50] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 19:53:34] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 19:53:34] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 19:53:34] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 19:53:37] [INFO] Client Connected: 127.0.0.1:56722 Fd 7
+[2025-03-20 19:53:37] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 19:53:37] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 19:53:37] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 19:53:54] [INFO] Client Connected: 127.0.0.1:41120 Fd 7
+[2025-03-20 19:53:54] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 19:53:54] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-20 19:53:54] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 20:02:05] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 20:02:05] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 20:02:05] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 20:02:10] [INFO] Client Connected: 127.0.0.1:47388 Fd 7
+[2025-03-20 20:02:10] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 20:02:10] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-20 20:02:10] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 20:03:40] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 20:03:40] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 20:03:40] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 20:03:48] [INFO] Client Connected: 127.0.0.1:49096 Fd 7
+[2025-03-20 20:03:48] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 20:03:48] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-20 20:03:48] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 20:04:27] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 20:04:27] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 20:04:27] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 20:04:30] [INFO] Client Connected: 127.0.0.1:39998 Fd 7
+[2025-03-20 20:04:30] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 20:04:30] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 20:04:30] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 20:05:31] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 20:05:31] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 20:05:31] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 20:05:33] [INFO] Client Connected: 127.0.0.1:46272 Fd 7
+[2025-03-20 20:05:33] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 20:05:33] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 20:05:33] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 20:06:27] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 20:06:27] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 20:06:27] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 20:06:33] [INFO] Client Connected: 127.0.0.1:57012 Fd 7
+[2025-03-20 20:06:33] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 20:06:34] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 20:06:34] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-20 20:06:34] [ERROR] Failed to modify epoll event: [IOMultiplexerExceptions] [REASON]: epoll_ctl() failed in modifyListener.
