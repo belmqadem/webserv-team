@@ -20,8 +20,8 @@
 #define STATUS_201 "201 Created"
 #define STATUS_204 "204 No Content"
 #define STATUS_206 "206 Partial Content"
-#define STATUS_301 "301 Moved Permanently"
-#define STATUS_302 "302 Found"
+#define STATUS_301 "301 Moved Permanently" // Permanent redirect
+#define STATUS_302 "302 Found" // Temporary redirect
 #define STATUS_303 "303 See Other"
 #define STATUS_304 "304 Not Modified"
 #define STATUS_400 "400 Bad Request"
