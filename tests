@@ -33,7 +33,7 @@ Connection: close
 </html>
 <!-- -------------------------------------- -->
 
-* I have /imgaes/ in conf and test with /imgaes
+* I have /imgaes/ in conf and test with /imgaes :::
 
 GET /images HTTP/1.1
 host: localhost:8080
@@ -53,3 +53,31 @@ Connection: keep-alive
 <hr><center>nginx/1.18.0</center>
 </body>
 </html>
+
+
+<!-- -------------------------------------- -->
+
+* Test for directory listing ::::
+
+GET /list/ HTTP/1.1
+host: localhost:8080
+
+HTTP/1.1 200 OK
+Server: nginx/1.18.0
+Date: Thu, 20 Mar 2025 21:18:41 GMT
+Content-Type: text/html
+Transfer-Encoding: chunked
+Connection: keep-alive
+
+16d
+<html>
+<head><title>Index of /list/</title></head>
+<body>
+<h1>Index of /list/</h1><hr><pre><a href="../">../</a>
+<a href="dir1/">dir1/</a>                                              20-Mar-2025 00:56                   -
+<a href="dir2/">dir2/</a>                                              20-Mar-2025 00:56                   -
+</pre><hr></body>
+</html>
+
+0
+

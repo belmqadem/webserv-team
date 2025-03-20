@@ -237,18 +237,12 @@ void ResponseBuilder::doPOST(RequestParser &request)
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
 	std::vector<byte> req_body = request.get_body();
+	std::string upload_path = location_config->uploadStore;
 	std::string content_type = request.get_header_value("content-type");
 
 	if (is_cgi_request(path))
 	{
 		// HANDLE CGI IN POST
-		return;
-	}
-
-	if (req_body.size() == 0)
-	{
-		set_status(400);
-		body = generate_error_page(status_code);
 		return;
 	}
 
@@ -298,7 +292,6 @@ void ResponseBuilder::doPOST(RequestParser &request)
 void ResponseBuilder::doDELETE(RequestParser &request)
 {
 	std::cout << "DELETE METHOD EXECUTED" << std::endl;
-
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
 	struct stat path_stat;
@@ -467,7 +460,7 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 {
 	std::ostringstream page;
 	page << "<html><head><title>Directory Listing</title></head>";
-	page << "<body><h1>Directory Listing</h1>";
+	page << "<body><h1>Directory Listing</h1><hr>";
 	page << "<ul>";
 	DIR *dir;
 	struct dirent *ent;
@@ -475,7 +468,7 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 	{
 		while ((ent = readdir(dir)) != NULL)
 		{
-			page << "<li><a href=\"" << ent->d_name << "\">" << ent->d_name << "</a></li>";
+			page << "<li style=\"letter-spacing: 1.5\"><a href=\"" << ent->d_name << "/\">" << ent->d_name << "</a>&emsp;&emsp;&emsp;" << get_http_date() << "&emsp;&emsp;&emsp;-</li><br>";
 		}
 		closedir(dir);
 	}
