@@ -147,8 +147,13 @@ void ResponseBuilder::doGET(RequestParser &request)
 {
 	std::cout << "GET METHOD EXECUTED" << std::endl;
 	std::string uri = request.get_request_uri();
-	std::string path = location_config->root + uri;
 
+	std::string path = location_config->root + uri;
+	if(is_cgi_request(uri))
+	{
+		std::string path = location_config->cgiWorkingDirectory + uri;
+	}
+	std::cout << path << std::endl;
 	// Check if the file exists
 	struct stat file_stat;
 	if (stat(path.c_str(), &file_stat) == -1)
@@ -194,11 +199,10 @@ void ResponseBuilder::doGET(RequestParser &request)
 	// CGI Execution
 	if (is_cgi_request(path))
 	{
-		std::cout << "hello from get===================================================================================================================================================================================="<< std::endl; 
-		CGIHandler cgi(request);
+		// std::cout << "hello from get===================================================================================================================================================================================="<< std::endl; 
+		CGIHandler cgi(request,*server_config ,*location_config);
 		cgi.executeCGI();
-		exit(23);
-		body = cgi.getOut();  // Store CGI output in the response bodys
+		body = cgi.getOutput();  // Store CGI output in the response bodys
 		set_status(200);  // Assuming CGI executed successfully
 		set_headers("Content-Type", "text/html"); // Adjust based on CGI output
 		return;
@@ -247,10 +251,10 @@ void ResponseBuilder::doPOST(RequestParser &request)
 
 	if (is_cgi_request(path))
 	{
-		std::cout << "hello from post"<< std::endl; 
-		CGIHandler cgi(request);
+		// std::cout << "hello from get===================================================================================================================================================================================="<< std::endl; 
+		CGIHandler cgi(request,*server_config ,*location_config);
 		cgi.executeCGI();
-		body = cgi.getOut();  // Store CGI output in the response bodys
+		body = cgi.getOutput();  // Store CGI output in the response bodys
 		set_status(200);  // Assuming CGI executed successfully
 		set_headers("Content-Type", "text/html"); // Adjust based on CGI output
 		return;
@@ -496,22 +500,22 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 // Method to check if the requested uri is for cgi
 bool ResponseBuilder::is_cgi_request(const std::string &file_path)
 {
-    // std::vector<std::string> cgi_extensions;
-	// cgi_extensions.push_back(".php");
-	// cgi_extensions.push_back(".py");
+    std::vector<std::string> cgi_extensions;
+	cgi_extensions.push_back(".php");
+	cgi_extensions.push_back(".py");
 	// cgi_extensions.push_back(".js");
-    // size_t dot_pos = file_path.find_last_of('.');
+    size_t dot_pos = file_path.find_last_of('.');
     
-    // if (dot_pos != std::string::npos) {
-    //     std::string ext = file_path.substr(dot_pos);
-    //     for (size_t i = 0; i < cgi_extensions.size(); i++) {
-    //         if (ext == cgi_extensions[i])
-    //             return true;
-    //     }
-    // }
-    // return false;
-	(void)file_path;
-	return true;
+    if (dot_pos != std::string::npos) {
+        std::string ext = file_path.substr(dot_pos);
+        for (size_t i = 0; i < cgi_extensions.size(); i++) {
+            if (ext == cgi_extensions[i])
+                return true;
+        }
+    }
+    return false;
+	// (void)file_path;
+	// return true;
 }
 
 

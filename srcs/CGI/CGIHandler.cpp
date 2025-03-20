@@ -1,57 +1,73 @@
-#include "../../includes/CGIHandler.hpp"
+#include "RequestParser.hpp"
+#include "IEvenetListeners.hpp"
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
-#define ROOT_DIRECTORY "www/html"
-#define CGI_TIMEOUT 1
-std::string CGIHandler::FindWhichScriptIs(std::string& ex)
-{
-    if(ex == ".py")
-        return std::string("/bin/python3");
-    else if(ex == ".php")
-        return std::string("/usr/bin/php-cgi");
-    else if(ex == ".js")
-        return std::string("/bin/js");
-    else
-        return "";
+class CGIHandler : public IEvenetListeners {
+public:
+    CGIHandler(RequestParser& request, const ServerConfig& serverConfig, const Location& locationConfig);
+    virtual ~CGIHandler();
+
+    void executeCGI();
+    void setupEnvironment();
+    void setupArgs();
+    void executeScript();
+    std::string getOutput() const;
+
+    virtual void onEvent(int fd, epoll_event ev);
+    virtual void terminate();
+
+private:
+    RequestParser& _request;
+    const ServerConfig& _serverConfig;
+    const Location& _locationConfig;
+    std::map<std::string, std::string> _env;
+    std::vector<std::string> _args;
+    std::string _cgiOutput;
 };
-void timeout_handler(int signum) {
-    (void)signum;
-    std::cerr << "CGI script timed out" << std::endl;
-    exit(1);
+
+CGIHandler::CGIHandler(RequestParser& request, const ServerConfig& serverConfig, const Location& locationConfig)
+    : _request(request), _serverConfig(serverConfig), _locationConfig(locationConfig) {}
+
+CGIHandler::~CGIHandler() {}
+
+void CGIHandler::setupEnvironment() {
+    _env["REQUEST_METHOD"] = _request.get_http_method();
+    _env["QUERY_STRING"] = _request.get_query_string();
+
+    std::ostringstream contentLengthStream;
+    contentLengthStream << _request.get_body().size();
+    _env["CONTENT_LENGTH"] = contentLengthStream.str();
+
+    _env["CONTENT_TYPE"] = _request.get_header_value("content-type");
+    _env["SERVER_PROTOCOL"] = "HTTP/1.1";
+    _env["SERVER_NAME"] = _serverConfig.serverNames[0];
+
+    std::ostringstream portStream;
+    portStream << _serverConfig.port;
+    _env["SERVER_PORT"] = portStream.str();
+
+    _env["SCRIPT_NAME"] = _request.get_request_uri();
+    _env["PATH_INFO"] = _request.get_request_uri();
+    _env["PATH_TRANSLATED"] = _locationConfig.root + _request.get_request_uri();
 }
 
-
-CGIHandler::CGIHandler(RequestParser &request)
-{
-    // Logger &logger = Logger::getInstance();
-    scriptPath = ROOT_DIRECTORY + request.get_request_uri();
-    method = request.get_http_method();
-    queryString = request.get_query_string();
-    body = request.get_body();
-    headers = request.get_headers();
-
-    size_t dotPos = scriptPath.find_last_of('.');
-    if (dotPos != std::string::npos)
-    {
-        std::string extension = scriptPath.substr(dotPos);
-        if (extension == ".php" || extension == ".py" || extension == ".js")
-        {
-            interpreter = FindWhichScriptIs(extension);
-        }
-    }
-    if (interpreter.empty())
-    {
-        // logger.error("No CGI interpreter found");
-        throw std::runtime_error("500 Internal Server Error: No CGI interpreter found");
-    }
-    // logger.info("CGIHandler initialized with script: " + scriptPath);
+void CGIHandler::setupArgs() {
+    std::string scriptPath = _locationConfig.cgiWorkingDirectory + _request.get_request_uri();
+    _args.push_back(scriptPath);
 }
-CGIHandler::~CGIHandler()
-{
-}
-void CGIHandler::executeCGI() {
-    int sv[2];
-    if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1) {
-        throw std::runtime_error("500 Internal Server Error: Socket pair creation failed");
+
+void CGIHandler::executeScript() {
+    int output_pipe[2];
+    if (pipe(output_pipe) == -1) {
+        throw std::runtime_error("500 Internal Server Error: Pipe creation failed");
     }
 
     pid_t pid = fork();
@@ -60,95 +76,54 @@ void CGIHandler::executeCGI() {
     }
 
     if (pid == 0) {
-        // Child process: Execute CGI
-        close(sv[0]);
-        if (method == "POST") {
-            dup2(sv[1], STDIN_FILENO); // Attach input to CGI
+        close(output_pipe[0]);
+        dup2(output_pipe[1], STDOUT_FILENO);
+        close(output_pipe[1]);
+
+        std::vector<const char*> envp;
+        for (const auto& it : _env) {
+            std::string env_entry = it.first + "=" + it.second;
+            envp.push_back(strdup(env_entry.c_str()));
         }
-        dup2(sv[1], STDOUT_FILENO); // Attach output to CGI
-        close(sv[1]);
+        envp.push_back(NULL);
 
-        // Prepare arguments
-        std::vector<std::string> args ;
-        args.push_back(interpreter);
-        args.push_back(scriptPath );
-        char *argv[args.size() + 1];
-        for (size_t i = 0; i < args.size(); ++i)
-            argv[i] = const_cast<char *>(args[i].c_str());
-        argv[args.size()] = NULL;
-
-        // Prepare environment variables
-        std::vector<std::string> env;
-        env.push_back("REQUEST_METHOD=" + method);
-        env.push_back("QUERY_STRING=" + queryString);
-        env.push_back("SCRIPT_FILENAME=" + scriptPath);
-        env.push_back("SCRIPT_NAME=" + scriptPath);
-        env.push_back("DOCUMENT_ROOT=" + std::string(ROOT_DIRECTORY));
-        env.push_back("PHP_SELF=" + scriptPath);
-        env.push_back("PATH_TRANSLATED=" + scriptPath);
-        env.push_back("REDIRECT_STATUS=200");
-
-        if (method == "POST") {
-            std::ostringstream ss;
-            ss << body.size();
-            env.push_back("CONTENT_LENGTH=" + ss.str());
-            env.push_back("CONTENT_TYPE=" + headers["Content-Type"]);
+        std::vector<const char*> argv;
+        for (const auto& it : _args) {
+            argv.push_back(strdup(it.c_str()));
         }
+        argv.push_back(NULL);
 
-        char *envp[env.size() + 1];
-        for (size_t i = 0; i < env.size(); ++i)
-            envp[i] = const_cast<char *>(env[i].c_str());
-        envp[env.size()] = NULL;
-
-        signal(SIGALRM, timeout_handler);
-        alarm(CGI_TIMEOUT);
-
-        execve(argv[0], argv, envp);
+        execve(argv[0], const_cast<char* const*>(&argv[0]), const_cast<char* const*>(&envp[0]));
         exit(1);
     } else {
-        // Parent process: Send POST data (if needed) and read response
-        close(sv[0]);
-
-        if (method == "POST" && !body.empty()) {
-            ssize_t written = write(sv[1], body.data(), body.size());
-            if (written == -1) {
-                throw std::runtime_error("500 Internal Server Error: Failed to write request body to CGI script");
-            }
-        }
-        close(sv[1]);  // Close after writing
-
-        // Read CGI output
-        struct pollfd fds[1];
-        fds[0].fd = sv[0];
-        fds[0].events = POLLIN;
-        cgiOutput.clear();
+        close(output_pipe[1]);
+        _cgiOutput.clear();
         char buffer[4096];
-        int timeout_ms = CGI_TIMEOUT * 1000;
-        int ret = poll(fds, 1, timeout_ms);
+        ssize_t bytesRead;
 
-        if (ret > 0) {
-            while (true) {
-                int n = recv(sv[0], buffer, sizeof(buffer) - 1, MSG_DONTWAIT);
-                if (n > 0) {
-                    buffer[n] = '\0';
-                    cgiOutput += std::string(buffer, n);
-                } else if (n == 0) {
-                    break;
-                } else {
-                    break;
-                }
-            }
-        } else if (ret == 0) {
-            kill(pid, SIGKILL);
-            waitpid(pid, NULL, 0);
+        while ((bytesRead = read(output_pipe[0], buffer, sizeof(buffer) - 1)) > 0) {
+            buffer[bytesRead] = '\0';
+            _cgiOutput += buffer;
         }
-        close(sv[0]);
+        close(output_pipe[0]);
         waitpid(pid, NULL, 0);
     }
 }
 
- const std::string CGIHandler::getOut() const 
- {
-    return cgiOutput;
- }
+void CGIHandler::executeCGI() {
+    setupEnvironment();
+    setupArgs();
+    executeScript();
+}
 
+std::string CGIHandler::getOutput() const {
+    return _cgiOutput;
+}
+
+void CGIHandler::onEvent(int fd, epoll_event ev) {}
+
+void CGIHandler::terminate() {
+    _cgiOutput.clear();
+    _env.clear();
+    _args.clear();
+}
