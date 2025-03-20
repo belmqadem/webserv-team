@@ -9,13 +9,10 @@ ConfigManager *ConfigManager::_instance = NULL;
 
 ConfigManager::ConfigManager() {}
 
-ConfigManager *ConfigManager::getInstance()
+ConfigManager &ConfigManager::getInstance()
 {
-	if (_instance == NULL)
-	{
-		_instance = new ConfigManager();
-	}
-	return _instance;
+	static ConfigManager inst;
+	return inst;
 }
 
 void ConfigManager::destroyInstance()

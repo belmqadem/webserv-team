@@ -29,7 +29,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 		return;
 	}
 	_epoll_ev.data.fd = _peer_socket_fd;
-	_epoll_ev.events = EPOLLIN;
+	_epoll_ev.events = EPOLLIN | EPOLLOUT;
 	try
 	{
 		IOMultiplexer::getInstance().addListener(this, _epoll_ev);
@@ -57,6 +57,9 @@ ClientServer::~ClientServer()
 
 void ClientServer::terminate()
 {
+	if (_is_started == false)
+		return ;
+	_is_started = false;
 	if (_parser)
 	{
 		delete _parser;
@@ -101,7 +104,7 @@ void ClientServer::handleIncomingData()
 	{
 		try
 		{
-			RequestParser parser(_request_buffer, ConfigManager::getInstance()->getServers());
+			RequestParser parser(_request_buffer, ConfigManager::getInstance().getServers());
 			if (_parser)
 				delete _parser;
 			_parser = new RequestParser(parser);
@@ -117,7 +120,6 @@ void ClientServer::handleIncomingData()
 			_request_buffer.clear();
 			parser.print_request();
 
-			modifyEpollEvent(EPOLLIN | EPOLLOUT);
 		}
 		catch (std::exception &e)
 		{
@@ -133,24 +135,17 @@ bool ClientServer::shouldKeepAlive() const
 	{
 		return false;
 	}
+    // Get HTTP version and Connection header
+    const std::string& version = _parser->get_http_version();
+    const std::string& connection = _parser->get_header_value("Connection");
+
+    // HTTP/1.1: keep-alive by default unless "Connection: close"
+    if (version == "HTTP/1.1") {
+        return connection != "close";
+    }
+    // Unknown HTTP version or other cases: close the connection
 	return false;
 }
-//     // Get HTTP version and Connection header
-//     const std::string& version = _parser->get_http_version();
-//     // const std::string& connection = _parser->get_header("Connection");
-
-//     // HTTP/1.1: keep-alive by default unless "Connection: close"
-//     if (version == "HTTP/1.1") {
-//         return connection != "close";
-//     }
-
-//     // HTTP/1.0: close by default unless "Connection: keep-alive"
-//     if (version == "HTTP/1.0") {
-//         return connection == "keep-alive";
-//     }
-
-//     // Unknown HTTP version or other cases: close the connection
-//     return false;
 
 void ClientServer::modifyEpollEvent(uint32_t events)
 {
@@ -194,10 +189,6 @@ void ClientServer::handleResponse()
 		if (!shouldKeepAlive())
 		{
 			this->terminate();
-		}
-		else
-		{
-			modifyEpollEvent(EPOLLIN);
 		}
 	}
 }
