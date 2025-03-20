@@ -390,11 +390,15 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 // Method to handle redirection
 bool ResponseBuilder::handle_redirection()
 {
-	if (headers.find("Location") != headers.end())
+	if (location_config->isRedirect)
 	{
-		short redirect_code = (headers["Location"].find("permanent") != std::string::npos) ? 301 : 302;
-		set_status(redirect_code);
-		body = generate_error_page(status_code);
+		std::string redirect_url = location_config->redirectUrl;
+		if (location_config->isRedirectPermanent)
+		{
+		}
+		else
+		{
+		}
 		return true;
 	}
 	return false;
@@ -515,7 +519,7 @@ void ResponseBuilder::include_required_headers(RequestParser &request)
 		headers["Connection"] = (request.is_connection_close()) ? "close" : "keep-alive";
 
 	// `Allow` header for 405 Method Not Allowed
-	if (status_code == 405 && !headers.count("Allow"))
+	if (this->status_code == 405 && !headers.count("Allow"))
 		headers["Allow"] = "GET, POST, DELETE";
 }
 
