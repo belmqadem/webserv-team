@@ -89,3 +89,66 @@
 [2025-03-19 03:51:09] [REQUEST] GET /about/about.html HTTP/1.1
 [2025-03-19 03:51:09] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
 [2025-03-19 03:51:53] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 01:35:37] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 01:35:37] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 01:35:50] [INFO] Client Connected: 127.0.0.1:37642 Fd 6
+[2025-03-20 01:35:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 01:35:50] [REQUEST] GET / HTTP/1.1
+[2025-03-20 01:35:50] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-20 01:35:50] [INFO] Client Connected: 127.0.0.1:37658 Fd 6
+[2025-03-20 01:35:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 01:35:50] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-20 01:35:50] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-20 01:35:50] [INFO] Client Connected: 127.0.0.1:37674 Fd 6
+[2025-03-20 01:35:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 01:35:50] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-20 01:35:50] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-20 01:35:50] [INFO] Client Connected: 127.0.0.1:37686 Fd 6
+[2025-03-20 01:35:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 01:35:50] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-20 01:35:50] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-20 01:35:50] [INFO] Client Connected: 127.0.0.1:37694 Fd 6
+[2025-03-20 01:35:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 01:35:50] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-20 01:35:50] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-20 01:35:50] [INFO] Client Connected: 127.0.0.1:37704 Fd 6
+[2025-03-20 01:35:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 01:35:50] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-20 01:35:50] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-20 01:35:55] [INFO] Client Connected: 127.0.0.1:37710 Fd 6
+[2025-03-20 01:35:56] [INFO] Client Connected: 127.0.0.1:37726 Fd 7
+[2025-03-20 01:35:56] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 01:35:56] [REQUEST] GET / HTTP/1.1
+[2025-03-20 01:35:56] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-20 01:35:56] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 01:35:56] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-20 01:35:56] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 01:35:56] [INFO] Client Connected: 127.0.0.1:37734 Fd 6
+[2025-03-20 01:35:56] [INFO] Client Connected: 127.0.0.1:37744 Fd 7
+[2025-03-20 01:35:56] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 01:35:56] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-20 01:35:56] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-20 01:35:56] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 01:35:56] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-20 01:35:56] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 01:35:56] [INFO] Client Connected: 127.0.0.1:37756 Fd 6
+[2025-03-20 01:35:56] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 01:35:56] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-20 01:35:56] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-20 01:35:56] [INFO] Client Connected: 127.0.0.1:37762 Fd 6
+[2025-03-20 01:35:56] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 01:35:56] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-20 01:35:56] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-20 01:36:21] [INFO] Client Connected: 127.0.0.1:60464 Fd 6
+[2025-03-20 01:36:21] [INFO] Client Connected: 127.0.0.1:60466 Fd 7
+[2025-03-20 01:36:21] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 01:36:21] [REQUEST] GET /list/ HTTP/1.1
+[2025-03-20 01:36:21] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-20 01:36:23] [INFO] Client Connected: 127.0.0.1:60468 Fd 6
+[2025-03-20 01:36:23] [ERROR] Exception in request processing map::at
+[2025-03-20 01:36:33] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 01:36:44] [INFO] Client Connected: 127.0.0.1:34436 Fd 7
+[2025-03-20 01:36:44] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-20 01:36:44] [REQUEST] GET /data.txt HTTP/1.1
+[2025-03-20 01:36:44] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-20 01:36:57] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
