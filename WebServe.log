@@ -381,3 +381,29 @@
 [2025-03-20 03:06:11] [INFO] Server listening on 0.0.0.0:8080
 [2025-03-20 03:06:11] [INFO] Server listening on 0.0.0.0:9090
 [2025-03-20 03:06:12] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-20 03:29:02] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 03:29:02] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 03:29:02] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 03:29:07] [INFO] Client Connected: 127.0.0.1:46686 Fd 7
+[2025-03-20 03:29:07] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 03:29:07] [REQUEST] GET / HTTP/1.1
+[2025-03-20 03:29:07] [INFO] Client Connected: 127.0.0.1:46700 Fd 8
+[2025-03-20 03:29:07] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 03:29:07] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-20 03:29:07] [INFO] Client Connected: 127.0.0.1:46706 Fd 9
+[2025-03-20 03:29:07] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 03:29:07] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-20 03:29:07] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 03:29:07] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-20 03:29:07] [INFO] Client Connected: 127.0.0.1:46720 Fd 10
+[2025-03-20 03:29:07] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 03:29:07] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-20 03:29:07] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 03:29:07] [REQUEST] GET /script.js HTTP/1.1
+[2025-03-20 03:29:07] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-20 03:29:07] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-20 03:29:11] [INFO] Client 127.0.0.1 Fd 10 Disconnected!
+[2025-03-20 03:29:11] [INFO] Client 127.0.0.1 Fd 9 Disconnected!
+[2025-03-20 03:29:11] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-20 03:29:11] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 03:29:11] [INFO] Our Webserver *Not Nginx* is Shuted down !
