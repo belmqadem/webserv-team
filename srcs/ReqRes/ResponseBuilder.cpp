@@ -117,7 +117,7 @@ std::string ResponseBuilder::build_response(RequestParser &request)
 	}
 
 	// Handle redirections (if there is any)
-	if (handle_redirection())
+	if (handle_redirection(request))
 		return generate_response_string();
 
 	// Route the request to the correct handler
@@ -388,17 +388,18 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 }
 
 // Method to handle redirection
-bool ResponseBuilder::handle_redirection()
+bool ResponseBuilder::handle_redirection(RequestParser &request)
 {
 	if (location_config->isRedirect)
 	{
 		std::string redirect_url = location_config->redirectUrl;
 		if (location_config->isRedirectPermanent)
-		{
-		}
+			set_status(301);
 		else
-		{
-		}
+			set_status(302);
+		this->headers["Location"] = redirect_url;
+		body = ""; // Empty response body
+		include_required_headers(request);
 		return true;
 	}
 	return false;
