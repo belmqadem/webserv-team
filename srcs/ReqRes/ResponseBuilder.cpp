@@ -512,7 +512,7 @@ void ResponseBuilder::include_required_headers(RequestParser &request)
 
 	// Determine connection behavior
 	if (!headers.count("Connection"))
-		headers["Connection"] = (request.is_connection_keep_alive()) ? "keep-alive" : "close";
+		headers["Connection"] = (request.is_connection_close()) ? "close" : "keep-alive";
 
 	// `Allow` header for 405 Method Not Allowed
 	if (status_code == 405 && !headers.count("Allow"))
