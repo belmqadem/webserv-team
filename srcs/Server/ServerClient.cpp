@@ -109,13 +109,11 @@ void ClientServer::handleIncomingData()
 			{
 				LOG_ERROR("Error parsing request: " + to_string(parser.get_error_code()));
 			}
+			parser.print_request();
 			ResponseBuilder response(parser);
-
 			_response_buffer = response.get_response();
 			_response_ready = true;
-
 			_request_buffer.clear();
-			parser.print_request();
 
 			modifyEpollEvent(EPOLLIN | EPOLLOUT);
 		}
@@ -135,22 +133,6 @@ bool ClientServer::shouldKeepAlive() const
 	}
 	return false;
 }
-//     // Get HTTP version and Connection header
-//     const std::string& version = _parser->get_http_version();
-//     // const std::string& connection = _parser->get_header("Connection");
-
-//     // HTTP/1.1: keep-alive by default unless "Connection: close"
-//     if (version == "HTTP/1.1") {
-//         return connection != "close";
-//     }
-
-//     // HTTP/1.0: close by default unless "Connection: keep-alive"
-//     if (version == "HTTP/1.0") {
-//         return connection == "keep-alive";
-//     }
-
-//     // Unknown HTTP version or other cases: close the connection
-//     return false;
 
 void ClientServer::modifyEpollEvent(uint32_t events)
 {
