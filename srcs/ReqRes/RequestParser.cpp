@@ -518,10 +518,10 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 {
 	std::string host = headers["host"];
 
-	this->server_config = ConfigManager::getInstance()->getServerByName(host);
+	this->server_config = ConfigManager::getInstance().getServerByName(host);
 	if (!this->server_config)
 	{
-		this->server_config = ConfigManager::getInstance()->getServerByPort(port);
+		this->server_config = ConfigManager::getInstance().getServerByPort(port);
 	}
 
 	// If no exact match -> point to the first configured server

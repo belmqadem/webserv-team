@@ -15,20 +15,8 @@ Logger::~Logger()
 
 Logger &Logger::getInstance()
 {
-	if (_instance == NULL)
-	{
-		_instance = new Logger();
-	}
-	return *_instance;
-}
-
-void Logger::cleanup()
-{
-	if (_instance != NULL)
-	{
-		delete _instance;
-		_instance = NULL;
-	}
+	static Logger inst;
+	return inst;
 }
 
 std::string Logger::getTimestamp()

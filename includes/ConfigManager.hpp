@@ -87,7 +87,7 @@ private:
 
 public:
 	// Get singleton instance
-	static ConfigManager *getInstance();
+	static ConfigManager &getInstance();
 
 	// Destroy singleton instance (for cleanup)
 	static void destroyInstance();

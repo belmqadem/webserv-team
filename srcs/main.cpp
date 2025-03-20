@@ -30,9 +30,9 @@ int main(int ac, char **av)
 	signalhandler();
 	try
 	{
-		ConfigManager::getInstance()->loadConfig(av[1]);
+		ConfigManager::getInstance().loadConfig(av[1]);
 		LOG_INFO("Our Webserver *Not Nginx* Starting...");
-		Server &server = Server::getInstance(ConfigManager::getInstance()->getServers());
+		Server &server = Server::getInstance(ConfigManager::getInstance().getServers());
 		server.StartServer();
 		IOMultiplexer::getInstance().runEventLoop();
 	}
@@ -41,4 +41,5 @@ int main(int ac, char **av)
 		std::cerr << RED "Fatal error: \n"
 				  << e.what() << RESET << "\n";
 	}
+	return 0;
 }
