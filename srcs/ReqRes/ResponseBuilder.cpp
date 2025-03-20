@@ -148,7 +148,13 @@ void ResponseBuilder::doGET(RequestParser &request)
 	std::cout << "GET METHOD EXECUTED" << std::endl;
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
-
+	std::cout << path << std::endl;
+	if(is_cgi_request(uri))
+	{
+		path = "www/cgi-bin/test.php";
+	}
+	// path = "www/cgi-bin/test.php";
+	std::cout << path << std::endl;
 	// Check if the file exists
 	struct stat file_stat;
 	if (stat(path.c_str(), &file_stat) == -1)
@@ -194,7 +200,12 @@ void ResponseBuilder::doGET(RequestParser &request)
 	// CGI Execution
 	if (is_cgi_request(path))
 	{
-		// HANDLE CGI IN GET
+		// std::cout << "hello from get===================================================================================================================================================================================="<< std::endl; 
+		CGIHandler cgi(request,*server_config ,*location_config);
+		cgi.executeCGI();
+		body = cgi.getOutput();  // Store CGI output in the response bodys
+		set_status(200);  // Assuming CGI executed successfully
+		set_headers("Content-Type", "text/html"); // Adjust based on CGI output
 		return;
 	}
 
@@ -241,7 +252,12 @@ void ResponseBuilder::doPOST(RequestParser &request)
 
 	if (is_cgi_request(path))
 	{
-		// HANDLE CGI IN POST
+		// std::cout << "hello from get===================================================================================================================================================================================="<< std::endl; 
+		CGIHandler cgi(request,*server_config ,*location_config);
+		cgi.executeCGI();
+		body = cgi.getOutput();  // Store CGI output in the response bodys
+		set_status(200);  // Assuming CGI executed successfully
+		set_headers("Content-Type", "text/html"); // Adjust based on CGI output
 		return;
 	}
 
@@ -485,8 +501,22 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 // Method to check if the requested uri is for cgi
 bool ResponseBuilder::is_cgi_request(const std::string &file_path)
 {
-	(void)file_path;
-	return false;
+	std::vector<std::string> cgi_extensions;
+	cgi_extensions.push_back(".php");
+	cgi_extensions.push_back(".py");
+	// cgi_extensions.push_back(".js");
+    size_t dot_pos = file_path.find_last_of('.');
+    
+    if (dot_pos != std::string::npos) {
+        std::string ext = file_path.substr(dot_pos);
+        for (size_t i = 0; i < cgi_extensions.size(); i++) {
+            if (ext == cgi_extensions[i])
+                return true;
+        }
+    }
+    return false;
+	// (void)file_path;
+	// return true;
 }
 
 // Method to add the required headers into response
