@@ -420,11 +420,12 @@ std::string RequestParser::decode_percent_encoding(const std::string &str)
 	{
 		if (str[i] == '%' && i + 2 < len)
 		{
-			char hex[3] = {str[i + 1], str[i + 2], '\0'};
-			int value;
+			char hex1 = str[i + 1];
+			char hex2 = str[i + 2];
 
-			if (std::isxdigit(hex[0]) && std::isxdigit(hex[1]) && sscanf(hex, "%2x", &value) == 1)
+			if (std::isxdigit(hex1) && std::isxdigit(hex2))
 			{
+				int value = (std::isdigit(hex1) ? hex1 - '0' : std::toupper(hex1) - 'A' + 10) * 16 + (std::isdigit(hex2) ? hex2 - '0' : std::toupper(hex2) - 'A' + 10);
 				decoded << static_cast<char>(value);
 				i += 2;
 			}

@@ -99,10 +99,10 @@ int main()
 		ConfigManager::getInstance()->loadConfig("config/webserv.conf");
 		std::vector<ServerConfig> servers = ConfigManager::getInstance()->getServers();
 
-		std::string request = "POST /about/ HTTP/1.1\r\n"
+		std::string request = "GET /about/%21 HTTP/1.1\r\n"
 							  "Host: dkjbds\r\n"
 							  "Content-Type: multipart/form-data; boundary=----NOTNGINX\r\n"
-							  "Content-Length: 1s42\r\n"
+							  "Content-Length: 142\r\n"
 							  "\r\n"
 							  "------NOTNGINX\r\n"
 							  "Content-Disposition: form-data; name=\"file\"; filename=\"file.txt\"\r\n"

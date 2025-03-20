@@ -23,7 +23,7 @@ private:
 
 	// Helper Methods
 	void init_routes();
-	bool handle_redirection();
+	bool handle_redirection(RequestParser &request);
 	bool handle_file_upload(RequestParser &request, const std::string &path);
 	bool handle_json_upload(RequestParser &request, const std::string &path);
 	std::string generate_error_page(short status_code);
