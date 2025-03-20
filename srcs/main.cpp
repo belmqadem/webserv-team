@@ -72,84 +72,54 @@ void printServerConfig(const ServerConfig &server)
 	}
 }
 
-// extern int webserv_signal;
+extern int webserv_signal;
 
-// void sigint_handle(int sig)
-// {
-// 	webserv_signal = sig;
-// 	std::cout << "Interrupt signal catched." << std::endl;
-// }
-
-// void signalhandler()
-// {
-// 	if (signal(SIGQUIT, SIG_IGN) == SIG_ERR)
-// 		throw std::runtime_error(RED "signal() faild." RESET);
-// 	if (signal(SIGINT, &sigint_handle) == SIG_ERR)
-// 		throw std::runtime_error(RED "signal() faild." RESET);
-// }
-
-int main()
+void sigint_handle(int sig)
 {
-	Logger::getInstance().setLevel(DEBUG);
-	Logger::getInstance().setOutput(true, true);
-	Logger::getInstance().setLogFile("WebServe.log");
-
-	try
-	{
-		ConfigManager::getInstance()->loadConfig("config/webserv.conf");
-		std::vector<ServerConfig> servers = ConfigManager::getInstance()->getServers();
-
-		std::string request = "GET /about/%21 HTTP/1.1\r\n"
-							  "Host: dkjbds\r\n"
-							  "Content-Type: multipart/form-data; boundary=----NOTNGINX\r\n"
-							  "Content-Length: 142\r\n"
-							  "\r\n"
-							  "------NOTNGINX\r\n"
-							  "Content-Disposition: form-data; name=\"file\"; filename=\"file.txt\"\r\n"
-							  "Content-Type: text/plain\r\n"
-							  "\r\n"
-							  "Hello World!\r\n"
-							  "------NOTNGINX--\r\n";
-
-		std::cout << CYAN "** START REQUEST PARSING **" RESET << std::endl;
-		RequestParser parser(request, servers);
-		parser.print_request();
-		std::cout << CYAN "** REQUEST PARSING DONE **" RESET << std::endl;
-
-		ResponseBuilder response(parser);
-		std::cout << CYAN "** START RESPONSE GENERATING **" RESET << std::endl;
-		std::cout << response.get_response() << std::endl;
-		std::cout << CYAN "** RESPONSE GENERATING DONE**" RESET << std::endl;
-	}
-	catch (std::exception &e)
-	{
-		std::cerr << RED "Fatal error: \n"
-				  << e.what() << RESET << "\n";
-	}
+	webserv_signal = sig;
+	std::cout << "Interrupt signal catched." << std::endl;
 }
 
-// int main(int ac, char **av)
+void signalhandler()
+{
+	if (signal(SIGQUIT, SIG_IGN) == SIG_ERR)
+		throw std::runtime_error(RED "signal() faild." RESET);
+	if (signal(SIGINT, &sigint_handle) == SIG_ERR)
+		throw std::runtime_error(RED "signal() faild." RESET);
+}
+
+// int main()
 // {
-// 	if (ac != 2)
-// 	{
-// 		std::cout << BOLD_BLUE << USAGE(av[0]) << RESET << "\n";
-// 		return (0);
-// 	}
 // 	Logger::getInstance().setLevel(DEBUG);
 // 	Logger::getInstance().setOutput(true, true);
 // 	Logger::getInstance().setLogFile("WebServe.log");
-// 	signalhandler();
+
 // 	try
 // 	{
-// 		ConfigManager::getInstance()->loadConfig(av[1]);
+// 		ConfigManager::getInstance()->loadConfig("config/webserv.conf");
 // 		std::vector<ServerConfig> servers = ConfigManager::getInstance()->getServers();
-// 		// for (std::vector<ServerConfig>::iterator it = servers.begin(); it != servers.end(); ++it)
-// 		// 	printServerConfig(*it);
 
-// 		Server &server = Server::getInstance(ConfigManager::getInstance()->getServers());
-// 		server.StartServer();
-// 		LOG_INFO("Our Webserver *Not Nginx* Starting...");
-// 		IOMultiplexer::getInstance().runEventLoop();
+// 		std::string request = "GET /about/%21 HTTP/1.1\r\n"
+// 							  "Host: dkjbds\r\n"
+// 							  "Content-Type: multipart/form-data; boundary=----NOTNGINX\r\n"
+// 							  "Content-Length: 142\r\n"
+// 							  "\r\n"
+// 							  "------NOTNGINX\r\n"
+// 							  "Content-Disposition: form-data; name=\"file\"; filename=\"file.txt\"\r\n"
+// 							  "Content-Type: text/plain\r\n"
+// 							  "\r\n"
+// 							  "Hello World!\r\n"
+// 							  "------NOTNGINX--\r\n";
+
+// 		std::cout << CYAN "** START REQUEST PARSING **" RESET << std::endl;
+// 		RequestParser parser(request, servers);
+// 		parser.print_request();
+// 		std::cout << CYAN "** REQUEST PARSING DONE **" RESET << std::endl;
+
+// 		ResponseBuilder response(parser);
+// 		std::cout << CYAN "** START RESPONSE GENERATING **" RESET << std::endl;
+// 		std::cout << response.get_response() << std::endl;
+// 		std::cout << CYAN "** RESPONSE GENERATING DONE**" RESET << std::endl;
 // 	}
 // 	catch (std::exception &e)
 // 	{
@@ -157,3 +127,33 @@ int main()
 // 				  << e.what() << RESET << "\n";
 // 	}
 // }
+
+int main(int ac, char **av)
+{
+	if (ac != 2)
+	{
+		std::cout << BOLD_BLUE << USAGE(av[0]) << RESET << "\n";
+		return (0);
+	}
+	Logger::getInstance().setLevel(DEBUG);
+	Logger::getInstance().setOutput(true, true);
+	Logger::getInstance().setLogFile("WebServe.log");
+	signalhandler();
+	try
+	{
+		ConfigManager::getInstance()->loadConfig(av[1]);
+		std::vector<ServerConfig> servers = ConfigManager::getInstance()->getServers();
+		// for (std::vector<ServerConfig>::iterator it = servers.begin(); it != servers.end(); ++it)
+		// 	printServerConfig(*it);
+
+		Server &server = Server::getInstance(ConfigManager::getInstance()->getServers());
+		server.StartServer();
+		LOG_INFO("Our Webserver *Not Nginx* Starting...");
+		IOMultiplexer::getInstance().runEventLoop();
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << RED "Fatal error: \n"
+				  << e.what() << RESET << "\n";
+	}
+}

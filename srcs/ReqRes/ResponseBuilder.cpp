@@ -387,9 +387,15 @@ bool ResponseBuilder::handle_redirection(RequestParser &request)
 	{
 		std::string redirect_url = location_config->redirectUrl;
 		if (location_config->isRedirectPermanent)
+		{
+			LOG_DEBUG("redirect permanent");
 			set_status(301);
+		}
 		else
+		{
+			LOG_DEBUG("redirect temporary");
 			set_status(302);
+		}
 		this->headers["Location"] = redirect_url;
 		body = ""; // Empty response body
 		include_required_headers(request);
