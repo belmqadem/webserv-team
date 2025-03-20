@@ -91,43 +91,85 @@ void ResponseBuilder::init_routes()
 			routes["DELETE"] = &ResponseBuilder::doDELETE;
 	}
 }
+bool ResponseBuilder::isCgiRequest(const std::string &uri) {
+    return uri.find("/cgi-bin/") == 0 || uri.substr(uri.find_last_of(".") + 1) == "cgi";
+}
+std::string ResponseBuilder::handleCgiRequest(const std::string &method, const std::string &uri, const std::string &body) {
+    try {
+        // Prepare environment variables
+        std::map<std::string, std::string> envVars;
+        envVars["REQUEST_METHOD"] = method;
+        envVars["SCRIPT_NAME"] = uri;
+        std::ostringstream oss;
+		oss << body.size();
+		envVars["CONTENT_LENGTH"] = oss.str();
+
+
+        // Extract query string for GET requests
+        size_t queryPos = uri.find("?");
+        if (queryPos != std::string::npos) {
+            envVars["QUERY_STRING"] = uri.substr(queryPos + 1);
+        } else {
+            envVars["QUERY_STRING"] = "";
+        }
+
+        // Initialize and execute the CGI handler
+        CgiHandler cgiHandler(uri, envVars);
+        std::string cgiOutput = cgiHandler.execute(method, body);
+
+        // Return the CGI output as the response
+        return cgiOutput;
+    } catch (const std::exception &e) {
+        std::cerr << "Error handling CGI request: " << e.what() << std::endl;
+        set_status(500);
+        return generate_error_page(500);
+    }
+}
 
 // Method to process the response
-std::string ResponseBuilder::build_response(RequestParser &request)
-{
-	short request_error_code = request.get_error_code();
+std::string ResponseBuilder::build_response(RequestParser &request) {
+    short request_error_code = request.get_error_code();
 
-	if (request_error_code != 1) // If an error in request parsing
-	{
-		set_status(request_error_code);
-		body = generate_error_page(status_code);
-		include_required_headers(request);
-		return generate_response_string();
-	}
+    if (request_error_code != 1) // If an error in request parsing
+    {
+        set_status(request_error_code);
+        body = generate_error_page(status_code);
+        include_required_headers(request);
+        return generate_response_string();
+    }
 
 	std::string method = request.get_http_method();
+    std::string uri = request.get_request_uri();
+    const std::vector<byte> &bodyVector = request.get_body();
+    std::string body(bodyVector.begin(), bodyVector.end()); // Convert vector to string
 
-	// Return error if the method is not allowed
-	if (routes.find(method) == routes.end())
-	{
-		set_status(405);
-		body = generate_error_page(status_code);
-		include_required_headers(request);
-		return generate_response_string();
-	}
 
-	// Handle redirections (if there is any)
-	if (handle_redirection())
-		return generate_response_string();
+    // Check if the request is a CGI request
+    if (isCgiRequest(uri)) {
+        return handleCgiRequest(method, uri, body);
+    }
 
-	// Route the request to the correct handler
-	(this->*routes[method])(request);
+    // Return error if the method is not allowed
+    if (routes.find(method) == routes.end()) {
+        set_status(405);
+        body = generate_error_page(status_code);
+        include_required_headers(request);
+        return generate_response_string();
+    }
 
-	// Set required headers
-	include_required_headers(request);
+    // Handle redirections (if there is any)
+    if (handle_redirection())
+        return generate_response_string();
 
-	return generate_response_string();
+    // Route the request to the correct handler
+    (this->*routes[method])(request);
+
+    // Set required headers
+    include_required_headers(request);
+
+    return generate_response_string();
 }
+
 
 // Method for creating the response
 std::string ResponseBuilder::generate_response_string()
