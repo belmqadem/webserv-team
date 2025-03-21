@@ -457,3 +457,525 @@
 [2025-03-20 23:14:13] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
 [2025-03-20 23:14:13] [INFO] Our Webserver *Not Nginx* is Shuted down !
 [2025-03-20 23:14:13] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-20 23:29:23] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 23:29:23] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 23:29:23] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 23:29:34] [INFO] Client Connected: 127.0.0.1:36200 Fd 7
+[2025-03-20 23:29:34] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 23:29:34] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-20 23:29:34] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-20 23:30:41] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 23:30:41] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 23:30:41] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 23:30:42] [INFO] Client Connected: 127.0.0.1:56816 Fd 7
+[2025-03-20 23:30:42] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 23:30:42] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-20 23:30:42] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-20 23:32:16] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-20 23:32:16] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-20 23:32:16] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-20 23:32:18] [INFO] Client Connected: 127.0.0.1:33396 Fd 7
+[2025-03-20 23:32:18] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-20 23:32:18] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-20 23:32:18] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 05:04:05] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 05:04:05] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 05:04:05] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 05:04:16] [INFO] Client Connected: 127.0.0.1:39708 Fd 7
+[2025-03-21 05:04:16] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 05:04:16] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 05:04:16] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 05:04:16] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 15:39:53] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 15:39:53] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 15:39:53] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 15:39:59] [INFO] Client Connected: 127.0.0.1:32924 Fd 7
+[2025-03-21 15:39:59] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:39:59] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 15:39:59] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:42:26] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 15:42:26] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 15:42:26] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 15:42:32] [INFO] Client Connected: 127.0.0.1:49306 Fd 7
+[2025-03-21 15:42:32] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:42:32] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 15:42:32] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:44:10] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 15:44:10] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 15:44:10] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 15:44:18] [INFO] Client Connected: 127.0.0.1:41738 Fd 7
+[2025-03-21 15:44:18] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:44:18] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 15:44:18] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:45:33] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 15:45:33] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 15:45:33] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 15:45:39] [INFO] Client Connected: 127.0.0.1:46512 Fd 7
+[2025-03-21 15:45:39] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:45:39] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 15:45:39] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:47:49] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 15:47:49] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 15:47:49] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 15:47:58] [INFO] Client Connected: 127.0.0.1:45210 Fd 7
+[2025-03-21 15:47:58] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:47:58] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 15:47:58] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:49:17] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 15:49:17] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 15:49:17] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 15:49:19] [INFO] Client Connected: 127.0.0.1:59866 Fd 7
+[2025-03-21 15:49:19] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:49:19] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 15:49:19] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:50:06] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 15:50:06] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 15:50:06] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 15:50:10] [INFO] Client Connected: 127.0.0.1:34512 Fd 7
+[2025-03-21 15:50:10] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:50:10] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 15:50:10] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:50:57] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 15:50:57] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 15:50:57] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 15:51:03] [INFO] Client Connected: 127.0.0.1:46930 Fd 7
+[2025-03-21 15:51:03] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:51:05] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:51:09] [INFO] Client Connected: 127.0.0.1:55230 Fd 7
+[2025-03-21 15:51:09] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:51:11] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:51:13] [INFO] Client Connected: 127.0.0.1:55246 Fd 7
+[2025-03-21 15:51:13] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:51:13] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:51:17] [INFO] Client Connected: 127.0.0.1:55250 Fd 7
+[2025-03-21 15:51:17] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:51:18] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:52:41] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 15:52:48] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 15:52:48] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 15:52:48] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 15:52:53] [INFO] Client Connected: 127.0.0.1:40654 Fd 7
+[2025-03-21 15:52:53] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:52:53] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 15:52:53] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:54:19] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 15:54:19] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 15:54:19] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 15:54:24] [INFO] Client Connected: 127.0.0.1:60332 Fd 7
+[2025-03-21 15:54:24] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:54:24] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 15:54:24] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:54:46] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 15:54:46] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 15:54:46] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 15:54:51] [INFO] Client Connected: 127.0.0.1:34154 Fd 7
+[2025-03-21 15:54:51] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:54:51] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 15:54:51] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:56:06] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 15:56:06] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 15:56:06] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 15:56:11] [INFO] Client Connected: 127.0.0.1:51094 Fd 7
+[2025-03-21 15:56:12] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 15:56:19] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 15:56:22] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:00:00] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:00:00] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:00:00] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:00:05] [INFO] Client Connected: 127.0.0.1:47052 Fd 7
+[2025-03-21 16:00:05] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:00:45] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:00:50] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:06:48] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:06:48] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:06:48] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:06:51] [INFO] Client Connected: 127.0.0.1:39868 Fd 7
+[2025-03-21 16:06:51] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:07:49] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:07:53] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:08:02] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:08:02] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:08:02] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:08:04] [INFO] Client Connected: 127.0.0.1:44410 Fd 7
+[2025-03-21 16:08:04] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:09:54] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:09:54] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:09:58] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:09:58] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:09:58] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:10:05] [INFO] Client Connected: 127.0.0.1:43828 Fd 7
+[2025-03-21 16:10:06] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 16:10:06] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 16:10:06] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:10:48] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:11:02] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:11:02] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:11:02] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:11:08] [INFO] Client Connected: 127.0.0.1:43472 Fd 7
+[2025-03-21 16:11:08] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 16:11:08] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 16:11:08] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:11:38] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:18:33] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:18:33] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:18:33] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:18:41] [INFO] Client Connected: 127.0.0.1:45236 Fd 7
+[2025-03-21 16:18:41] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:18:41] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:18:41] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:19:46] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:19:46] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:19:46] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:19:48] [INFO] Client Connected: 127.0.0.1:41404 Fd 7
+[2025-03-21 16:19:48] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:19:48] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:19:48] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:23:41] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:23:41] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:23:41] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:23:44] [INFO] Client Connected: 127.0.0.1:60962 Fd 7
+[2025-03-21 16:23:44] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:23:44] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:23:44] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:28:17] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:28:17] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:28:17] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:28:19] [INFO] Client Connected: 127.0.0.1:50142 Fd 7
+[2025-03-21 16:28:19] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:28:19] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:28:19] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:29:48] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:29:48] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:29:48] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:29:50] [INFO] Client Connected: 127.0.0.1:50524 Fd 7
+[2025-03-21 16:29:50] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:29:50] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:29:50] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:31:03] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:31:03] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:31:03] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:31:04] [INFO] Client Connected: 127.0.0.1:55404 Fd 7
+[2025-03-21 16:31:04] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:31:04] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:31:04] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:31:45] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:31:45] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:31:45] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:31:48] [INFO] Client Connected: 127.0.0.1:55276 Fd 7
+[2025-03-21 16:31:48] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 16:31:48] [REQUEST] GET /cgi-bin/a.py HTTP/1.1
+[2025-03-21 16:31:48] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:32:08] [INFO] Client Connected: 127.0.0.1:33802 Fd 7
+[2025-03-21 16:32:08] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:32:08] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:32:08] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:33:26] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:33:26] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:33:26] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:33:29] [INFO] Client Connected: 127.0.0.1:50020 Fd 7
+[2025-03-21 16:33:29] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:33:29] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:33:29] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:37:10] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:37:10] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:37:10] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:37:12] [INFO] Client Connected: 127.0.0.1:39276 Fd 7
+[2025-03-21 16:37:13] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:37:36] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:37:36] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 16:38:12] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 16:38:12] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 16:38:12] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 16:38:15] [INFO] Client Connected: 127.0.0.1:48922 Fd 7
+[2025-03-21 16:38:15] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:38:18] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:38:24] [INFO] Client Connected: 127.0.0.1:43018 Fd 7
+[2025-03-21 16:38:24] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:38:34] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:38:37] [INFO] Client Connected: 127.0.0.1:45174 Fd 7
+[2025-03-21 16:38:37] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 16:38:38] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 16:38:39] [INFO] Client Connected: 127.0.0.1:51316 Fd 7
+[2025-03-21 16:38:39] [ERROR] Exception in request processing CGI script execution failed.
+[2025-03-21 18:14:05] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 18:14:06] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 18:16:07] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 18:16:07] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 18:16:07] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 18:16:09] [INFO] Client Connected: 127.0.0.1:33514 Fd 7
+[2025-03-21 18:16:09] [ERROR] Exception in request processing CGI script execution failed with non-zero exit code.
+[2025-03-21 18:16:18] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 18:16:18] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 18:16:52] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 18:16:52] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 18:16:52] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 18:16:54] [INFO] Client Connected: 127.0.0.1:58506 Fd 7
+[2025-03-21 18:17:02] [ERROR] Exception in request processing CGI script execution failed with non-zero exit code.
+[2025-03-21 18:17:24] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 18:17:28] [INFO] Client Connected: 127.0.0.1:57548 Fd 7
+[2025-03-21 18:17:29] [ERROR] Exception in request processing CGI script execution failed with non-zero exit code.
+[2025-03-21 18:17:46] [INFO] Client Connected: 127.0.0.1:56784 Fd 8
+[2025-03-21 18:17:46] [ERROR] Exception in request processing CGI script execution failed with non-zero exit code.
+[2025-03-21 18:18:06] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-21 18:18:12] [INFO] Client Connected: 127.0.0.1:43010 Fd 8
+[2025-03-21 18:18:12] [ERROR] Exception in request processing CGI script execution failed with non-zero exit code.
+[2025-03-21 18:18:29] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-21 18:18:31] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 18:18:36] [INFO] Client Connected: 127.0.0.1:60656 Fd 7
+[2025-03-21 18:18:36] [ERROR] Exception in request processing CGI script execution failed with non-zero exit code.
+[2025-03-21 18:18:42] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 18:18:46] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 18:21:21] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 18:21:21] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 18:21:21] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 18:21:26] [INFO] Client Connected: 127.0.0.1:37102 Fd 7
+[2025-03-21 18:21:26] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:21:26] [REQUEST] GET / HTTP/1.1
+[2025-03-21 18:21:26] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 18:21:59] [INFO] Client Connected: 127.0.0.1:37530 Fd 7
+[2025-03-21 18:22:00] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:00] [REQUEST] GET / HTTP/1.1
+[2025-03-21 18:22:00] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:00] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-21 18:22:00] [INFO] Client Connected: 127.0.0.1:37532 Fd 8
+[2025-03-21 18:22:01] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:01] [REQUEST] GET /script.js HTTP/1.1
+[2025-03-21 18:22:01] [INFO] Client Connected: 127.0.0.1:37542 Fd 9
+[2025-03-21 18:22:01] [INFO] Client Connected: 127.0.0.1:37550 Fd 10
+[2025-03-21 18:22:01] [INFO] Client Connected: 127.0.0.1:37552 Fd 11
+[2025-03-21 18:22:01] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:01] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-21 18:22:01] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:01] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-21 18:22:01] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:01] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-21 18:22:02] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:02] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 18:22:02] [INFO] Client 127.0.0.1 Fd 10 Disconnected!
+[2025-03-21 18:22:02] [ERROR] Error sending response to client
+[2025-03-21 18:22:02] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 18:22:02] [REQUEST] GET /favicon.ico HTTP/1.1
+[2025-03-21 18:22:02] [INFO] Client Connected: 127.0.0.1:35444 Fd 10
+[2025-03-21 18:22:02] [INFO] Client 127.0.0.1 Fd 11 Disconnected!
+[2025-03-21 18:22:02] [INFO] Client 127.0.0.1 Fd 10 Disconnected!
+[2025-03-21 18:22:02] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:02] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 18:22:12] [INFO] Client Connected: 127.0.0.1:33050 Fd 10
+[2025-03-21 18:22:13] [ERROR] Exception in request processing CGI script execution failed with non-zero exit code.
+[2025-03-21 18:22:23] [ERROR] Exception in request processing CGI script execution failed with non-zero exit code.
+[2025-03-21 18:22:26] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:26] [REQUEST] GET / HTTP/1.1
+[2025-03-21 18:22:26] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:26] [REQUEST] GET /script.js HTTP/1.1
+[2025-03-21 18:22:26] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:26] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-21 18:22:27] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:27] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-21 18:22:27] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:27] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-21 18:22:27] [INFO] Client Connected: 127.0.0.1:38054 Fd 11
+[2025-03-21 18:22:27] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:27] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-21 18:22:27] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 18:22:27] [REQUEST] GET /favicon.ico HTTP/1.1
+[2025-03-21 18:22:27] [INFO] Client 127.0.0.1 Fd 11 Disconnected!
+[2025-03-21 18:22:27] [INFO] Client Connected: 127.0.0.1:38062 Fd 11
+[2025-03-21 18:22:28] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:22:28] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 18:22:33] [INFO] Client 127.0.0.1 Fd 11 Disconnected!
+[2025-03-21 18:22:34] [RESPONSE] HTTP/1.1 201 Created
+[2025-03-21 18:22:34] [REQUEST] POST /submit HTTP/1.1
+[2025-03-21 18:23:15] [INFO] Client 127.0.0.1 Fd 10 Disconnected!
+[2025-03-21 18:23:17] [INFO] Client 127.0.0.1 Fd 9 Disconnected!
+[2025-03-21 18:23:17] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-21 18:23:17] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 18:23:17] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 18:23:25] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 18:23:25] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 18:23:25] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 18:23:31] [INFO] Client Connected: 127.0.0.1:54214 Fd 7
+[2025-03-21 18:23:31] [ERROR] Exception in request processing CGI script execution failed with non-zero exit code.
+[2025-03-21 18:23:36] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 18:23:40] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 18:43:23] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 18:43:23] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 18:43:23] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 18:43:26] [INFO] Client Connected: 127.0.0.1:45194 Fd 7
+[2025-03-21 18:43:26] [INFO] CGIHandler initialized with script: www/html/cgi-bin/test.php
+[2025-03-21 18:43:26] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 18:43:26] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 18:43:26] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 18:43:53] [INFO] Client Connected: 127.0.0.1:39574 Fd 7
+[2025-03-21 18:43:53] [INFO] CGIHandler initialized with script: www/html/cgi-bin/test.php
+[2025-03-21 18:43:53] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 18:43:53] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 18:43:53] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 18:43:57] [INFO] Client Connected: 127.0.0.1:39578 Fd 7
+[2025-03-21 18:43:57] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 18:43:57] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:43:57] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 18:43:57] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 18:44:19] [INFO] Client Connected: 127.0.0.1:47894 Fd 7
+[2025-03-21 18:44:19] [INFO] CGIHandler initialized with script: www/html/cgi-bin/test.php
+[2025-03-21 18:44:20] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 18:44:20] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 18:44:21] [INFO] CGIHandler initialized with script: www/html/cgi-bin/test.php
+[2025-03-21 18:44:21] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 18:44:21] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 18:44:26] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 18:44:26] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:44:26] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 18:45:35] [INFO] CGIHandler initialized with script: www/html/cgi-bin/test.php
+[2025-03-21 18:45:35] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 18:45:35] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 18:45:42] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 18:45:45] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:45:45] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 18:46:14] [INFO] CGIHandler initialized with script: www/html/cgi-bin/test.php
+[2025-03-21 18:46:15] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 18:46:15] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 18:46:16] [INFO] CGIHandler initialized with script: www/html/cgi-bin/test.php
+[2025-03-21 18:46:17] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 18:46:17] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 18:46:23] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 18:46:23] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:46:23] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 18:46:29] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:46:29] [REQUEST] GET / HTTP/1.1
+[2025-03-21 18:46:29] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:46:29] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-21 18:46:29] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:46:29] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-21 18:46:30] [INFO] Client Connected: 127.0.0.1:39058 Fd 8
+[2025-03-21 18:46:30] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:46:30] [REQUEST] GET /script.js HTTP/1.1
+[2025-03-21 18:46:30] [INFO] Client Connected: 127.0.0.1:39062 Fd 9
+[2025-03-21 18:46:30] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:46:30] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-21 18:46:31] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:46:32] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 18:46:32] [INFO] Client Connected: 127.0.0.1:39068 Fd 10
+[2025-03-21 18:46:32] [INFO] Client Connected: 127.0.0.1:39074 Fd 22
+[2025-03-21 18:46:32] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:46:32] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-21 18:46:35] [INFO] Client 127.0.0.1 Fd 10 Disconnected!
+[2025-03-21 18:46:41] [INFO] Client Connected: 127.0.0.1:55252 Fd 10
+[2025-03-21 18:46:41] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 18:46:42] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:46:42] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 18:46:42] [INFO] Client 127.0.0.1 Fd 10 Disconnected!
+[2025-03-21 18:47:14] [INFO] Client Connected: 127.0.0.1:48412 Fd 10
+[2025-03-21 18:47:14] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 18:47:14] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:47:14] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 18:47:14] [INFO] Client 127.0.0.1 Fd 10 Disconnected!
+[2025-03-21 18:48:26] [INFO] Client 127.0.0.1 Fd 22 Disconnected!
+[2025-03-21 18:48:26] [INFO] Client 127.0.0.1 Fd 9 Disconnected!
+[2025-03-21 18:48:26] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-21 18:48:26] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 18:48:26] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 18:49:43] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 18:49:43] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 18:49:43] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 18:49:46] [INFO] Client Connected: 127.0.0.1:59658 Fd 7
+[2025-03-21 18:49:46] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 18:49:46] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 18:49:46] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 18:49:46] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 18:50:10] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 19:04:44] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 19:04:44] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 19:04:44] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 19:04:46] [INFO] Client Connected: 127.0.0.1:43452 Fd 7
+[2025-03-21 19:04:46] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 19:04:47] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:04:47] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 19:04:47] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 19:05:21] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 19:05:43] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 19:05:43] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 19:05:43] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 19:05:49] [INFO] Client Connected: 127.0.0.1:46424 Fd 7
+[2025-03-21 19:05:49] [INFO] CGIHandler initialized with script: www/html/cgi-bin/test.php
+[2025-03-21 19:05:49] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 19:05:49] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 19:05:57] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 19:05:58] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:05:58] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 19:07:53] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 19:08:05] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 19:08:24] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 19:08:24] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 19:08:24] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 19:08:28] [INFO] Client Connected: 127.0.0.1:35308 Fd 7
+[2025-03-21 19:08:28] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 19:08:30] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:08:30] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 19:08:30] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 19:08:41] [INFO] Client Connected: 127.0.0.1:57868 Fd 7
+[2025-03-21 19:08:41] [INFO] CGIHandler initialized with script: www/html/cgi-bin/test.php
+[2025-03-21 19:08:43] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 19:08:43] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 19:08:53] [INFO] CGIHandler initialized with script: www/html/cgi-bin/test.php
+[2025-03-21 19:08:57] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 19:08:57] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 19:09:04] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 19:09:06] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:09:06] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 19:11:01] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 19:14:10] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 19:16:53] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 19:16:53] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 19:16:53] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 19:17:02] [INFO] Client Connected: 127.0.0.1:43656 Fd 7
+[2025-03-21 19:17:02] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 19:17:05] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:17:05] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 19:17:05] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 19:17:19] [INFO] Client Connected: 127.0.0.1:34930 Fd 7
+[2025-03-21 19:17:19] [INFO] CGIHandler initialized with script: www/html/cgi-bin/test.php
+[2025-03-21 19:17:19] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 19:17:19] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 19:17:23] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 19:17:25] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:17:25] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 19:17:56] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 19:17:59] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:17:59] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 19:19:41] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 19:19:41] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 19:20:04] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 19:20:04] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 19:20:04] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 19:20:14] [INFO] Client Connected: 127.0.0.1:55732 Fd 7
+[2025-03-21 19:20:14] [INFO] CGIHandler initialized with script: www/html/cgi-bin/test.php
+[2025-03-21 19:20:14] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 19:20:14] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 19:20:31] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 19:20:31] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:20:31] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 19:22:27] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 19:22:27] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 19:22:37] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 19:22:37] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 19:22:37] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 19:22:41] [INFO] Client Connected: 127.0.0.1:50008 Fd 7
+[2025-03-21 19:22:41] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 19:22:41] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:22:41] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 19:23:38] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 19:23:38] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 19:31:04] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 19:31:04] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 19:31:04] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 19:31:12] [INFO] Client Connected: 127.0.0.1:49136 Fd 7
+[2025-03-21 19:31:12] [INFO] CGIHandler initialized with script: www/html/cgi-bin/test.php
+[2025-03-21 19:31:13] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:31:13] [REQUEST] GET /cgi-bin/test.php HTTP/1.1
+[2025-03-21 19:31:14] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 19:31:14] [REQUEST] GET /favicon.ico HTTP/1.1
+[2025-03-21 19:31:21] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 19:31:22] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:31:22] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 19:31:35] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 19:31:35] [INFO] Our Webserver *Not Nginx* is Shuted down !
