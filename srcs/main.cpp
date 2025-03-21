@@ -88,6 +88,41 @@ void signalhandler()
 		throw std::runtime_error(RED "signal() faild." RESET);
 }
 
+// int main()
+// {
+// 	Logger::getInstance().setLevel(DEBUG);
+// 	Logger::getInstance().setOutput(true, true);
+// 	Logger::getInstance().setLogFile("WebServe.log");
+
+// 	try
+// 	{
+// 		ConfigManager::getInstance()->loadConfig("config/webserv.conf");
+// 		std::vector<ServerConfig> servers = ConfigManager::getInstance()->getServers();
+
+// 		std::string request = "POST /submit HTTP/1.1\r\n"
+// 							  "Host: localhost:5050\r\n"
+// 							  "Content-Type: application/octet-stream\r\n"
+// 							  "Content-Length: 10\r\n"
+// 							  "\r\n"
+// 							  "0001101010101010100101010101010101010101010101010101010101010101010101010";
+
+// 		std::cout << CYAN "** START REQUEST PARSING **" RESET << std::endl;
+// 		RequestParser parser(request, servers);
+// 		parser.print_request();
+// 		std::cout << CYAN "** REQUEST PARSING DONE **" RESET << std::endl;
+
+// 		ResponseBuilder response(parser);
+// 		std::cout << CYAN "** START RESPONSE GENERATING **" RESET << std::endl;
+// 		std::cout << response.get_response() << std::endl;
+// 		std::cout << CYAN "** RESPONSE GENERATING DONE**" RESET << std::endl;
+// 	}
+// 	catch (std::exception &e)
+// 	{
+// 		std::cerr << RED "Fatal error: \n"
+// 				  << e.what() << RESET << "\n";
+// 	}
+// }
+
 int main(int ac, char **av)
 {
 	if (ac != 2)
@@ -102,6 +137,10 @@ int main(int ac, char **av)
 	try
 	{
 		ConfigManager::getInstance().loadConfig(av[1]);
+		std::vector<ServerConfig> servers = ConfigManager::getInstance().getServers();
+		// for (std::vector<ServerConfig>::iterator it = servers.begin(); it != servers.end(); ++it)
+		// 	printServerConfig(*it);
+
 		Server &server = Server::getInstance(ConfigManager::getInstance().getServers());
 		server.StartServer();
 		LOG_INFO("Our Webserver *Not Nginx* Starting...");
@@ -112,5 +151,4 @@ int main(int ac, char **av)
 		std::cerr << RED "Fatal error: \n"
 				  << e.what() << RESET << "\n";
 	}
-	return 0;
 }

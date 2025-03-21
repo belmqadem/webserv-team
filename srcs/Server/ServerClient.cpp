@@ -58,7 +58,7 @@ ClientServer::~ClientServer()
 void ClientServer::terminate()
 {
 	if (_is_started == false)
-		return ;
+		return;
 	_is_started = false;
 	if (_parser)
 	{
@@ -117,7 +117,6 @@ void ClientServer::handleIncomingData()
 			_response_buffer = response.get_response();
 			_response_ready = true;
 			_request_buffer.clear();
-
 		}
 		catch (std::exception &e)
 		{
@@ -133,16 +132,11 @@ bool ClientServer::shouldKeepAlive() const
 	{
 		return false;
 	}
-    // Get HTTP version and Connection header
-    const std::string& version = _parser->get_http_version();
-    const std::string& connection = _parser->get_header_value("Connection");
 
-    // HTTP/1.1: keep-alive by default unless "Connection: close"
-    if (version == "HTTP/1.1") {
-        return connection != "close";
-    }
-    // Unknown HTTP version or other cases: close the connection
-	return false;
+	if (_parser->is_connection_close())
+		return false;
+
+	return true;
 }
 
 void ClientServer::modifyEpollEvent(uint32_t events)
