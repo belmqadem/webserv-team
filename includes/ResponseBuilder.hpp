@@ -43,6 +43,7 @@ private:
 
 public:
 	ResponseBuilder(RequestParser &request);
+	std::map<std::string, std::string> prepareEnv( RequestParser &request) const ;
 
 	// Setters
 	void set_http_version(const std::string &http_version);
