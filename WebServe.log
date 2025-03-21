@@ -106,3 +106,256 @@
 [2025-03-21 22:48:07] [INFO] Client Connected: 127.0.0.1:49634 Fd 6
 [2025-03-21 22:48:10] [INFO] Client: 6Reached Timeout after 2 Seconds of inactivity
 [2025-03-21 22:48:10] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-21 23:10:56] [INFO] Signal catched
+[2025-03-21 23:10:56] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 23:16:02] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-21 23:16:02] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 23:16:06] [INFO] Client Connected: 127.0.0.1:39634 Fd 6
+[2025-03-21 23:16:09] [INFO] Client: 6Reached Timeout after 2 Seconds of inactivity
+[2025-03-21 23:16:09] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-21 23:16:16] [INFO] Signal catched
+[2025-03-21 23:16:16] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 23:16:36] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-21 23:16:36] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 23:16:38] [INFO] Client Connected: 127.0.0.1:51200 Fd 6
+[2025-03-21 23:16:41] [INFO] Client: 6Reached Timeout after 2 Seconds of inactivity
+[2025-03-21 23:16:41] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-21 23:16:43] [INFO] Signal catched
+[2025-03-21 23:16:43] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 23:16:52] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-21 23:16:52] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 23:16:59] [INFO] Signal catched
+[2025-03-21 23:16:59] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 23:17:10] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-21 23:17:10] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 23:17:13] [INFO] Client Connected: 127.0.0.1:53132 Fd 6
+[2025-03-21 23:17:22] [ERROR] Client sent a request with invalid http version (code: 400)
+[2025-03-21 23:17:22] [ERROR] Error parsing request: 400
+[2025-03-21 23:17:24] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-21 23:17:24] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 23:17:27] [INFO] Client Connected: 127.0.0.1:53214 Fd 6
+[2025-03-21 23:18:04] [INFO] Client: 6Reached Timeout after 30 Seconds of inactivity
+[2025-03-21 23:18:04] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-21 23:24:54] [INFO] Signal catched
+[2025-03-21 23:24:54] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 23:24:58] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-21 23:24:58] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 23:25:06] [INFO] Client Connected: 127.0.0.1:51066 Fd 6
+[2025-03-21 23:25:06] [REQUEST] GET / HTTP/1.1
+[2025-03-21 23:25:06] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:25:07] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-21 23:25:07] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:25:07] [INFO] Client Connected: 127.0.0.1:51068 Fd 7
+[2025-03-21 23:25:07] [INFO] Client Connected: 127.0.0.1:51072 Fd 8
+[2025-03-21 23:25:07] [INFO] Client Connected: 127.0.0.1:51080 Fd 9
+[2025-03-21 23:25:07] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-21 23:25:07] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:25:07] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-21 23:25:07] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:25:07] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-21 23:25:07] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:25:07] [INFO] Client Connected: 127.0.0.1:51082 Fd 10
+[2025-03-21 23:25:07] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 23:25:07] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:25:07] [REQUEST] GET /favicon.ico HTTP/1.1
+[2025-03-21 23:25:07] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:25:07] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 23:25:07] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:25:38] [INFO] Client: 6Reached Timeout after 30 Seconds of inactivity
+[2025-03-21 23:25:38] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-21 23:25:38] [INFO] Client: 7Reached Timeout after 30 Seconds of inactivity
+[2025-03-21 23:25:38] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 23:25:38] [INFO] Client: 8Reached Timeout after 30 Seconds of inactivity
+[2025-03-21 23:25:38] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-21 23:25:38] [INFO] Client: 10Reached Timeout after 30 Seconds of inactivity
+[2025-03-21 23:25:38] [INFO] Client 127.0.0.1 Fd 10 Disconnected!
+[2025-03-21 23:25:38] [INFO] Client: 9Reached Timeout after 30 Seconds of inactivity
+[2025-03-21 23:25:38] [INFO] Client 127.0.0.1 Fd 9 Disconnected!
+[2025-03-21 23:25:43] [INFO] Signal catched
+[2025-03-21 23:25:43] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 23:28:23] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-21 23:28:23] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 23:28:27] [INFO] Client Connected: 127.0.0.1:35726 Fd 6
+[2025-03-21 23:28:27] [REQUEST] GET / HTTP/1.1
+[2025-03-21 23:28:27] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:28:28] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-21 23:28:28] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:28:28] [INFO] Client Connected: 127.0.0.1:35738 Fd 7
+[2025-03-21 23:28:28] [INFO] Client Connected: 127.0.0.1:35740 Fd 8
+[2025-03-21 23:28:28] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-21 23:28:28] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:28:28] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-21 23:28:28] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:28:28] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-21 23:28:28] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:28:28] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 23:28:28] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:28:59] [INFO] Client: 6Reached Timeout after 30 Seconds of inactivity
+[2025-03-21 23:28:59] [INFO] Client 127.0.0.1 Fd 6 Disconnected!
+[2025-03-21 23:28:59] [INFO] Client: 7Reached Timeout after 30 Seconds of inactivity
+[2025-03-21 23:28:59] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 23:28:59] [INFO] Client: 8Reached Timeout after 30 Seconds of inactivity
+[2025-03-21 23:28:59] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-21 23:29:01] [INFO] Signal catched
+[2025-03-21 23:29:01] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 23:30:29] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-21 23:30:29] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 23:30:35] [INFO] Client Connected: 127.0.0.1:48758 Fd 6
+[2025-03-21 23:30:35] [REQUEST] GET / HTTP/1.1
+[2025-03-21 23:30:35] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:30:35] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-21 23:30:35] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:30:35] [INFO] Client Connected: 127.0.0.1:48770 Fd 7
+[2025-03-21 23:30:35] [INFO] Client Connected: 127.0.0.1:48780 Fd 8
+[2025-03-21 23:30:35] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-21 23:30:35] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:30:35] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-21 23:30:35] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:30:35] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-21 23:30:35] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:30:35] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 23:30:35] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:30:47] [REQUEST] GET /api HTTP/1.1
+[2025-03-21 23:30:47] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:30:48] [REQUEST] GET /api HTTP/1.1
+[2025-03-21 23:30:48] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:30:53] [REQUEST] GET /api HTTP/1.1
+[2025-03-21 23:30:53] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:31:11] [INFO] Client Connected: 127.0.0.1:43358 Fd 9
+[2025-03-21 23:31:23] [REQUEST] GET /api HTTP/1.1
+[2025-03-21 23:31:23] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:31:23] [REQUEST] GET /dfjhvfd HTTP/1.1
+[2025-03-21 23:31:23] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:31:30] [ERROR] Client sent a request with invalid request line (code: 400)
+[2025-03-21 23:31:30] [ERROR] Error parsing request: 400
+[2025-03-21 23:31:59] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-21 23:31:59] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 23:32:03] [INFO] Client Connected: 127.0.0.1:49690 Fd 6
+[2025-03-21 23:32:03] [REQUEST] GET /api HTTP/1.1
+[2025-03-21 23:32:03] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:32:06] [REQUEST] GET / HTTP/1.1
+[2025-03-21 23:32:06] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:32:06] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-21 23:32:06] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:32:06] [INFO] Client Connected: 127.0.0.1:49698 Fd 7
+[2025-03-21 23:32:06] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-21 23:32:06] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:32:06] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-21 23:32:06] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:32:06] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-21 23:32:06] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:32:06] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 23:32:06] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:32:09] [REQUEST] GET /kngf HTTP/1.1
+[2025-03-21 23:32:09] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:32:10] [REQUEST] GET /kngf HTTP/1.1
+[2025-03-21 23:32:10] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:32:15] [REQUEST] GET /kngf HTTP/1.1
+[2025-03-21 23:32:15] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:32:20] [REQUEST] GET /kngf HTTP/1.1
+[2025-03-21 23:32:20] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:32:25] [REQUEST] GET /kngf HTTP/1.1
+[2025-03-21 23:32:25] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:32:44] [REQUEST] GET / HTTP/1.1
+[2025-03-21 23:32:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:32:44] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-21 23:32:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:32:44] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-21 23:32:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:32:44] [INFO] Client Connected: 127.0.0.1:43604 Fd 8
+[2025-03-21 23:32:44] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-21 23:32:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:32:44] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-21 23:32:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:32:45] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 23:32:45] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:32:45] [INFO] Client Connected: 127.0.0.1:43614 Fd 9
+[2025-03-21 23:32:45] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 23:32:45] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:32:49] [REQUEST] GET /kjb HTTP/1.1
+[2025-03-21 23:32:49] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:32:50] [REQUEST] GET /kjb HTTP/1.1
+[2025-03-21 23:32:50] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:32:55] [REQUEST] GET /kjb HTTP/1.1
+[2025-03-21 23:32:55] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:33:25] [REQUEST] GET /kjb HTTP/1.1
+[2025-03-21 23:33:25] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:33:49] [INFO] Client Connected: 127.0.0.1:51190 Fd 10
+[2025-03-21 23:33:49] [REQUEST] GET / HTTP/1.1
+[2025-03-21 23:33:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:33:49] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-21 23:33:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:33:49] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-21 23:33:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:33:49] [INFO] Client Connected: 127.0.0.1:51196 Fd 11
+[2025-03-21 23:33:49] [INFO] Client Connected: 127.0.0.1:51200 Fd 12
+[2025-03-21 23:33:49] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-21 23:33:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:33:49] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-21 23:33:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:33:49] [REQUEST] GET /favicon.ico HTTP/1.1
+[2025-03-21 23:33:49] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:33:49] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 23:33:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:33:52] [REQUEST] GET /eugehfe HTTP/1.1
+[2025-03-21 23:33:52] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:34:25] [REQUEST] GET /kjb HTTP/1.1
+[2025-03-21 23:34:25] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:34:55] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-21 23:34:55] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 23:35:01] [INFO] Client Connected: 127.0.0.1:35736 Fd 6
+[2025-03-21 23:35:01] [REQUEST] GET / HTTP/1.1
+[2025-03-21 23:35:01] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:35:01] [INFO] Client Connected: 127.0.0.1:35738 Fd 7
+[2025-03-21 23:35:01] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-21 23:35:01] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:35:01] [INFO] Client Connected: 127.0.0.1:35740 Fd 8
+[2025-03-21 23:35:01] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-21 23:35:01] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:35:01] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-21 23:35:01] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:35:01] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-21 23:35:01] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:35:02] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 23:35:02] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:35:05] [REQUEST] GET /khvk HTTP/1.1
+[2025-03-21 23:35:05] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:35:06] [REQUEST] GET /khvk HTTP/1.1
+[2025-03-21 23:35:06] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:35:37] [INFO] Server listening on 0.0.0.0:5050
+[2025-03-21 23:35:37] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 23:35:49] [INFO] Client Connected: 127.0.0.1:42802 Fd 6
+[2025-03-21 23:35:49] [REQUEST] GET / HTTP/1.1
+[2025-03-21 23:35:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:35:49] [INFO] Client Connected: 127.0.0.1:42814 Fd 7
+[2025-03-21 23:35:49] [INFO] Client Connected: 127.0.0.1:42826 Fd 8
+[2025-03-21 23:35:49] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-21 23:35:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:35:49] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-21 23:35:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:35:49] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-21 23:35:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:35:49] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-21 23:35:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:35:49] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 23:35:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:35:49] [REQUEST] GET /favicon.ico HTTP/1.1
+[2025-03-21 23:35:49] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:35:52] [REQUEST] GET /fkjbgf HTTP/1.1
+[2025-03-21 23:35:52] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:35:53] [REQUEST] GET /fkjbgf HTTP/1.1
+[2025-03-21 23:35:53] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-21 23:38:04] [REQUEST] GET / HTTP/1.1
+[2025-03-21 23:38:04] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:38:04] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-21 23:38:04] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:38:04] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-21 23:38:04] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:38:04] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-21 23:38:04] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:38:04] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-21 23:38:04] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:38:04] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 23:38:04] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 23:38:18] [REQUEST] POST /submit HTTP/1.1
+[2025-03-21 23:38:18] [RESPONSE] HTTP/1.1 201 Created

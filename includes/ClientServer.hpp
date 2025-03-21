@@ -6,7 +6,7 @@
 
 #define RD_SIZE 1024
 
-#define TIME_OUT_SECONDS 2
+#define TIME_OUT_SECONDS 15
 
 class ClientServer : IEvenetListeners
 {

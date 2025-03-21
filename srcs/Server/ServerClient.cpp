@@ -75,12 +75,7 @@ void ClientServer::terminate()
 
 void ClientServer::onEvent(int fd, epoll_event ev)
 {
-
-	if (hasTimeOut()) {
-		LOG_INFO("Client: " + to_string(fd) + "Reached Timeout after " + to_string(TIME_OUT_SECONDS) + " Seconds of inactivity");
-		terminate();
-		return ;
-	}
+	(void)fd;
 	if (ev.events & EPOLLIN)
 	{
 		handleIncomingData();
@@ -89,6 +84,43 @@ void ClientServer::onEvent(int fd, epoll_event ev)
 	if (ev.events & EPOLLOUT)
 	{
 		handleResponse();
+	}
+}
+
+void ClientServer::handleResponse()
+{
+	if (!_response_ready || _response_buffer.empty())
+	{
+		return;
+	}
+	if (hasTimeOut()) {
+		LOG_INFO("Client: " + to_string(this->_peer_socket_fd) + "Reached Timeout after " + to_string(TIME_OUT_SECONDS) + " Seconds of inactivity");
+		terminate();
+		return ;
+	}
+	ssize_t bytes_sent = send(_peer_socket_fd, _response_buffer.c_str(),
+	_response_buffer.size(), MSG_DONTWAIT);
+	if (bytes_sent <= 0)
+	{
+		LOG_ERROR("Error sending response to client");
+		this->terminate();
+		return;
+	}
+	updateActivity();
+
+	if (static_cast<size_t>(bytes_sent) < _response_buffer.size())
+	{
+		_response_buffer = _response_buffer.substr(bytes_sent);
+	}
+	else
+	{
+		_response_buffer.clear();
+		_response_ready = false;
+
+		if (!shouldKeepAlive())
+		{
+			this->terminate();
+		}
 	}
 }
 
@@ -161,38 +193,6 @@ void ClientServer::modifyEpollEvent(uint32_t events)
 	catch (std::exception &e)
 	{
 		LOG_ERROR("Failed to modify epoll event: " + std::string(e.what()));
-	}
-}
-
-void ClientServer::handleResponse()
-{
-	if (!_response_ready || _response_buffer.empty())
-	{
-		return;
-	}
-	ssize_t bytes_sent = send(_peer_socket_fd, _response_buffer.c_str(),
-	_response_buffer.size(), MSG_DONTWAIT);
-	if (bytes_sent <= 0)
-	{
-		LOG_ERROR("Error sending response to client");
-		this->terminate();
-		return;
-	}
-	updateActivity();
-
-	if (static_cast<size_t>(bytes_sent) < _response_buffer.size())
-	{
-		_response_buffer = _response_buffer.substr(bytes_sent);
-	}
-	else
-	{
-		_response_buffer.clear();
-		_response_ready = false;
-
-		if (!shouldKeepAlive())
-		{
-			this->terminate();
-		}
 	}
 }
 
