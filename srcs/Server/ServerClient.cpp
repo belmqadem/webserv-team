@@ -112,13 +112,11 @@ void ClientServer::handleIncomingData()
 			{
 				LOG_ERROR("Error parsing request: " + to_string(parser.get_error_code()));
 			}
+			parser.print_request();
 			ResponseBuilder response(parser);
-
 			_response_buffer = response.get_response();
 			_response_ready = true;
-
 			_request_buffer.clear();
-			parser.print_request();
 
 		}
 		catch (std::exception &e)

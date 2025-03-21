@@ -117,7 +117,7 @@ std::string ResponseBuilder::build_response(RequestParser &request)
 	}
 
 	// Handle redirections (if there is any)
-	if (handle_redirection())
+	if (handle_redirection(request))
 		return generate_response_string();
 
 	// Route the request to the correct handler
@@ -237,6 +237,7 @@ void ResponseBuilder::doPOST(RequestParser &request)
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
 	std::vector<byte> req_body = request.get_body();
+	std::string upload_path = location_config->uploadStore + "/uploaded";
 	std::string content_type = request.get_header_value("content-type");
 
 	if (is_cgi_request(path))
@@ -245,43 +246,30 @@ void ResponseBuilder::doPOST(RequestParser &request)
 		return;
 	}
 
-	if (req_body.size() == 0)
+	// Handle file upload if content type is multipart/form-data
+	if (content_type.find("multipart/form-data") != std::string::npos)
 	{
-		set_status(400);
+		set_status(415);
 		body = generate_error_page(status_code);
 		return;
 	}
 
-	// Handle file upload if content type is multipart/form-data
-	if (content_type.find("multipart/form-data") != std::string::npos)
-	{
-		if (!handle_file_upload(request, path))
-		{
-			set_status(500);
-			set_body(generate_error_page(status_code));
-			return;
-		}
-		set_status(201);
-		set_body("File uploaded successfully");
-		return;
-	}
-
 	// Handle file upload if content type is application/octet-stream (binary)
-	if (content_type == "application/json")
+	if (content_type == "application/octet-stream")
 	{
-		if (!handle_json_upload(request, path))
+		if (!handle_binary_upload(request, upload_path))
 		{
 			set_status(500);
 			body = generate_error_page(status_code);
 			return;
 		}
 		set_status(201);
-		body = "File uploaded successfully";
+		body = "Binary file uploaded successfully";
 		return;
 	}
 
-	// Handle normal POST request -- Regular data
-	std::ofstream file(path.c_str(), std::ios::binary);
+	// Handle normal POST request -- Regular data (Text-Based)
+	std::ofstream file(upload_path.c_str(), std::ios::binary);
 	if (!file)
 	{
 		set_status(403);
@@ -298,7 +286,6 @@ void ResponseBuilder::doPOST(RequestParser &request)
 void ResponseBuilder::doDELETE(RequestParser &request)
 {
 	std::cout << "DELETE METHOD EXECUTED" << std::endl;
-
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
 	struct stat path_stat;
@@ -388,13 +375,24 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 }
 
 // Method to handle redirection
-bool ResponseBuilder::handle_redirection()
+bool ResponseBuilder::handle_redirection(RequestParser &request)
 {
-	if (headers.find("Location") != headers.end())
+	if (location_config->isRedirect)
 	{
-		short redirect_code = (headers["Location"].find("permanent") != std::string::npos) ? 301 : 302;
-		set_status(redirect_code);
-		body = generate_error_page(status_code);
+		std::string redirect_url = location_config->redirectUrl;
+		if (location_config->isRedirectPermanent)
+		{
+			LOG_DEBUG("redirect permanent");
+			set_status(301);
+		}
+		else
+		{
+			LOG_DEBUG("redirect temporary");
+			set_status(302);
+		}
+		this->headers["Location"] = redirect_url;
+		body = ""; // Empty response body
+		include_required_headers(request);
 		return true;
 	}
 	return false;
@@ -425,12 +423,27 @@ bool ResponseBuilder::handle_file_upload(RequestParser &request, const std::stri
 	return true;
 }
 
-// Method to handle json upload (application/json)
-bool ResponseBuilder::handle_json_upload(RequestParser &request, const std::string &path)
+// Method to handle binary upload (application/octet-stream)
+bool ResponseBuilder::handle_binary_upload(RequestParser &request, const std::string &path)
 {
-	// Implement this method later
-	(void)request;
-	(void)path;
+	// If no upload_store directiive in config
+	if (path.empty())
+	{
+		LOG_ERROR("No upload_store directive in config file");
+		return false;
+	}
+	std::ofstream file(path.c_str(), std::ios::binary);
+	std::cout << path << std::endl;
+	if (!file)
+	{
+		LOG_ERROR("Cannot open file for binary writing: " + path);
+		return false;
+	}
+
+	std::vector<byte> req_body = request.get_body();
+	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
+	file.close();
+	LOG_INFO("Binary file uploaded successfully: " + path);
 	return true;
 }
 
@@ -462,7 +475,7 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 {
 	std::ostringstream page;
 	page << "<html><head><title>Directory Listing</title></head>";
-	page << "<body><h1>Directory Listing</h1>";
+	page << "<body><h1>Directory Listing</h1><hr>";
 	page << "<ul>";
 	DIR *dir;
 	struct dirent *ent;
@@ -470,7 +483,7 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 	{
 		while ((ent = readdir(dir)) != NULL)
 		{
-			page << "<li><a href=\"" << ent->d_name << "\">" << ent->d_name << "</a></li>";
+			page << "<li style=\"letter-spacing: 1.5\"><a href=\"" << ent->d_name << "/\">" << ent->d_name << "</a>&emsp;&emsp;&emsp;" << get_http_date() << "&emsp;&emsp;&emsp;-</li><br>";
 		}
 		closedir(dir);
 	}
@@ -512,10 +525,10 @@ void ResponseBuilder::include_required_headers(RequestParser &request)
 
 	// Determine connection behavior
 	if (!headers.count("Connection"))
-		headers["Connection"] = (request.is_connection_keep_alive()) ? "keep-alive" : "close";
+		headers["Connection"] = (request.is_connection_close()) ? "close" : "keep-alive";
 
 	// `Allow` header for 405 Method Not Allowed
-	if (status_code == 405 && !headers.count("Allow"))
+	if (this->status_code == 405 && !headers.count("Allow"))
 		headers["Allow"] = "GET, POST, DELETE";
 }
 
