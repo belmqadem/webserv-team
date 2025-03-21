@@ -237,7 +237,7 @@ void ResponseBuilder::doPOST(RequestParser &request)
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
 	std::vector<byte> req_body = request.get_body();
-	std::string upload_path = location_config->uploadStore;
+	std::string upload_path = location_config->uploadStore + "/uploaded";
 	std::string content_type = request.get_header_value("content-type");
 
 	if (is_cgi_request(path))
@@ -249,33 +249,27 @@ void ResponseBuilder::doPOST(RequestParser &request)
 	// Handle file upload if content type is multipart/form-data
 	if (content_type.find("multipart/form-data") != std::string::npos)
 	{
-		if (!handle_file_upload(request, path))
-		{
-			set_status(500);
-			set_body(generate_error_page(status_code));
-			return;
-		}
-		set_status(201);
-		set_body("File uploaded successfully");
+		set_status(415);
+		body = generate_error_page(status_code);
 		return;
 	}
 
 	// Handle file upload if content type is application/octet-stream (binary)
-	if (content_type == "application/json")
+	if (content_type == "application/octet-stream")
 	{
-		if (!handle_json_upload(request, path))
+		if (!handle_binary_upload(request, upload_path))
 		{
 			set_status(500);
 			body = generate_error_page(status_code);
 			return;
 		}
 		set_status(201);
-		body = "File uploaded successfully";
+		body = "Binary file uploaded successfully";
 		return;
 	}
 
-	// Handle normal POST request -- Regular data
-	std::ofstream file(path.c_str(), std::ios::binary);
+	// Handle normal POST request -- Regular data (Text-Based)
+	std::ofstream file(upload_path.c_str(), std::ios::binary);
 	if (!file)
 	{
 		set_status(403);
@@ -429,12 +423,27 @@ bool ResponseBuilder::handle_file_upload(RequestParser &request, const std::stri
 	return true;
 }
 
-// Method to handle json upload (application/json)
-bool ResponseBuilder::handle_json_upload(RequestParser &request, const std::string &path)
+// Method to handle binary upload (application/octet-stream)
+bool ResponseBuilder::handle_binary_upload(RequestParser &request, const std::string &path)
 {
-	// Implement this method later
-	(void)request;
-	(void)path;
+	// If no upload_store directiive in config
+	if (path.empty())
+	{
+		LOG_ERROR("No upload_store directive in config file");
+		return false;
+	}
+	std::ofstream file(path.c_str(), std::ios::binary);
+	std::cout << path << std::endl;
+	if (!file)
+	{
+		LOG_ERROR("Cannot open file for binary writing: " + path);
+		return false;
+	}
+
+	std::vector<byte> req_body = request.get_body();
+	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
+	file.close();
+	LOG_INFO("Binary file uploaded successfully: " + path);
 	return true;
 }
 

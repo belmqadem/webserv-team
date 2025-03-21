@@ -99,17 +99,12 @@ void signalhandler()
 // 		ConfigManager::getInstance()->loadConfig("config/webserv.conf");
 // 		std::vector<ServerConfig> servers = ConfigManager::getInstance()->getServers();
 
-// 		std::string request = "GET /about/%21 HTTP/1.1\r\n"
-// 							  "Host: dkjbds\r\n"
-// 							  "Content-Type: multipart/form-data; boundary=----NOTNGINX\r\n"
-// 							  "Content-Length: 142\r\n"
+// 		std::string request = "POST /submit HTTP/1.1\r\n"
+// 							  "Host: localhost:5050\r\n"
+// 							  "Content-Type: application/octet-stream\r\n"
+// 							  "Content-Length: 10\r\n"
 // 							  "\r\n"
-// 							  "------NOTNGINX\r\n"
-// 							  "Content-Disposition: form-data; name=\"file\"; filename=\"file.txt\"\r\n"
-// 							  "Content-Type: text/plain\r\n"
-// 							  "\r\n"
-// 							  "Hello World!\r\n"
-// 							  "------NOTNGINX--\r\n";
+// 							  "0001101010101010100101010101010101010101010101010101010101010101010101010";
 
 // 		std::cout << CYAN "** START REQUEST PARSING **" RESET << std::endl;
 // 		RequestParser parser(request, servers);
