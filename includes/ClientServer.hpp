@@ -6,6 +6,8 @@
 
 #define RD_SIZE 1024
 
+#define TIME_OUT_SECONDS 2
+
 class ClientServer : IEvenetListeners
 {
 private:
@@ -18,11 +20,15 @@ private:
 	std::string _request_buffer;
 	std::string _response_buffer;
 	bool _response_ready;
+	time_t	_last_activity;
 
 private:
 	void handleIncomingData();
 	void handleResponse();
 	void modifyEpollEvent(uint32_t events);
+
+	void updateActivity();
+	bool hasTimeOut() const ;
 
 public:
 	bool isStarted() const;
