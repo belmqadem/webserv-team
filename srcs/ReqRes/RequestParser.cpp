@@ -223,16 +223,13 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			{
 				std::string port_str = host_value.substr(colon_pos + 1);
 				host_value = host_value.substr(0, colon_pos);
-
 				char *endptr;
 				long parsed_port = std::strtol(port_str.c_str(), &endptr, 10);
-
 				if (*endptr != '\0' || parsed_port < 1 || parsed_port > 65535)
 				{
 					log_error(HTTP_PARSE_INVALID_PORT, 400);
 					return pos;
 				}
-
 				port = static_cast<uint16_t>(parsed_port);
 			}
 			this->port = port;
@@ -423,11 +420,12 @@ std::string RequestParser::decode_percent_encoding(const std::string &str)
 	{
 		if (str[i] == '%' && i + 2 < len)
 		{
-			char hex[3] = {str[i + 1], str[i + 2], '\0'};
-			int value;
+			char hex1 = str[i + 1];
+			char hex2 = str[i + 2];
 
-			if (std::isxdigit(hex[0]) && std::isxdigit(hex[1]) && sscanf(hex, "%2x", &value) == 1)
+			if (std::isxdigit(hex1) && std::isxdigit(hex2))
 			{
+				int value = (std::isdigit(hex1) ? hex1 - '0' : std::toupper(hex1) - 'A' + 10) * 16 + (std::isdigit(hex2) ? hex2 - '0' : std::toupper(hex2) - 'A' + 10);
 				decoded << static_cast<char>(value);
 				i += 2;
 			}
@@ -443,18 +441,6 @@ std::string RequestParser::decode_percent_encoding(const std::string &str)
 		}
 	}
 	return decoded.str();
-}
-
-// Helper method to check if the connection is keep-alive
-bool RequestParser::is_connection_keep_alive()
-{
-	std::map<std::string, std::string>::iterator it = headers.find("connection");
-	if (it != headers.end())
-	{
-		if (it->second == "keep-alive")
-			return true;
-	}
-	return false;
 }
 
 // Helper method to check if the connection is close
@@ -498,19 +484,9 @@ void RequestParser::log_error(const std::string &error_str, short error_code)
 	ss << error_str << " (code: " << error_code << ")";
 	LOG_ERROR(ss.str());
 	this->error_code = error_code;
+	if (this->error_code == 400 || this->error_code == 411 || this->error_code == 413 || this->error_code == 415 || this->error_code == 500 || this->error_code == 503)
+		this->headers["connection"] = "close";
 	state = ERROR_PARSE;
-}
-
-// Method to check if `Content-Length` exists in headers
-bool RequestParser::content_length_exists()
-{
-	return (has_content_length ? true : false);
-}
-
-// Method to check if `Transfer-Encoding` exists in headers
-bool RequestParser::transfer_encoding_exists()
-{
-	return (has_transfer_encoding ? true : false);
 }
 
 // Method for setting the right location for the request
@@ -681,7 +657,6 @@ void RequestParser::print_request()
 	if (error_code == 1)
 	{
 		LOG_REQUEST(request_line);
-		std::cout << "PORT NUMBER = " << port << std::endl;
 		std::cout << BLUE "Method: " RESET << http_method << std::endl;
 		std::cout << BLUE "PATH: " RESET << request_uri << std::endl;
 		if (!query_string.empty())

@@ -43,15 +43,24 @@
       <!-- Redirection Test -->
       <section class="test-section">
         <h2>Redirection Test</h2>
-        <a href="/about/about.html">Test 301 Redirect</a>
+        <a href="/redirectone">Test 301 Redirect (Permanent)</a><br /><br />
+        <a href="/redirecttwo">Test 302 Redirect (Temporary)</a>
       </section>
 
       <!-- Location Block Test -->
       <section class="test-section">
         <h2>Location Block Testing</h2>
-        <a href="/about/about.html">Test Static File</a><br /><br />
-        <a href="/api">Test Forbidden Location</a>
+		<a href="/">Test Root Directory (index.html)</a><br /><br />
+        <a href="/about/">Test Static HTML File (about.html)</a><br /><br />
+        <a href="/images/">Test Static Image (background.jpg)</a><br /><br />
+        <a href="/api">Test Not Found</a>
       </section>
+
+	  <!-- Directory Listing Test -->
+	  <section class="test-section">
+		<h2>Autoindex Test</h2>
+		<a href="/list/">View autoindex Directory</a>
+	  </section>
 
       <!-- CGI Execution -->
       <section class="test-section">
@@ -72,7 +81,7 @@
       <!-- GET Request -->
       <section class="test-section">
         <h2>GET Request</h2>
-        <a href="/data.txt">Fetch File</a>
+        <a href="/data.txt">Fetch File (data.txt)</a>
       </section>
 
       <!-- POST Request -->
@@ -83,19 +92,6 @@
           <input type="submit" value="Send" />
         </form>
       </section>
-
-      <!-- DELETE Request -->
-      <section class="test-section">
-        <h2>DELETE Request</h2>
-        <form action="/delete/data.txt" method="POST">
-          <input type="hidden" name="_method" value="DELETE" />
-          <input type="submit" value="Delete File" />
-        </form>
-      </section>
     </section>
-
-    <footer></footer>
-
-    <script src="script.js"></script>
   </body>
 </html>

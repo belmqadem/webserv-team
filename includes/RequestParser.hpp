@@ -85,10 +85,7 @@ public:
 	const Location *get_location_config();
 
 	// Public Helper methods
-	bool is_connection_keep_alive();
 	bool is_connection_close();
-	bool content_length_exists();
-	bool transfer_encoding_exists();
 	bool headers_completed();
 	bool body_completed();
 };

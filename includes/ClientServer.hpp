@@ -15,7 +15,6 @@ private:
 	epoll_event _epoll_ev;
 	sockaddr_in _client_addr;
 	RequestParser *_parser;
-	// RequestParser request;
 	std::string _request_buffer;
 	std::string _response_buffer;
 	bool _response_ready;
@@ -23,7 +22,6 @@ private:
 private:
 	void handleIncomingData();
 	void handleResponse();
-	void enableWriteEvent();
 	void modifyEpollEvent(uint32_t events);
 
 public:
