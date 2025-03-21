@@ -77,7 +77,6 @@ extern int webserv_signal;
 void sigint_handle(int sig)
 {
 	webserv_signal = sig;
-	std::cout << "Interrupt signal catched." << std::endl;
 }
 
 void signalhandler()

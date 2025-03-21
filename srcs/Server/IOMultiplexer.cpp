@@ -46,11 +46,13 @@ void IOMultiplexer::runEventLoop(void)
 		int events_count = epoll_wait(_epoll_fd, _events, EPOLL_MAX_EVENTS, -1);
 		if (events_count == -1)
 		{
+			if (webserv_signal == SIGINT) {
+				LOG_INFO("Signal catched");
+				break;
+			}
 			terminate();
 			throw IOMultiplexerExceptions("epoll_wait() failed.");
 		}
-		if (webserv_signal == SIGINT)
-			break;
 		for (int i = 0; i < events_count; i++)
 		{
 			std::map<int, IEvenetListeners *>::iterator it = _listeners.find(_events[i].data.fd);

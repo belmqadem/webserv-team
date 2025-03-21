@@ -48,7 +48,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 }
 
 ClientServer::ClientServer(const int &server_socket_fd, const int &peer_socket_fd) : _is_started(false),
-																					 _server_socket_fd(server_socket_fd), _peer_socket_fd(peer_socket_fd), _parser(NULL) {}
+																					 _server_socket_fd(server_socket_fd), _peer_socket_fd(peer_socket_fd), _parser(NULL), _last_activity(time(NULL)) {}
 
 ClientServer::~ClientServer()
 {
@@ -75,8 +75,12 @@ void ClientServer::terminate()
 
 void ClientServer::onEvent(int fd, epoll_event ev)
 {
-	(void)fd;
 
+	if (hasTimeOut()) {
+		LOG_INFO("Client: " + to_string(fd) + "Reached Timeout after " + to_string(TIME_OUT_SECONDS) + " Seconds of inactivity");
+		terminate();
+		return ;
+	}
 	if (ev.events & EPOLLIN)
 	{
 		handleIncomingData();
@@ -98,6 +102,7 @@ void ClientServer::handleIncomingData()
 		this->terminate();
 		return;
 	}
+	updateActivity();
 	_request_buffer.append(buffer, rd_count);
 	size_t header_end = _request_buffer.find(CRLF CRLF);
 	if (header_end != std::string::npos)
@@ -165,15 +170,15 @@ void ClientServer::handleResponse()
 	{
 		return;
 	}
-
 	ssize_t bytes_sent = send(_peer_socket_fd, _response_buffer.c_str(),
-							  _response_buffer.size(), MSG_DONTWAIT);
+	_response_buffer.size(), MSG_DONTWAIT);
 	if (bytes_sent <= 0)
 	{
 		LOG_ERROR("Error sending response to client");
 		this->terminate();
 		return;
 	}
+	updateActivity();
 
 	if (static_cast<size_t>(bytes_sent) < _response_buffer.size())
 	{
@@ -190,6 +195,17 @@ void ClientServer::handleResponse()
 		}
 	}
 }
+
+
+void ClientServer::updateActivity() {
+	_last_activity = time(NULL);
+}
+
+bool ClientServer::hasTimeOut() const {
+	std::cout << time(NULL) - _last_activity << std::endl;
+	return ((time(NULL) - _last_activity) > TIME_OUT_SECONDS);
+}
+
 
 // void ClientServer::enableWriteEvent()
 // {
