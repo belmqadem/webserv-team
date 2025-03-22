@@ -72,7 +72,6 @@ ResponseBuilder::ResponseBuilder(RequestParser &raw_request)
 	this->http_version = "HTTP/1.1";
 	this->request = raw_request;
 	init_config();
-	init_routes();
 	this->response = build_response();
 }
 
@@ -103,6 +102,8 @@ std::string ResponseBuilder::build_response()
 		include_required_headers();
 		return generate_response_string();
 	}
+
+	init_routes();
 
 	std::string method = request.get_http_method();
 
@@ -386,7 +387,7 @@ bool ResponseBuilder::handle_redirection()
 		std::string file_name = "errors/" + to_string(status_code) + ".html";
 		body = readFile(file_name);
 		this->headers["Content-Type"] = "text/html";
-		this->headers["Location"] = "http://" + request.get_header_value("host") + redirect_url;
+		this->headers["Location"] = redirect_url;
 		include_required_headers();
 		return true;
 	}
