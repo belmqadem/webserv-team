@@ -21,7 +21,7 @@ private:
 	void doPOST(RequestParser &request);
 	void doDELETE(RequestParser &request);
 
-	// Helper Methods
+	// Helper Methodsz
 	void init_config(RequestParser &request);
 	void init_routes();
 	bool handle_redirection(RequestParser &request);

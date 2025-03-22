@@ -143,7 +143,7 @@ std::string ResponseBuilder::generate_response_string()
 // GET method implementation
 void ResponseBuilder::doGET(RequestParser &request)
 {
-	std::cout << "GET METHOD EXECUTED" << std::endl;
+	LOG_DEBUG("GET METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
 
@@ -151,7 +151,6 @@ void ResponseBuilder::doGET(RequestParser &request)
 	struct stat file_stat;
 	if (stat(path.c_str(), &file_stat) == -1)
 	{
-		LOG_DEBUG("PAGE NOOOOOT FOUUUND");
 		set_status(404);
 		body = generate_error_page(status_code);
 		return;
@@ -232,7 +231,7 @@ void ResponseBuilder::doGET(RequestParser &request)
 // POST method implementation
 void ResponseBuilder::doPOST(RequestParser &request)
 {
-	std::cout << "POST METHOD EXECUTED" << std::endl;
+	LOG_DEBUG("POST METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
 	std::vector<byte> req_body = request.get_body();
@@ -284,7 +283,7 @@ void ResponseBuilder::doPOST(RequestParser &request)
 // DELETE method implementation
 void ResponseBuilder::doDELETE(RequestParser &request)
 {
-	std::cout << "DELETE METHOD EXECUTED" << std::endl;
+	LOG_DEBUG("DELETE METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
 	struct stat path_stat;
@@ -383,8 +382,10 @@ bool ResponseBuilder::handle_redirection(RequestParser &request)
 			set_status(301);
 		else
 			set_status(302);
-		this->headers["Location"] = redirect_url;
-		body = ""; // Empty response body
+		std::string file_name = "errors/" + to_string(status_code) + ".html";
+		body = readFile(file_name);
+		this->headers["Content-Type"] = "text/html";
+		this->headers["Location"] = "http://" + request.get_header_value("host") + redirect_url;
 		include_required_headers(request);
 		return true;
 	}
@@ -436,7 +437,6 @@ bool ResponseBuilder::handle_binary_upload(RequestParser &request, const std::st
 	std::vector<byte> req_body = request.get_body();
 	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
 	file.close();
-	LOG_INFO("Binary file uploaded successfully: " + path);
 	return true;
 }
 
