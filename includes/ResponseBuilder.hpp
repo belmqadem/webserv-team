@@ -68,5 +68,4 @@ public:
 	std::string build_response(RequestParser &request);
 	bool isCgiRequest(const std::string &uri);
 	std::string handleCgiRequest(const std::string &method, const std::string &uri, const std::string &body);
-	void init_config(RequestParser &request);
 };
