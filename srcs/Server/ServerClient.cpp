@@ -142,10 +142,10 @@ void ClientServer::handleIncomingData()
 			RequestParser parser;
 			size_t bytes_read = 0;
 			bytes_read += parser.parse_request(_request_buffer);
+			parser.match_location(ConfigManager::getInstance().getServers());
 			if (bytes_read > 0)
 			{
 				parser.set_request_line();
-				parser.match_location(ConfigManager::getInstance().getServers());
 			}
 			if (_parser)
 				delete _parser;
