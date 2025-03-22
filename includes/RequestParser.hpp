@@ -26,7 +26,6 @@ private:
 	std::map<std::string, std::string> headers;
 	std::vector<byte> body;
 	uint16_t port;
-	size_t bytes_read;
 	short error_code;
 	bool has_content_length;
 	bool has_transfer_encoding;
