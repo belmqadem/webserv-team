@@ -22,6 +22,7 @@ private:
 	void doDELETE(RequestParser &request);
 
 	// Helper Methods
+	void init_config(RequestParser &request);
 	void init_routes();
 	bool handle_redirection(RequestParser &request);
 	bool handle_binary_upload(RequestParser &request, const std::string &path);
@@ -63,5 +64,4 @@ public:
 
 	// Core Function that builds the response
 	std::string build_response(RequestParser &request);
-	void init_config(RequestParser &request);
 };
