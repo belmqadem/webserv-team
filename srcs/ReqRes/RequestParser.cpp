@@ -514,7 +514,9 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 
 	// If no exact match -> point to the first configured server
 	if (!server_config && !servers.empty())
+	{
 		this->server_config = &servers[0];
+	}
 
 	// Find the best matching Location
 	size_t best_match_length = 0;
