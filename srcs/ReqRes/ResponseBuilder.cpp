@@ -142,41 +142,6 @@ std::string ResponseBuilder::generate_response_string()
 	return response.str();
 }
 
-// std::string convertToString(size_t value)  {
-//     std::ostringstream oss;
-//     oss << value;
-//     return oss.str();
-// }
-
-// std::map<std::string, std::string> ResponseBuilder::prepareEnv(RequestParser &request) const {
-//     std::map<std::string, std::string> envVars;
-
-//     envVars["REQUEST_METHOD"] = request.get_http_method();
-//     envVars["QUERY_STRING"] = request.get_query_string();
-//     envVars["CONTENT_LENGTH"] = convertToString(request.get_body_size());
-//     envVars["CONTENT_TYPE"] = request.get_header_value("Content-Type");
-//     envVars["SCRIPT_NAME"] = request.get_request_uri();
-//     envVars["SERVER_NAME"] = "localhost";
-//     envVars["SERVER_PROTOCOL"] = "HTTP/1.1";
-//     envVars["REMOTE_ADDR"] = "127.0.0.1";
-//     envVars["GATEWAY_INTERFACE"] = "CGI/1.1";
-//     envVars["REDIRECT_STATUS"] = "200";
-//     envVars["SERVER_PORT"] = convertToString(request.get_port_number());
-//     envVars["SCRIPT_FILENAME"] = request.get_request_uri();
-//     envVars["PATH_INFO"] = request.get_request_uri();
-//     envVars["PATH_TRANSLATED"] = request.get_request_uri();
-//     envVars["HTTP_HOST"] = request.get_header_value("Host");
-//     envVars["HTTP_COOKIE"] = request.get_header_value("Cookie");
-
-//     return envVars;
-// }
-
-// std::string convertToString(size_t value)  {
-//     std::ostringstream oss;
-//     oss << value;
-//     return oss.str();
-// }
-
 bool ResponseBuilder::isCgiRequest(const std::string &uri) {
     // Check if the URI ends with .cgi to determine if it's a CGI request
     return uri.size() >= 4 && uri.compare(uri.size() - 4, 4, ".php") == 0;
@@ -251,10 +216,7 @@ void ResponseBuilder::doGET(RequestParser &request)
 		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
         try {
             std::string cgiOutput = cgiHandler.executeCGI();
-
-            // Split CGI output into headers and body
             std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
-
             // Set headers and body in the response
             set_headers("Content-Type", parsedOutput.first); // Use the content type from the CGI output
             body = parsedOutput.second;
@@ -265,7 +227,6 @@ void ResponseBuilder::doGET(RequestParser &request)
             Logger::getInstance().error(e.what());
         }
         return;
-    
 	}
 	struct stat file_stat;
 	if (stat(path.c_str(), &file_stat) == -1)
@@ -308,13 +269,6 @@ void ResponseBuilder::doGET(RequestParser &request)
 		}
 	}
 
-	// CGI Execution
-	if (is_cgi_request(path))
-	{
-		// HANDLE CGI IN GET
-		return;
-	}
-
 	// Check Read persmission
 	if (!(file_stat.st_mode & S_IRUSR))
 	{
@@ -355,21 +309,23 @@ void ResponseBuilder::doPOST(RequestParser &request)
 	std::string path = location_config->root + uri;
 	std::vector<byte> req_body = request.get_body();
 	std::string content_type = request.get_header_value("content-type");
-    // std::string bodyContent = request.get_body_as_string();
 
-    // if (isCgiRequest(uri)) {
-    //     CgiHandler cgiHandler(uri, prepareEnv(request));
-    //     std::string cgiOutput = cgiHandler.execute("POST", bodyContent);
-
-    //     body = cgiOutput;
-    //     set_status(200);
-	// }
-	if (is_cgi_request(path))
-	{
-		// HANDLE CGI IN POST
-		return;
+	if (isCgiRequest(uri)) {
+		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
+        try {
+            std::string cgiOutput = cgiHandler.executeCGI();
+            std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
+            // Set headers and body in the response
+            set_headers("Content-Type", parsedOutput.first); // Use the content type from the CGI output
+            body = parsedOutput.second;
+            set_status(200);
+        } catch (const std::exception &e) {
+            set_status(500);
+            body = generate_error_page(status_code);
+            Logger::getInstance().error(e.what());
+        }
+        return;
 	}
-
 	if (req_body.size() == 0)
 	{
 		set_status(400);
