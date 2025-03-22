@@ -534,7 +534,8 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 	// this check will be in config parse (Remove later)
 	if (!location_config)
 	{
-		log_error(HTTP_PARSE_INVALID_LOCATION, 404);
+		if (error_code == 1)
+			log_error(HTTP_PARSE_INVALID_LOCATION, 404);
 		return;
 	}
 }
@@ -669,7 +670,6 @@ void RequestParser::print_request()
 {
 	if (error_code == 1)
 	{
-		LOG_REQUEST(request_line);
 		std::cout << BLUE "Method: " RESET << http_method << std::endl;
 		std::cout << BLUE "PATH: " RESET << request_uri << std::endl;
 		if (!query_string.empty())

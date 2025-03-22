@@ -25,16 +25,6 @@ std::string trim(const std::string &str, const std::string &delim)
 	return str.substr(start, end - start + 1);
 }
 
-std::string readFile(const std::string &filename)
-{
-	std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
-	if (!file)
-		return "";
-	std::ostringstream content;
-	content << file.rdbuf();
-	return content.str();
-}
-
 bool writeFile(const std::string &filename, const std::string &content)
 {
 	std::ofstream file(filename.c_str());

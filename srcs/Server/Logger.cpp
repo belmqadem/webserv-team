@@ -104,9 +104,9 @@ void Logger::log(LogLevel level, const std::string &message)
 		if (level >= ERROR)
 			std::cerr << BOLD_RED << logMessage << RESET << std::endl;
 		else if (level == SERVERS)
-			std::cout << BOLD_CYAN << logMessage << RESET << std::endl;
+			std::cout << BOLD_WHITE UNDERLINE << logMessage << RESET << std::endl;
 		else if (level == CLIENT)
-			std::cout << BOLD_YELLOW << logMessage << RESET << std::endl;
+			std::cout << YELLOW << logMessage << RESET << std::endl;
 		else if (level == REQUEST)
 			std::cout << BOLD_GREEN << logMessage << RESET << std::endl;
 		else if (level == RESPONSE)
