@@ -81,3 +81,4 @@ Connection: keep-alive
 
 0
 
+std::ios::in | std::ios::binary

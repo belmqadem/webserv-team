@@ -1,77 +1,6 @@
 #include "webserv.hpp"
 #include "Server.hpp"
 
-void printServerConfig(const ServerConfig &server)
-{
-	std::cout << "Server Configuration:" << std::endl;
-	std::cout << "  Port: " << server.port << std::endl;
-	std::cout << "  Host: " << server.host << std::endl;
-	std::cout << "  Client Max Body Size: " << server.clientMaxBodySize
-			  << " bytes (" << server.clientMaxBodySize / SIZE_MB << "MB)" << std::endl;
-
-	// Print server names
-	std::cout << "  Server Names: ";
-	for (size_t i = 0; i < server.serverNames.size(); i++)
-	{
-		std::cout << server.serverNames[i];
-		if (i < server.serverNames.size() - 1)
-			std::cout << ", ";
-	}
-	std::cout << std::endl;
-
-	// Print error pages
-	std::cout << "  Error Pages:" << std::endl;
-	for (std::map<short, std::string>::const_iterator it = server.errorPages.begin();
-		 it != server.errorPages.end(); ++it)
-	{
-		std::cout << "    " << it->first << ": " << it->second << std::endl;
-	}
-
-	// Print locations
-	std::cout << "  Locations:" << std::endl;
-	for (size_t i = 0; i < server.locations.size(); i++)
-	{
-		const Location &loc = server.locations[i];
-		std::cout << "  Location: " << loc.location << std::endl;
-		std::cout << "    Allowed Methods: ";
-		for (size_t j = 0; j < loc.allowedMethods.size(); j++)
-		{
-			std::cout << loc.allowedMethods[j];
-			if (j < loc.allowedMethods.size() - 1)
-				std::cout << ", ";
-		}
-		std::cout << std::endl;
-		if (!loc.root.empty())
-			std::cout << "    Root: " << loc.root << std::endl;
-		std::cout << "    Index: " << loc.index << std::endl;
-		std::cout << "    Autoindex: " << (loc.autoindex ? "on" : "off") << std::endl;
-
-		if (loc.isRedirect)
-		{
-			std::cout << "    Redirect: " << loc.redirectUrl << std::endl;
-			std::cout << "    Permanent: " << (loc.isRedirectPermanent ? "yes" : "no") << std::endl;
-			std::cout << "    Redirect code: " << loc.redirectCode << std::endl;
-		}
-
-		if (loc.useCgi)
-		{
-			std::cout << "    CGI Enabled: yes" << std::endl;
-			std::cout << "    CGI Path: " << loc.cgiPath << std::endl;
-			std::cout << "    CGI Extensions:" << std::endl;
-			for (std::map<std::string, std::string>::const_iterator it = loc.cgiExtensions.begin();
-				 it != loc.cgiExtensions.end(); ++it)
-			{
-				std::cout << "        " << it->first << ": " << it->second << std::endl;
-			}
-		}
-
-		if (!loc.uploadStore.empty())
-		{
-			std::cout << "    Upload Store: " << loc.uploadStore << std::endl;
-		}
-	}
-}
-
 extern int webserv_signal;
 
 void sigint_handle(int sig)
@@ -89,27 +18,30 @@ void signalhandler()
 
 int main(int ac, char **av)
 {
-	if (ac != 2)
+	if (ac > 2)
 	{
 		std::cout << BOLD_BLUE << USAGE(av[0]) << RESET << "\n";
 		return (0);
 	}
 	Logger::getInstance().setLevel(DEBUG);
 	Logger::getInstance().setOutput(true, true);
-	Logger::getInstance().setLogFile("WebServe.log");
+	Logger::getInstance().setLogFile(LOG_FILE);
 	signalhandler();
 	try
 	{
-		ConfigManager::getInstance().loadConfig(av[1]);
-		Server &server = Server::getInstance(ConfigManager::getInstance().getServers());
+		(ac == 2) ? ConfigManager::getInstance().loadConfig(av[1]) : ConfigManager::getInstance().loadConfig(DEFAULT_CONF);
+		std::vector<ServerConfig> virtual_servers = ConfigManager::getInstance().getServers();
+
+		// for (std::vector<ServerConfig>::iterator it = servers.begin(); it != servers.end(); ++it)
+		// 	printServerConfig(*it);
+
+		Server &server = Server::getInstance(virtual_servers);
 		server.StartServer();
 		LOG_INFO("Our Webserver *Not Nginx* Starting...");
 		IOMultiplexer::getInstance().runEventLoop();
 	}
 	catch (std::exception &e)
 	{
-		std::cerr << RED "Fatal error: \n"
-				  << e.what() << RESET << "\n";
+		LOG_ERROR("Fatal error -- " + std::string(e.what()));
 	}
-	return 0;
 }

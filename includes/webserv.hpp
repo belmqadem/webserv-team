@@ -106,6 +106,7 @@
 #include <cstring>
 #include <poll.h>
 #include <sys/epoll.h>
+struct ServerConfig;
 
 // Utils Functions
 std::vector<std::string> split(const char *start, const char *end, char delimiter);
@@ -113,9 +114,11 @@ std::string trim(const std::string &str, const std::string &delim);
 std::string readFile(const std::string &filename);
 bool writeFile(const std::string &filename, const std::string &content);
 bool is_numeric(const std::string &str);
+void printServerConfig(const ServerConfig &server);
 
 #define WEBSERV_NAME "Not Nginx/4.2"
-
+#define DEFAULT_CONF "config/webserv.conf"
+#define LOG_FILE "Webserv.log"
 #define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
 
 template <class T>

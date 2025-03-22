@@ -86,9 +86,7 @@ void Server::StartServer(void)
 		}
 		catch (std::exception &e)
 		{
-			std::cerr << RED "Failed to listen on addr " << it->host << ":" << it->port
-					  << "\n"
-					  << "Reason : " << e.what() << RESET << std::endl;
+			LOG_ERROR("Failed to listen on addr " + it->host + ":" + to_string(it->port) + " -- " + std::string(e.what()));
 		}
 	}
 }
@@ -131,7 +129,7 @@ void Server::accept_peer(int fd)
 	int client_fd = accept(fd, (sockaddr *)&peer_addrr, &peer_addrr_len);
 	if (client_fd == -1)
 	{
-		std::cerr << RED "accept() failed to accept this peer" RESET << std::endl;
+		LOG_ERROR("accept() failed to accept this peer");
 		return;
 	}
 	fcntl(client_fd, F_SETFL, fcntl(client_fd, F_GETFL, 0) | O_NONBLOCK);

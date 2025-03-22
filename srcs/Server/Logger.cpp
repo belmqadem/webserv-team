@@ -75,7 +75,7 @@ void Logger::setLogFile(const std::string &path)
 	_logFile.open(path.c_str(), std::ios::out | std::ios::app);
 	if (!_logFile.is_open())
 	{
-		std::cerr << RED "Failed to open log file: " << path << RESET << std::endl;
+		LOG_ERROR("Failed to open log file: " + path);
 		_toFile = false;
 	}
 	else

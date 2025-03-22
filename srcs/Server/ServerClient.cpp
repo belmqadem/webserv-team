@@ -25,7 +25,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 {
 	if (_is_started == true)
 	{
-		std::cerr << RED "WARNING: Attempting to registre an already started fd " << _peer_socket_fd << RESET << std::endl;
+		LOG_ERROR("WARNING: Attempting to registre an already started fd " + to_string(_peer_socket_fd));
 		return;
 	}
 	_epoll_ev.data.fd = _peer_socket_fd;
@@ -40,10 +40,8 @@ void ClientServer::RegisterWithIOMultiplexer()
 	}
 	catch (std::exception &e)
 	{
+		LOG_ERROR("Failed to register client fd " + to_string(_peer_socket_fd) + " with IO multiplexer. Connection terminated. -- " + std::string(e.what()));
 		close(_peer_socket_fd);
-		std::cerr << RED "Failed to register client fd " << _peer_socket_fd
-				  << " with IO multiplexer. Connection terminated.\n"
-				  << "Error: " << e.what() << RESET << std::endl;
 	}
 }
 
@@ -58,7 +56,7 @@ ClientServer::~ClientServer()
 void ClientServer::terminate()
 {
 	if (_is_started == false)
-		return ;
+		return;
 	_is_started = false;
 	if (_parser)
 	{
@@ -154,11 +152,10 @@ void ClientServer::handleIncomingData()
 			_response_buffer = response.get_response();
 			_response_ready = true;
 			_request_buffer.clear();
-
 		}
 		catch (std::exception &e)
 		{
-			LOG_ERROR("Exception in request processing " + std::string(e.what()));
+			LOG_ERROR("Exception in request processing -- " + std::string(e.what()));
 		}
 	}
 }
@@ -170,16 +167,7 @@ bool ClientServer::shouldKeepAlive() const
 	{
 		return false;
 	}
-    // Get HTTP version and Connection header
-    const std::string& version = _parser->get_http_version();
-    const std::string& connection = _parser->get_header_value("Connection");
-
-    // HTTP/1.1: keep-alive by default unless "Connection: close"
-    if (version == "HTTP/1.1") {
-        return connection != "close";
-    }
-    // Unknown HTTP version or other cases: close the connection
-	return false;
+	return (!_parser->is_connection_close());
 }
 
 void ClientServer::modifyEpollEvent(uint32_t events)
@@ -192,7 +180,7 @@ void ClientServer::modifyEpollEvent(uint32_t events)
 	}
 	catch (std::exception &e)
 	{
-		LOG_ERROR("Failed to modify epoll event: " + std::string(e.what()));
+		LOG_ERROR("Failed to modify epoll event -- " + std::string(e.what()));
 	}
 }
 
