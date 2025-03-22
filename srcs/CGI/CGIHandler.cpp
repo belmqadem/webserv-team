@@ -13,122 +13,6 @@
 #include <fcntl.h>
 #include <iostream>
 
-// CGIHandler::CGIHandler(const std::string& scriptPath, const std::map<std::string, std::string>& envVars)
-//     : _scriptPath(scriptPath), _envVars(envVars) {}
-
-// CGIHandler::~CGIHandler() {}
-
-// std::string CGIHandler::execute(const std::string& method, const std::string& body) {
-//     int pipeIn[2], pipeOut[2];
-
-//     if (pipe(pipeIn) == -1 || pipe(pipeOut) == -1) {
-//         throw std::runtime_error("Failed to create pipes.");
-//     }
-
-//     pid_t pid = fork();
-//     if (pid < 0) { // Fork failed
-//         close(pipeIn[0]);
-//         close(pipeIn[1]);
-//         close(pipeOut[0]);
-//         close(pipeOut[1]);
-//         throw std::runtime_error("Failed to fork process.");
-//     }
-
-//     if (pid == 0) { // Child process
-//         close(pipeIn[1]);
-//         close(pipeOut[0]);
-
-//         // Redirect pipes to standard input and output
-//         if (dup2(pipeIn[0], STDIN_FILENO) == -1 || dup2(pipeOut[1], STDOUT_FILENO) == -1) {
-//             perror("dup2 failed");
-//             exit(EXIT_FAILURE);
-//         }
-
-//         close(pipeIn[0]);
-//         close(pipeOut[1]);
-
-//         // Set up environment variables
-//         char** env = createEnvArray();
-
-//         // Configure arguments for execve
-//         const char* interpreter = "/usr/bin/php-cgi"; // Adjust for your CGI script
-//         const char* script = _scriptPath.c_str();
-//         char* const argv[] = {const_cast<char*>(interpreter), const_cast<char*>(script), NULL};
-
-//         // Execute the CGI script
-//         execve(interpreter, argv, env);
-
-//         // Handle execve failure
-//         perror("execve failed");
-//         cleanupEnvArray(env);
-//         exit(EXIT_FAILURE);
-//     } else { // Parent process
-//         close(pipeIn[0]);
-//         close(pipeOut[1]);
-
-//         // Write the body if it's a POST request
-//         if (method == "POST" && !body.empty()) {
-//             if (write(pipeIn[1], body.c_str(), body.size()) == -1) {
-//                 perror("write to pipe failed");
-//             }
-//         }
-//         close(pipeIn[1]);
-
-//         // Read CGI output
-//         std::string output = readFromSocket(pipeOut[0]);
-//         close(pipeOut[0]);
-
-//         // Wait for the child process to finish
-//         int status;
-//         if (waitpid(pid, &status, 0) == -1) {
-//             perror("waitpid failed");
-//             throw std::runtime_error("Failed to wait for child process.");
-//         }
-
-//         if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-//             throw std::runtime_error("CGI script execution failed with non-zero exit code.");
-//         }
-
-//         return output;
-//     }
-// }
-
-// char** CGIHandler::createEnvArray() const {
-//     char** envArray = new char*[_envVars.size() + 1];
-//     size_t i = 0;
-//     for (std::map<std::string, std::string>::const_iterator it = _envVars.begin(); it != _envVars.end(); ++it, ++i) {
-//         std::string envEntry = it->first + "=" + it->second;
-//         envArray[i] = strdup(envEntry.c_str());
-//     }
-//     envArray[i] = NULL;
-//     return envArray;
-// }
-
-// void CGIHandler::cleanupEnvArray(char** envArray) const {
-//     for (size_t i = 0; envArray[i] != NULL; ++i) {
-//         free(envArray[i]);
-//     }
-//     delete[] envArray;
-// }
-
-// std::string CGIHandler::readFromSocket(int socketFd) {
-//     std::ostringstream output;
-//     char buffer[1024];
-//     ssize_t bytesRead;
-
-//     while ((bytesRead = read(socketFd, buffer, sizeof(buffer))) > 0) {
-//         output.write(buffer, static_cast<std::streamsize>(bytesRead));
-//     }
-
-//     if (bytesRead < 0) {
-//         perror("read from pipe failed");
-//         throw std::runtime_error("Error reading from pipe.");
-//     }
-
-//     return output.str();
-// }
-// #include "../../includes/CGIHandler.hpp"
-
 #define ROOT_DIRECTORY "www/html"
 
 CGIHandler::CGIHandler(RequestParser &request, const std::string &php_cgi_path)
@@ -158,9 +42,9 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &php_cgi_path)
 }
 std::string CGIHandler::executeCGI() {
     Logger &logger = Logger::getInstance();
-    int output_pipe[2], input_pipe[2];
-    if (pipe(output_pipe) == -1 || pipe(input_pipe) == -1) {
-        throw std::runtime_error("500 Internal Server Error: Pipe creation failed");
+    int cgi_socket[2];
+    if (socketpair(AF_UNIX, SOCK_STREAM, 0, cgi_socket) == -1) {
+        throw std::runtime_error("500 Internal Server Error: Socketpair creation failed");
     }
     pid_t pid = fork();
     if (pid == -1) {
@@ -168,17 +52,12 @@ std::string CGIHandler::executeCGI() {
         throw std::runtime_error("500 Internal Server Error: Fork failed");
     }
     if (pid == 0) {
-        close(output_pipe[0]);
-        dup2(output_pipe[1], STDOUT_FILENO);
-        close(output_pipe[1]);
-        if (method == "POST") {
-            close(input_pipe[1]);
-            dup2(input_pipe[0], STDIN_FILENO);
-            close(input_pipe[0]);
-        }
+        close(cgi_socket[0]);
+        dup2(cgi_socket[1], STDOUT_FILENO);
+        dup2(cgi_socket[1], STDIN_FILENO);
+        close(cgi_socket[1]);
         std::ostringstream oss;
-        oss << (body.length());
-        //     return oss.str();
+        oss << body.length();
         std::vector<std::string> args;
         args.push_back(interpreter);
         args.push_back(scriptPath);
@@ -201,63 +80,23 @@ std::string CGIHandler::executeCGI() {
         for (size_t i = 0; i < env.size(); ++i)
             envp[i] = const_cast<char *>(env[i].c_str());
         envp[env.size()] = NULL;
-        std::cerr << argv[0] << "\n" << argv[1] << std::endl;
         execve(argv[0], argv, envp);
         logger.error("execve failed");
         exit(1);
     } else {
-        close(output_pipe[1]);
-        close(input_pipe[0]);
+        close(cgi_socket[1]);
         if (method == "POST") {
-            write(input_pipe[1], body.c_str(), body.length());
-            close(input_pipe[1]);
+            write(cgi_socket[0], body.c_str(), body.length());
         }
         char buffer[1024];
         std::string cgi_output;
         ssize_t bytesRead;
-        while ((bytesRead = read(output_pipe[0], buffer, sizeof(buffer) - 1)) > 0) {
+        while ((bytesRead = read(cgi_socket[0], buffer, sizeof(buffer) - 1)) > 0) {
             buffer[bytesRead] = '\0';
             cgi_output += buffer;
         }
-        close(output_pipe[0]);
+        close(cgi_socket[0]);
         waitpid(pid, NULL, 0);
         return cgi_output;
     }
 }
-
-// int main() {
-//     try {
-//         // Define the path to your CGI script
-//         std::string scriptPath = "www/html/test.php"; // Update this to your actual script path
-
-//         // Set up environment variables
-//         std::map<std::string, std::string> envVars;
-//         envVars["GATEWAY_INTERFACE"] = "CGI/1.1";
-//         envVars["SERVER_PROTOCOL"] = "HTTP/1.1";
-//         envVars["SERVER_NAME"] = "localhost";
-//         envVars["SERVER_PORT"] = "8080";
-//         envVars["REQUEST_METHOD"] = "GET";
-//         envVars["SCRIPT_NAME"] = "/cgi-bin/test.php";
-//         envVars["SCRIPT_FILENAME"] = scriptPath;
-//         envVars["REMOTE_ADDR"] = "127.0.0.1";
-//         envVars["REDIRECT_STATUS"] = "200";
-
-//         // Initialize CGIHandler
-//         CGIHandler cgiHandler(scriptPath, envVars);
-
-//         // Execute the CGI script (GET request, no body)
-//         std::string method = "GET";
-//         std::string body = ""; // Empty body for GET
-
-//         std::cout << "Executing CGI script..." << std::endl;
-//         std::string output = cgiHandler.execute(method, body);
-
-//         // Output the result
-//         std::cout << "CGI Output:\n" << output << std::endl;
-
-//     } catch (const std::exception& ex) {
-//         // Catch and display any errors
-//         std::cerr << "Error: " << ex.what() << std::endl;
-//         return EXIT_FAILURE;
-//     }
-// }

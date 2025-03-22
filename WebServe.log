@@ -979,3 +979,149 @@
 [2025-03-21 19:31:22] [REQUEST] GET /test.php HTTP/1.1
 [2025-03-21 19:31:35] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
 [2025-03-21 19:31:35] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-21 19:33:39] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-21 19:33:39] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-21 19:33:39] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-21 19:33:41] [INFO] Client Connected: 127.0.0.1:45556 Fd 7
+[2025-03-21 19:33:41] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 19:33:41] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:33:41] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 19:33:45] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-21 19:33:45] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:33:45] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-21 19:33:49] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:33:49] [REQUEST] GET / HTTP/1.1
+[2025-03-21 19:33:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:33:50] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-21 19:33:50] [INFO] Client Connected: 127.0.0.1:54370 Fd 8
+[2025-03-21 19:33:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:33:50] [REQUEST] GET /script.js HTTP/1.1
+[2025-03-21 19:33:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:33:50] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-21 19:33:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:33:50] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-21 19:33:50] [INFO] Client Connected: 127.0.0.1:54380 Fd 9
+[2025-03-21 19:33:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:33:50] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-21 19:33:51] [INFO] Client Connected: 127.0.0.1:54388 Fd 10
+[2025-03-21 19:33:52] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-21 19:33:52] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-21 19:33:54] [INFO] Client 127.0.0.1 Fd 10 Disconnected!
+[2025-03-21 19:33:54] [INFO] Client 127.0.0.1 Fd 9 Disconnected!
+[2025-03-21 19:33:54] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-21 19:33:54] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-21 19:33:54] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-22 02:13:47] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-22 02:13:47] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-22 02:13:47] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-22 02:13:49] [INFO] Client Connected: 127.0.0.1:49280 Fd 7
+[2025-03-22 02:13:49] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-22 02:13:50] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 02:13:50] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-22 02:13:50] [RESPONSE] HTTP/1.1 404 Not Found
+[2025-03-22 02:13:50] [REQUEST] GET /favicon.ico HTTP/1.1
+[2025-03-22 02:13:50] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-22 02:14:07] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-22 02:14:16] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-22 02:14:16] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-22 02:14:16] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-22 02:14:19] [INFO] Client Connected: 127.0.0.1:33160 Fd 7
+[2025-03-22 02:14:19] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-22 02:14:19] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 02:14:19] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-22 02:14:24] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 02:14:24] [REQUEST] GET / HTTP/1.1
+[2025-03-22 02:14:24] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 02:14:24] [REQUEST] GET /style.css HTTP/1.1
+[2025-03-22 02:14:24] [INFO] Client Connected: 127.0.0.1:33170 Fd 8
+[2025-03-22 02:14:24] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 02:14:24] [REQUEST] GET /script.js HTTP/1.1
+[2025-03-22 02:14:25] [INFO] Client Connected: 127.0.0.1:33182 Fd 9
+[2025-03-22 02:14:25] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 02:14:25] [REQUEST] GET /images/nmellal.jpeg HTTP/1.1
+[2025-03-22 02:14:25] [INFO] Client Connected: 127.0.0.1:33192 Fd 10
+[2025-03-22 02:14:25] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 02:14:25] [REQUEST] GET /images/mchihab.jpeg HTTP/1.1
+[2025-03-22 02:14:25] [INFO] Client Connected: 127.0.0.1:33202 Fd 12
+[2025-03-22 02:14:25] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 02:14:25] [REQUEST] GET /images/abel-mqa.jpeg HTTP/1.1
+[2025-03-22 02:14:26] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 02:14:26] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-22 02:14:26] [INFO] Client 127.0.0.1 Fd 10 Disconnected!
+[2025-03-22 02:14:26] [ERROR] Error sending response to client
+[2025-03-22 02:14:26] [INFO] Client Connected: 127.0.0.1:56520 Fd 10
+[2025-03-22 02:14:26] [INFO] Client 127.0.0.1 Fd 10 Disconnected!
+[2025-03-22 02:14:26] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 02:14:26] [REQUEST] GET /images/background.jpg HTTP/1.1
+[2025-03-22 02:14:35] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 02:14:35] [REQUEST] GET /a.py HTTP/1.1
+[2025-03-22 02:14:45] [INFO] Client 127.0.0.1 Fd 12 Disconnected!
+[2025-03-22 02:14:45] [INFO] Client 127.0.0.1 Fd 9 Disconnected!
+[2025-03-22 02:14:45] [INFO] Client 127.0.0.1 Fd 8 Disconnected!
+[2025-03-22 02:14:45] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-22 02:14:45] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-22 02:18:07] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-22 02:18:07] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-22 02:18:07] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-22 02:18:08] [INFO] Client Connected: 127.0.0.1:46744 Fd 7
+[2025-03-22 02:18:08] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-22 02:18:08] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 02:18:08] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-22 02:18:12] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-22 02:18:12] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-22 02:19:30] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-22 02:19:30] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-22 02:19:30] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-22 02:19:44] [INFO] Client Connected: 127.0.0.1:50380 Fd 7
+[2025-03-22 02:19:44] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-22 02:19:44] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 02:19:44] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-22 02:19:55] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-22 02:19:55] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-22 02:20:33] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-22 02:20:33] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-22 02:20:33] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-22 02:20:38] [INFO] Client Connected: 127.0.0.1:56942 Fd 7
+[2025-03-22 02:20:38] [ERROR] Client sent a request without content-length header (code: 411)
+[2025-03-22 02:20:38] [ERROR] Error parsing request: 411
+[2025-03-22 02:20:38] [ERROR] Exception in request processing map::at
+[2025-03-22 02:20:54] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-22 02:20:56] [INFO] Client Connected: 127.0.0.1:45670 Fd 7
+[2025-03-22 02:20:56] [ERROR] Client sent a request without content-length header (code: 411)
+[2025-03-22 02:20:56] [ERROR] Error parsing request: 411
+[2025-03-22 02:20:56] [ERROR] Exception in request processing map::at
+[2025-03-22 02:20:59] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-22 02:23:37] [INFO] Client Connected: 127.0.0.1:59330 Fd 7
+[2025-03-22 02:23:37] [ERROR] Client sent a request without content-length header (code: 411)
+[2025-03-22 02:23:37] [ERROR] Error parsing request: 411
+[2025-03-22 02:23:37] [ERROR] Exception in request processing map::at
+[2025-03-22 02:23:43] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-22 02:24:41] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-22 02:24:42] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-22 02:24:42] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-22 02:24:42] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-22 02:25:33] [INFO] Client Connected: 127.0.0.1:59522 Fd 7
+[2025-03-22 02:25:33] [ERROR] Client sent a request without content-length header (code: 411)
+[2025-03-22 02:25:33] [ERROR] Error parsing request: 411
+[2025-03-22 02:25:33] [ERROR] Exception in request processing map::at
+[2025-03-22 02:25:49] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-22 02:27:04] [INFO] Client Connected: 127.0.0.1:48736 Fd 7
+[2025-03-22 02:27:04] [ERROR] Client sent a request without content-length header (code: 411)
+[2025-03-22 02:27:04] [ERROR] Error parsing request: 411
+[2025-03-22 02:27:04] [ERROR] Exception in request processing map::at
+[2025-03-22 02:27:11] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-22 02:27:12] [INFO] Client Connected: 127.0.0.1:34124 Fd 7
+[2025-03-22 02:27:12] [ERROR] Client sent a request without content-length header (code: 411)
+[2025-03-22 02:27:12] [ERROR] Error parsing request: 411
+[2025-03-22 02:27:12] [ERROR] Exception in request processing map::at
+[2025-03-22 02:27:13] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-22 02:27:23] [INFO] Our Webserver *Not Nginx* is Shuted down !
+[2025-03-22 19:05:38] [INFO] Our Webserver *Not Nginx* Starting...
+[2025-03-22 19:05:38] [INFO] Server listening on 0.0.0.0:8080
+[2025-03-22 19:05:38] [INFO] Server listening on 0.0.0.0:9090
+[2025-03-22 19:05:47] [INFO] Client Connected: 127.0.0.1:53016 Fd 7
+[2025-03-22 19:05:47] [INFO] CGIHandler initialized with script: www/html/test.php
+[2025-03-22 19:05:48] [RESPONSE] HTTP/1.1 200 OK
+[2025-03-22 19:05:48] [REQUEST] GET /test.php HTTP/1.1
+[2025-03-22 19:05:48] [INFO] Client 127.0.0.1 Fd 7 Disconnected!
+[2025-03-22 19:06:03] [INFO] Our Webserver *Not Nginx* is Shuted down !

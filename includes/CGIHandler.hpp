@@ -25,8 +25,6 @@ public:
 	std::string executeCGI();
 	CGIHandler(RequestParser &request, const std::string &php_cgi_path);
 
-	// CGIHandler(RequestParser &request, Parser &config);
-	// std::string handleRequest();
 };
 
 #endif
