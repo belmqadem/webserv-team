@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RequestParser.hpp"
+#include "CGIHandler.hpp"
 
 class ResponseBuilder
 {
@@ -43,6 +44,7 @@ private:
 
 public:
 	ResponseBuilder(RequestParser &request);
+	std::map<std::string, std::string> prepareEnv( RequestParser &request) const ;
 
 	// Setters
 	void set_http_version(const std::string &http_version);
@@ -64,4 +66,7 @@ public:
 
 	// Core Function that builds the response
 	std::string build_response(RequestParser &request);
+	bool isCgiRequest(const std::string &uri);
+	std::string handleCgiRequest(const std::string &method, const std::string &uri, const std::string &body);
+	void init_config(RequestParser &request);
 };

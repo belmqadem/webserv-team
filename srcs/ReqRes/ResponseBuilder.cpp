@@ -140,6 +140,67 @@ std::string ResponseBuilder::generate_response_string()
 	return response.str();
 }
 
+bool ResponseBuilder::isCgiRequest(const std::string &uri) {
+    // Check if the URI ends with .cgi to determine if it's a CGI request
+    return uri.size() >= 4 && uri.compare(uri.size() - 4, 4, ".php") == 0;
+}
+
+std::pair<std::string, std::string> parseCGIOutput(const std::string &cgiOutput) {
+    std::istringstream stream(cgiOutput);
+    std::string line;
+    std::string headers;
+    std::string body;
+    bool headerParsed = false;
+
+    // Read line by line
+    while (std::getline(stream, line)) {
+        // Trim any trailing carriage return
+        if (!line.empty() && line[line.size() - 1] == '\r') {
+            line.erase(line.size() - 1);
+        }
+
+        // Check for the blank line separating headers from the body
+        if (line.empty()) {
+            headerParsed = true;
+            break;
+        }
+
+        // Append to headers
+        headers += line + "\n";
+    }
+
+    // If headers are parsed, the rest is the body
+    if (headerParsed) {
+        char buffer[1024];
+        while (stream.read(buffer, sizeof(buffer))) {
+            body.append(buffer, stream.gcount());
+        }
+        body.append(buffer, stream.gcount());
+    } else {
+        throw std::runtime_error("Invalid CGI output: Missing headers");
+    }
+
+    // Extract the Content-Type from headers
+    std::string contentType = "text/html"; // Default content type
+    std::istringstream headerStream(headers);
+    while (std::getline(headerStream, line)) {
+        if (line.find("Content-Type:") == 0) {
+            contentType = line.substr(13); // Extract content type value
+            // Trim any whitespace
+            size_t start = contentType.find_first_not_of(" \t");
+            size_t end = contentType.find_last_not_of(" \t");
+            if (start != std::string::npos && end != std::string::npos) {
+                contentType = contentType.substr(start, end - start + 1);
+            } else {
+                contentType = ""; // No valid content type found
+            }
+            break;
+        }
+    }
+
+    return std::make_pair(contentType, body);
+}
+
 // GET method implementation
 void ResponseBuilder::doGET(RequestParser &request)
 {
@@ -148,6 +209,23 @@ void ResponseBuilder::doGET(RequestParser &request)
 	std::string path = location_config->root + uri;
 
 	// Check if the file exists
+
+    if (isCgiRequest(uri)) {
+		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
+        try {
+            std::string cgiOutput = cgiHandler.executeCGI();
+            std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
+            // Set headers and body in the response
+            set_headers("Content-Type", parsedOutput.first); // Use the content type from the CGI output
+            body = parsedOutput.second;
+            set_status(200);
+        } catch (const std::exception &e) {
+            set_status(500);
+            body = generate_error_page(status_code);
+            Logger::getInstance().error(e.what());
+        }
+        return;
+	}
 	struct stat file_stat;
 	if (stat(path.c_str(), &file_stat) == -1)
 	{
@@ -188,13 +266,6 @@ void ResponseBuilder::doGET(RequestParser &request)
 			body = generate_error_page(status_code);
 			return;
 		}
-	}
-
-	// CGI Execution
-	if (is_cgi_request(path))
-	{
-		// HANDLE CGI IN GET
-		return;
 	}
 
 	// Check Read persmission
@@ -239,10 +310,21 @@ void ResponseBuilder::doPOST(RequestParser &request)
 	std::string upload_path = location_config->uploadStore + "/uploaded";
 	std::string content_type = request.get_header_value("content-type");
 
-	if (is_cgi_request(path))
-	{
-		// HANDLE CGI IN POST
-		return;
+	if (isCgiRequest(uri)) {
+		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
+        try {
+            std::string cgiOutput = cgiHandler.executeCGI();
+            std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
+            // Set headers and body in the response
+            set_headers("Content-Type", parsedOutput.first); // Use the content type from the CGI output
+            body = parsedOutput.second;
+            set_status(200);
+        } catch (const std::exception &e) {
+            set_status(500);
+            body = generate_error_page(status_code);
+            Logger::getInstance().error(e.what());
+        }
+        return;
 	}
 
 	// Handle file upload if content type is multipart/form-data
