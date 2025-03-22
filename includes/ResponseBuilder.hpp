@@ -11,27 +11,27 @@ private:
 	std::map<std::string, std::string> headers;
 	std::string body;
 	short status_code;
-	std::map<std::string, void (ResponseBuilder::*)(RequestParser &)> routes; // A map to route the request to the correct method
-
+	std::map<std::string, void (ResponseBuilder::*)(void)> routes; // A map to route the request to the correct method
+	RequestParser request;
 	const ServerConfig *server_config; // Pointer to the matched server block
 	const Location *location_config;   // Pointer to the matched location block
 
 	// Required HTTP Methods
-	void doGET(RequestParser &request);
-	void doPOST(RequestParser &request);
-	void doDELETE(RequestParser &request);
+	void doGET();
+	void doPOST();
+	void doDELETE();
 
-	// Helper Methods
-	void init_config(RequestParser &request);
+	// Helper Methodsz
+	void init_config();
 	void init_routes();
-	bool handle_redirection(RequestParser &request);
-	bool handle_binary_upload(RequestParser &request, const std::string &path);
-	bool handle_file_upload(RequestParser &request, const std::string &path);
+	bool handle_redirection();
+	bool handle_binary_upload(const std::string &path);
+	bool handle_file_upload(const std::string &path);
 	std::string generate_error_page(short status_code);
 	std::string generate_directory_listing(const std::string &path);
 	std::string generate_response_string();
 	std::string detect_mime_type(const std::string &path);
-	void include_required_headers(RequestParser &request);
+	void include_required_headers();
 	bool is_cgi_request(const std::string &file_path);
 	std::string get_http_date();
 
@@ -63,5 +63,5 @@ public:
 	static std::map<std::string, std::string> init_mime_types();
 
 	// Core Function that builds the response
-	std::string build_response(RequestParser &request);
+	std::string build_response();
 };

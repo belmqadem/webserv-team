@@ -36,7 +36,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 		_is_started = true;
 
 		std::string addr = inet_ntoa(_client_addr.sin_addr);
-		LOG_INFO("Client Connected: " + addr + ":" + to_string(ntohs(_client_addr.sin_port)) + " Fd " + to_string(_peer_socket_fd));
+		LOG_CLIENT("Connected: " + addr + ":" + to_string(ntohs(_client_addr.sin_port)) + " Fd " + to_string(_peer_socket_fd));
 	}
 	catch (std::exception &e)
 	{
@@ -67,7 +67,7 @@ void ClientServer::terminate()
 	_is_started = false;
 
 	std::string addr = inet_ntoa(_client_addr.sin_addr);
-	LOG_INFO("Client " + addr + " Fd " + to_string(_peer_socket_fd) + " Disconnected!");
+	LOG_CLIENT(" " + addr + " Fd " + to_string(_peer_socket_fd) + " Disconnected!");
 	close(_peer_socket_fd);
 }
 
@@ -139,7 +139,14 @@ void ClientServer::handleIncomingData()
 	{
 		try
 		{
-			RequestParser parser(_request_buffer, ConfigManager::getInstance().getServers());
+			RequestParser parser;
+			size_t bytes_read = 0;
+			bytes_read += parser.parse_request(_request_buffer);
+			if (bytes_read > 0)
+			{
+				parser.set_request_line();
+				parser.match_location(ConfigManager::getInstance().getServers());
+			}
 			if (_parser)
 				delete _parser;
 			_parser = new RequestParser(parser);

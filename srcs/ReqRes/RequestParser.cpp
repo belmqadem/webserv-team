@@ -8,25 +8,16 @@
 #define MAX_HEADER_COUNT 100
 
 // Constructor
-RequestParser::RequestParser(const std::string &request, const std::vector<ServerConfig> &servers)
+RequestParser::RequestParser()
 {
 	this->state = REQUEST_LINE;
 	this->error_code = 1;
 	this->has_content_length = false;
 	this->has_transfer_encoding = false;
-	this->bytes_read = 0;
 	this->server_config = NULL;
 	this->location_config = NULL;
 	this->is_headers_completed = false;
 	this->is_body_completed = false;
-	this->bytes_read += parse_request(request);
-	if (this->bytes_read > 0)
-	{
-		set_request_line();
-		match_location(servers); // Match the request to the correct server and location block
-		if (this->body.size() > server_config->clientMaxBodySize)
-			log_error(HTTP_PARSE_PAYLOAD_TOO_LARGE, 413);
-	}
 }
 
 // Copy Constructor
@@ -38,7 +29,7 @@ RequestParser::RequestParser(const RequestParser &other) : state(other.state),
 														   http_version(other.http_version),
 														   headers(other.headers),
 														   body(other.body),
-														   bytes_read(other.bytes_read),
+														   port(other.port),
 														   error_code(other.error_code),
 														   has_content_length(other.has_content_length),
 														   has_transfer_encoding(other.has_transfer_encoding),
@@ -47,6 +38,29 @@ RequestParser::RequestParser(const RequestParser &other) : state(other.state),
 {
 	// Note: No need to deep-copy server_config and location_config
 	// as they are pointers to configurations owned by ConfigManager
+}
+
+// Copy Assignement
+RequestParser &RequestParser::operator=(const RequestParser &other)
+{
+	if (this != &other)
+	{
+		this->state = other.state;
+		this->request_line = other.request_line;
+		this->http_method = other.http_method;
+		this->request_uri = other.request_uri;
+		this->query_string = other.query_string;
+		this->http_version = other.http_version;
+		this->headers = other.headers;
+		this->body = other.body;
+		this->port = other.port;
+		this->error_code = other.error_code;
+		this->has_content_length = other.has_content_length;
+		this->has_transfer_encoding = other.has_transfer_encoding;
+		this->server_config = other.server_config;
+		this->location_config = other.location_config;
+	}
+	return *this;
 }
 
 // Main Function that parses the request
