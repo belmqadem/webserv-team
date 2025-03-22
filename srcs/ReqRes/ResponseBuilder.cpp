@@ -153,6 +153,7 @@ void ResponseBuilder::doGET(RequestParser &request)
 	struct stat file_stat;
 	if (stat(path.c_str(), &file_stat) == -1)
 	{
+		LOG_DEBUG("PAGE NOOOOOT FOUUUND");
 		set_status(404);
 		body = generate_error_page(status_code);
 		return;
@@ -453,7 +454,8 @@ std::string ResponseBuilder::generate_error_page(short status_code)
 	std::string error_page_name = server_config->errorPages.at(status_code);
 	std::string error_page_file = readFile(error_page_name);
 	if (error_page_file == "")
-		LOG_ERROR("Error: Open");
+		LOG_ERROR("Error: Could not open the file " + error_page_name);
+	this->headers["Content-Type"] = "text/html";
 	return error_page_file;
 }
 
