@@ -16,9 +16,13 @@
 - Use a random or unique naming strategy for uploaded files to avoid overwriting existing files.
 - For security, avoid directly exposing uploaded files and always sanitize file names.
 
-
 ==> Add a parse for empty config file
 
-
 <!-- Some notices in config parsing -->
-* Expand the x to the correct number 
+
+- Expand the x to the correct number
+
+Add a function for loading dots
+
+    if (this->body.size() > server_config->clientMaxBodySize)
+    	log_error(HTTP_PARSE_PAYLOAD_TOO_LARGE, 413);

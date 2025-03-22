@@ -62,7 +62,7 @@ void Server::listenOnAddr(sockaddr_in addr)
 
 		std::string ip_address = inet_ntoa(addr.sin_addr);
 		int port = ntohs(addr.sin_port);
-		LOG_INFO("Server listening on " + ip_address + ":" + to_string(port));
+		LOG_SERVER("Listening on " + ip_address + ":" + to_string(port));
 	}
 	catch (std::exception &e)
 	{

@@ -60,19 +60,20 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 std::map<std::string, std::string> ResponseBuilder::mime_types = init_mime_types();
 
 // Method for initializing the Request Matching configuration for server and location
-void ResponseBuilder::init_config(RequestParser &request)
+void ResponseBuilder::init_config()
 {
 	this->server_config = request.get_server_config();
 	this->location_config = request.get_location_config();
 }
 
 // Constructor Takes Request as parameter
-ResponseBuilder::ResponseBuilder(RequestParser &request)
+ResponseBuilder::ResponseBuilder(RequestParser &raw_request)
 {
-	this->http_version = "HTTP/1.1";		  // Only version 1.1 is implemented
-	this->init_config(request);				  // Init the config from request match
-	init_routes();							  // set routes with allowed methods
-	this->response = build_response(request); // Here we build the response
+	this->http_version = "HTTP/1.1";
+	this->request = raw_request;
+	init_config();
+	init_routes();
+	this->response = build_response();
 }
 
 // Method to initialize the routes (GET | POST | DELETE)
@@ -91,7 +92,7 @@ void ResponseBuilder::init_routes()
 }
 
 // Method to process the response
-std::string ResponseBuilder::build_response(RequestParser &request)
+std::string ResponseBuilder::build_response()
 {
 	short request_error_code = request.get_error_code();
 
@@ -99,7 +100,7 @@ std::string ResponseBuilder::build_response(RequestParser &request)
 	{
 		set_status(request_error_code);
 		body = generate_error_page(status_code);
-		include_required_headers(request);
+		include_required_headers();
 		return generate_response_string();
 	}
 
@@ -110,19 +111,19 @@ std::string ResponseBuilder::build_response(RequestParser &request)
 	{
 		set_status(405);
 		body = generate_error_page(status_code);
-		include_required_headers(request);
+		include_required_headers();
 		return generate_response_string();
 	}
 
 	// Handle redirections (if there is any)
-	if (handle_redirection(request))
+	if (handle_redirection())
 		return generate_response_string();
 
 	// Route the request to the correct handler
-	(this->*routes[method])(request);
+	(this->*routes[method])();
 
 	// Set required headers
-	include_required_headers(request);
+	include_required_headers();
 
 	return generate_response_string();
 }
@@ -141,9 +142,9 @@ std::string ResponseBuilder::generate_response_string()
 }
 
 // GET method implementation
-void ResponseBuilder::doGET(RequestParser &request)
+void ResponseBuilder::doGET()
 {
-	std::cout << "GET METHOD EXECUTED" << std::endl;
+	LOG_DEBUG("GET METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
 
@@ -151,7 +152,6 @@ void ResponseBuilder::doGET(RequestParser &request)
 	struct stat file_stat;
 	if (stat(path.c_str(), &file_stat) == -1)
 	{
-		LOG_DEBUG("PAGE NOOOOOT FOUUUND");
 		set_status(404);
 		body = generate_error_page(status_code);
 		return;
@@ -230,9 +230,9 @@ void ResponseBuilder::doGET(RequestParser &request)
 }
 
 // POST method implementation
-void ResponseBuilder::doPOST(RequestParser &request)
+void ResponseBuilder::doPOST()
 {
-	std::cout << "POST METHOD EXECUTED" << std::endl;
+	LOG_DEBUG("POST METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
 	std::vector<byte> req_body = request.get_body();
@@ -256,7 +256,7 @@ void ResponseBuilder::doPOST(RequestParser &request)
 	// Handle file upload if content type is application/octet-stream (binary)
 	if (content_type == "application/octet-stream")
 	{
-		if (!handle_binary_upload(request, upload_path))
+		if (!handle_binary_upload(upload_path))
 		{
 			set_status(500);
 			body = generate_error_page(status_code);
@@ -282,9 +282,9 @@ void ResponseBuilder::doPOST(RequestParser &request)
 }
 
 // DELETE method implementation
-void ResponseBuilder::doDELETE(RequestParser &request)
+void ResponseBuilder::doDELETE()
 {
-	std::cout << "DELETE METHOD EXECUTED" << std::endl;
+	LOG_DEBUG("DELETE METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
 	struct stat path_stat;
@@ -374,7 +374,7 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 }
 
 // Method to handle redirection
-bool ResponseBuilder::handle_redirection(RequestParser &request)
+bool ResponseBuilder::handle_redirection()
 {
 	if (location_config->isRedirect)
 	{
@@ -383,16 +383,18 @@ bool ResponseBuilder::handle_redirection(RequestParser &request)
 			set_status(301);
 		else
 			set_status(302);
-		this->headers["Location"] = redirect_url;
-		body = ""; // Empty response body
-		include_required_headers(request);
+		std::string file_name = "errors/" + to_string(status_code) + ".html";
+		body = readFile(file_name);
+		this->headers["Content-Type"] = "text/html";
+		this->headers["Location"] = "http://" + request.get_header_value("host") + redirect_url;
+		include_required_headers();
 		return true;
 	}
 	return false;
 }
 
 // Method to handle file upload (multipart/form-data)
-bool ResponseBuilder::handle_file_upload(RequestParser &request, const std::string &path)
+bool ResponseBuilder::handle_file_upload(const std::string &path)
 {
 	std::string boundary = request.get_header_value("content-type");
 	boundary = boundary.substr(boundary.find("boundary=") + 9);
@@ -417,7 +419,7 @@ bool ResponseBuilder::handle_file_upload(RequestParser &request, const std::stri
 }
 
 // Method to handle binary upload (application/octet-stream)
-bool ResponseBuilder::handle_binary_upload(RequestParser &request, const std::string &path)
+bool ResponseBuilder::handle_binary_upload(const std::string &path)
 {
 	// If no upload_store directiive in config
 	if (path.empty())
@@ -436,7 +438,6 @@ bool ResponseBuilder::handle_binary_upload(RequestParser &request, const std::st
 	std::vector<byte> req_body = request.get_body();
 	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
 	file.close();
-	LOG_INFO("Binary file uploaded successfully: " + path);
 	return true;
 }
 
@@ -497,7 +498,7 @@ bool ResponseBuilder::is_cgi_request(const std::string &file_path)
 }
 
 // Method to add the required headers into response
-void ResponseBuilder::include_required_headers(RequestParser &request)
+void ResponseBuilder::include_required_headers()
 {
 	// Include standard headers
 	headers["Server"] = WEBSERV_NAME;
