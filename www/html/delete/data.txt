@@ -1,3 +1,4 @@
-This file will be deleted 
-to test run the webserver and open a terminal then type
- curl -X DELETE http://localhost:5050/delete/data.txt
+Use 
+curl -X DELETE http://localhost:5050/delete/data.txt 
+
+To delete this file
