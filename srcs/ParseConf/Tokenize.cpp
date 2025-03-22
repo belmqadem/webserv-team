@@ -96,7 +96,7 @@ std::vector<Token> tokenize(std::string &input)
 			token.value = word;
 			tokens.push_back(token);
 		}
-		else if (word == "redirect_permanent")
+		else if (word == "redirect_permanent") // TO REMOVE 
 		{
 			token.type = REDIRECT_PERMANENT;
 			token.value = word;

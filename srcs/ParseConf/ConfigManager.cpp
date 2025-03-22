@@ -1,8 +1,6 @@
 #include "ConfigManager.hpp"
 #include "Tokenize.hpp"
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include "Logger.hpp"
 
 // Initialize static instance to NULL
 ConfigManager *ConfigManager::_instance = NULL;
@@ -31,7 +29,7 @@ bool ConfigManager::loadConfig(const std::string &configFile)
 
 	if (!file.is_open())
 	{
-		std::cerr << RED "Error: Cannot open config file: " << configFile << RESET << std::endl;
+		LOG_ERROR("Error: Cannot open config file: " + configFile);	
 		return false;
 	}
 
@@ -52,7 +50,7 @@ bool ConfigManager::loadConfig(const std::string &configFile)
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << RED "Error parsing config: " << e.what() << RESET << std::endl;
+		LOG_ERROR("Error parsing config -- " + std::string(e.what()));
 		return false;
 	}
 }
