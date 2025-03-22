@@ -47,14 +47,14 @@ private:
 	bool is_valid_header_name(const std::string &name);
 	bool is_valid_header_value(const std::string &value);
 	void log_error(const std::string &error_str, short error_code);
-	void match_location(const std::vector<ServerConfig> &servers);
 
 public:
-	RequestParser(const std::string &request, const std::vector<ServerConfig> &servers);
+	RequestParser();
 	RequestParser(const RequestParser &other);
 	RequestParser &operator=(const RequestParser &other);
 
 	size_t parse_request(const std::string &request);
+	void match_location(const std::vector<ServerConfig> &servers);
 	void print_request();
 
 	// Setters

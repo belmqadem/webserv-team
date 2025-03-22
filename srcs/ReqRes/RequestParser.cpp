@@ -8,7 +8,7 @@
 #define MAX_HEADER_COUNT 100
 
 // Constructor
-RequestParser::RequestParser(const std::string &request, const std::vector<ServerConfig> &servers)
+RequestParser::RequestParser()
 {
 	this->state = REQUEST_LINE;
 	this->error_code = 1;
@@ -19,14 +19,6 @@ RequestParser::RequestParser(const std::string &request, const std::vector<Serve
 	this->location_config = NULL;
 	this->is_headers_completed = false;
 	this->is_body_completed = false;
-	this->bytes_read += parse_request(request);
-	if (this->bytes_read > 0)
-	{
-		set_request_line();
-		match_location(servers); // Match the request to the correct server and location block
-		if (this->body.size() > server_config->clientMaxBodySize)
-			log_error(HTTP_PARSE_PAYLOAD_TOO_LARGE, 413);
-	}
 }
 
 // Copy Constructor
