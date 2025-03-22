@@ -37,7 +37,7 @@ void IOMultiplexer::runEventLoop(void)
 		throw IOMultiplexerExceptions("Server is already started!");
 	if (_listeners.size() == 0)
 	{
-		std::cerr << RED "NO listeners available the program will quit" RESET << std::endl;
+		LOG_ERROR("NO listeners available the program will quit");
 		return;
 	}
 	_is_started = true;

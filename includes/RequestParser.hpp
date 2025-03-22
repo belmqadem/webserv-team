@@ -27,7 +27,6 @@ private:
 	std::vector<byte> body;
 	uint16_t port;
 	size_t bytes_read;
-	size_t body_size;
 	short error_code;
 	bool has_content_length;
 	bool has_transfer_encoding;
@@ -77,7 +76,6 @@ public:
 	std::map<std::string, std::string> &get_headers();
 	std::string &get_header_value(const std::string &key);
 	std::vector<byte> &get_body();
-	size_t &get_body_size();
 	short &get_error_code();
 	uint16_t &get_port_number();
 	ParseState &get_state();

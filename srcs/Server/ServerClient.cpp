@@ -25,7 +25,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 {
 	if (_is_started == true)
 	{
-		std::cerr << RED "WARNING: Attempting to registre an already started fd " << _peer_socket_fd << RESET << std::endl;
+		LOG_ERROR("WARNING: Attempting to registre an already started fd " + to_string(_peer_socket_fd));
 		return;
 	}
 	_epoll_ev.data.fd = _peer_socket_fd;
@@ -40,10 +40,8 @@ void ClientServer::RegisterWithIOMultiplexer()
 	}
 	catch (std::exception &e)
 	{
+		LOG_ERROR("Failed to register client fd " + to_string(_peer_socket_fd) + " with IO multiplexer. Connection terminated. -- " + std::string(e.what()));
 		close(_peer_socket_fd);
-		std::cerr << RED "Failed to register client fd " << _peer_socket_fd
-				  << " with IO multiplexer. Connection terminated.\n"
-				  << "Error: " << e.what() << RESET << std::endl;
 	}
 }
 
@@ -120,7 +118,7 @@ void ClientServer::handleIncomingData()
 		}
 		catch (std::exception &e)
 		{
-			LOG_ERROR("Exception in request processing " + std::string(e.what()));
+			LOG_ERROR("Exception in request processing -- " + std::string(e.what()));
 		}
 	}
 }
@@ -132,11 +130,7 @@ bool ClientServer::shouldKeepAlive() const
 	{
 		return false;
 	}
-
-	if (_parser->is_connection_close())
-		return false;
-
-	return true;
+	return (!_parser->is_connection_close());
 }
 
 void ClientServer::modifyEpollEvent(uint32_t events)
@@ -149,7 +143,7 @@ void ClientServer::modifyEpollEvent(uint32_t events)
 	}
 	catch (std::exception &e)
 	{
-		LOG_ERROR("Failed to modify epoll event: " + std::string(e.what()));
+		LOG_ERROR("Failed to modify epoll event -- " + std::string(e.what()));
 	}
 }
 
@@ -184,14 +178,3 @@ void ClientServer::handleResponse()
 		}
 	}
 }
-
-// void ClientServer::enableWriteEvent()
-// {
-// 	_epoll_ev.events = EPOLLIN | EPOLLOUT;
-
-// 	try {
-//         IOMultiplexer::getInstance().modifyListener(this, _epoll_ev);
-//     } catch (std::exception &e) {
-//         LOG_ERROR("Failed to modify epoll event: " + std::string(e.what()));
-//     }
-// }

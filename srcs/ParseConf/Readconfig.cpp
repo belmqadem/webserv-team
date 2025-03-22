@@ -1,7 +1,4 @@
-#include <fstream>
-#include <string>
-#include <iostream>
-#include <sstream>
+#include "Logger.hpp"
 #include "webserv.hpp"
 
 std::string readConfig(const std::string &filename)
@@ -9,7 +6,7 @@ std::string readConfig(const std::string &filename)
 	std::ifstream conf(filename.c_str());
 	if (!conf)
 	{
-		std::cerr << RED "Error: Could not open the file " << filename << RESET << std::endl;
+		LOG_ERROR("Error: Could not open the file " + filename);
 		return "";
 	}
 

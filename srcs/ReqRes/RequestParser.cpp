@@ -15,18 +15,16 @@ RequestParser::RequestParser(const std::string &request, const std::vector<Serve
 	this->has_content_length = false;
 	this->has_transfer_encoding = false;
 	this->bytes_read = 0;
-	this->body_size = 0;
 	this->server_config = NULL;
 	this->location_config = NULL;
 	this->is_headers_completed = false;
 	this->is_body_completed = false;
 	this->bytes_read += parse_request(request);
-	set_request_line();
 	if (this->bytes_read > 0)
 	{
+		set_request_line();
 		match_location(servers); // Match the request to the correct server and location block
-		body_size = this->body.size();
-		if (body_size > server_config->clientMaxBodySize)
+		if (this->body.size() > server_config->clientMaxBodySize)
 			log_error(HTTP_PARSE_PAYLOAD_TOO_LARGE, 413);
 	}
 }
@@ -641,7 +639,6 @@ std::string &RequestParser::get_http_version() { return http_version; }
 std::map<std::string, std::string> &RequestParser::get_headers() { return headers; }
 std::string &RequestParser::get_header_value(const std::string &key) { return headers[key]; }
 std::vector<byte> &RequestParser::get_body() { return body; }
-size_t &RequestParser::get_body_size() { return body_size; }
 short &RequestParser::get_error_code() { return error_code; }
 uint16_t &RequestParser::get_port_number() { return port; }
 ParseState &RequestParser::get_state() { return state; }
