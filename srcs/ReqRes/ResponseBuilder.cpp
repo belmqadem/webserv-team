@@ -70,8 +70,6 @@ void ResponseBuilder::init_config(RequestParser &request)
 ResponseBuilder::ResponseBuilder(RequestParser &request)
 {
 	this->http_version = "HTTP/1.1";		  // Only version 1.1 is implemented
-	this->status = STATUS_200;				  // Set to success
-	this->status_code = 200;				  // Set to success
 	this->init_config(request);				  // Init the config from request match
 	init_routes();							  // set routes with allowed methods
 	this->response = build_response(request); // Here we build the response
@@ -107,7 +105,7 @@ std::string ResponseBuilder::build_response(RequestParser &request)
 
 	std::string method = request.get_http_method();
 
-	// Return error if the method is not allowed
+	// Return error 405 if the method is not allowed in config file
 	if (routes.find(method) == routes.end())
 	{
 		set_status(405);
@@ -382,15 +380,9 @@ bool ResponseBuilder::handle_redirection(RequestParser &request)
 	{
 		std::string redirect_url = location_config->redirectUrl;
 		if (location_config->isRedirectPermanent)
-		{
-			LOG_DEBUG("redirect permanent");
 			set_status(301);
-		}
 		else
-		{
-			LOG_DEBUG("redirect temporary");
 			set_status(302);
-		}
 		this->headers["Location"] = redirect_url;
 		body = ""; // Empty response body
 		include_required_headers(request);
@@ -531,7 +523,18 @@ void ResponseBuilder::include_required_headers(RequestParser &request)
 
 	// `Allow` header for 405 Method Not Allowed
 	if (this->status_code == 405 && !headers.count("Allow"))
-		headers["Allow"] = "GET, POST, DELETE";
+	{
+		std::string allowed;
+		std::vector<std::string>::const_iterator it = location_config->allowedMethods.begin();
+		for (; it != location_config->allowedMethods.end(); ++it)
+		{
+			if (it != location_config->allowedMethods.end() - 1)
+				allowed += (*it) + ", ";
+			else
+				allowed += (*it);
+		}
+		headers["Allow"] = allowed;
+	}
 }
 
 // Method to get date for setting the Date header in response
