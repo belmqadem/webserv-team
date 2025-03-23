@@ -1,11 +1,13 @@
 #include "webserv.hpp"
 #include "Server.hpp"
 
-extern int webserv_signal;
 
 void sigint_handle(int sig)
 {
-	webserv_signal = sig;
+	(void)sig;
+	LOG_INFO("SIG_INT The Server will shut down!");
+	Server::getInstance(ConfigManager::getInstance().getServers()).terminate();
+	exit(1);
 }
 
 void signalhandler()
