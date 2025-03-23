@@ -79,9 +79,9 @@ private:
 	static ConfigManager *_instance;
 
 	std::vector<ServerConfig> _servers; // List of servers instances
+	bool checkOpen;
 
 	ConfigManager();
-
 	ConfigManager(const ConfigManager &);
 	ConfigManager &operator=(const ConfigManager &);
 
@@ -100,6 +100,7 @@ public:
 	const ServerConfig *getServerByPort(uint16_t port) const;
 	const ServerConfig *getServerByName(const std::string &name) const;
 
-	// Helper methods for parsingz
+	// Helper methods for parsing
 	void setServers(const std::vector<ServerConfig> &servers);
+	bool check_open();
 };

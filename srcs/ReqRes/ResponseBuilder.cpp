@@ -168,7 +168,11 @@ void ResponseBuilder::doGET()
 {
 	LOG_DEBUG("GET METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
-	std::string path = location_config->root + uri;
+	bool is_root = (uri == "/") ? true : false;
+	std::string root = location_config->root;
+	std::string path;
+	is_root &&root.empty() ? path = "errors/root.html" : path = root + uri;
+
 	struct stat file_stat;
 
 	// Check if the file exists
@@ -208,6 +212,12 @@ void ResponseBuilder::doGET()
 		else if (location_config->autoindex) // If auto index is enabled in the config file
 		{
 			body = generate_directory_listing(path);
+			if (body == "")
+			{
+				set_status(403);
+				body = generate_error_page(status_code);
+				return;
+			}
 			set_status(200);
 			set_headers("Content-Type", "text/html");
 			return;
@@ -243,6 +253,7 @@ void ResponseBuilder::doPOST()
 
 	if (req_body.size() > server_config->clientMaxBodySize)
 	{
+		LOG_ERROR(HTTP_PARSE_PAYLOAD_TOO_LARGE);
 		set_status(413);
 		body = generate_error_page(status_code);
 		return;
@@ -479,24 +490,24 @@ std::string ResponseBuilder::detect_mime_type(const std::string &path)
 std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 {
 	std::ostringstream page;
-	page << "<html><head><title>Directory Listing</title></head>";
-	page << "<body><h1>Directory Listing</h1><hr>";
-	page << "<ul>";
+	page << "<html>\n<head><title>Directory Listing</title></head>\n";
+	page << "<body>\n<h1>Directory Listing</h1><hr>\n";
+	page << "<ul>\n";
 	DIR *dir;
 	struct dirent *ent;
 	if ((dir = opendir(path.c_str())) != NULL)
 	{
 		while ((ent = readdir(dir)) != NULL)
 		{
-			page << "<li style=\"letter-spacing: 1.5\"><a href=\"" << ent->d_name << "/\">" << ent->d_name << "</a>&emsp;&emsp;&emsp;" << get_http_date() << "&emsp;&emsp;&emsp;-</li><br>";
+			page << "<li style=\"letter-spacing: 1.5\"><a href=\"" << ent->d_name << "/\">" << ent->d_name << "</a>&emsp;&emsp;&emsp;" << get_http_date() << "&emsp;&emsp;&emsp;-</li><br>\n";
 		}
 		closedir(dir);
 	}
 	else
 	{
-		page << "<p>Error: Could not open directory</p>";
+		return "";
 	}
-	page << "</ul></body></html>";
+	page << "</ul>\n</body></html>";
 	return page.str();
 }
 
@@ -619,9 +630,6 @@ void ResponseBuilder::set_status(short status_code)
 		break;
 	case 204:
 		this->status = STATUS_204;
-		break;
-	case 206:
-		this->status = STATUS_206;
 		break;
 	case 301:
 		this->status = STATUS_301;

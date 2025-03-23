@@ -22,7 +22,6 @@ private:
 	void parseDirecive();
 	void parseListenDirective();
 	void parseServerNameDirective();
-	void parseRootDirective();
 	void parseErrorPageDirective();
 	void parseLocationBlock();
 
