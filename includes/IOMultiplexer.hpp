@@ -34,5 +34,6 @@ public:
 
 public:
 	const int &getEpollFd() const;
+	void setStarted(bool);
 	static IOMultiplexer &getInstance();
 };

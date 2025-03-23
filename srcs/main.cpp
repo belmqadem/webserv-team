@@ -5,9 +5,9 @@
 void sigint_handle(int sig)
 {
 	(void)sig;
-	LOG_INFO("SIG_INT The Server will shut down!");
-	Server::getInstance(ConfigManager::getInstance().getServers()).terminate();
-	exit(1);
+	LOG_INFO("SIG_INT The Server will shut down");
+	IOMultiplexer::getInstance().setStarted(false);
+	return;
 }
 
 void signalhandler()
