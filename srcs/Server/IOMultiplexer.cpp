@@ -13,6 +13,10 @@ IOMultiplexer::IOMultiplexer() : _epoll_fd(epoll_create(__INT32_MAX__)), _is_sta
 	}
 }
 
+void IOMultiplexer::setStarted(bool state) {
+	_is_started = state;
+}
+
 IOMultiplexer::~IOMultiplexer()
 {
 	terminate();
@@ -40,7 +44,7 @@ void IOMultiplexer::runEventLoop(void)
 		return;
 	}
 	_is_started = true;
-	while (true)
+	while (_is_started)
 	{
 		int events_count = epoll_wait(_epoll_fd, _events, EPOLL_MAX_EVENTS, -1);
 		if (events_count == -1)
@@ -116,11 +120,6 @@ void IOMultiplexer::removeListener(epoll_event ev, int fd)
 
 void IOMultiplexer::terminate(void)
 {
-	if (_is_started == false)
-	{
-		return;
-	}
-	_is_started = false;
 	std::map<int, IEvenetListeners *>::reverse_iterator it = _listeners.rbegin();
 	for (; it != _listeners.rend(); it = _listeners.rbegin())
 	{
