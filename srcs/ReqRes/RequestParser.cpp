@@ -214,8 +214,17 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			content_length_value = value;
 		}
 
+		// Special Handling for `Transfer-Encoding`
 		if (key == "transfer-encoding")
-			has_transfer_encoding = true;
+		{
+			if (value == "chunked" || value == "compress" || value == "deflate" || value == "gzip")
+				has_transfer_encoding = true;
+			else
+			{
+				log_error(HTTP_PARSE_INVALID_TRANSFER_ENCODING, 400);
+				return pos;
+			}
+		}
 
 		// Special Handling for `Host`
 		if (key == "host")
@@ -341,6 +350,7 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 			pos += 2;
 			state = DONE;
 			this->is_body_completed = true;
+			this->headers["connection"] = "close";
 			return pos;
 		}
 

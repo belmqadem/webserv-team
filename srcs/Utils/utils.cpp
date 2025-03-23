@@ -25,15 +25,6 @@ std::string trim(const std::string &str, const std::string &delim)
 	return str.substr(start, end - start + 1);
 }
 
-bool writeFile(const std::string &filename, const std::string &content)
-{
-	std::ofstream file(filename.c_str());
-	if (!file)
-		return false;
-	file << content;
-	return true;
-}
-
 bool is_numeric(const std::string &str)
 {
 	for (size_t i = 0; i < str.size(); ++i)
@@ -47,7 +38,7 @@ bool is_numeric(const std::string &str)
 std::string get_timestamp_str()
 {
 	std::time_t now = std::time(NULL);
-	std::tm* tm_info = std::localtime(&now);
+	std::tm *tm_info = std::localtime(&now);
 
 	std::ostringstream oss;
 	oss << std::setfill('0')
@@ -62,6 +53,21 @@ std::string get_timestamp_str()
 	return oss.str();
 }
 
+void sigint_handle(int sig)
+{
+	(void)sig;
+	LOG_INFO("SIG_INT The Server will shut down");
+	IOMultiplexer::getInstance().setStarted(false);
+	return;
+}
+
+void signalhandler()
+{
+	if (signal(SIGQUIT, SIG_IGN) == SIG_ERR)
+		throw std::runtime_error(RED "signal() faild." RESET);
+	if (signal(SIGINT, &sigint_handle) == SIG_ERR)
+		throw std::runtime_error(RED "signal() faild." RESET);
+}
 
 void printServerConfig(const ServerConfig &server)
 {
