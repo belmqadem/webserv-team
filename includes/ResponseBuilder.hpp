@@ -34,6 +34,8 @@ private:
 	void include_required_headers();
 	bool is_cgi_request(const std::string &file_path);
 	std::string get_http_date();
+	std::string read_html_file(const std::string &filename);
+	std::string generate_upload_success_page(const std::string &filename);
 
 	// A map to save the mime types
 	static std::map<std::string, std::string> mime_types;

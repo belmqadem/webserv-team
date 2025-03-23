@@ -81,4 +81,5 @@ Connection: keep-alive
 
 0
 
-std::ios::in | std::ios::binary
+Tests for GET method ==>
+- If no root found in matching location

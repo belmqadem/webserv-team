@@ -36,7 +36,6 @@ int main(int ac, char **av)
 		// 	printServerConfig(*it);
 
 		Server &server = Server::getInstance(virtual_servers);
-		LOG_SERVER("Webserver *Not Nginx* Starting...");
 		server.StartServer();
 		IOMultiplexer::getInstance().runEventLoop();
 	}

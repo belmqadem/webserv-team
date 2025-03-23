@@ -1,6 +1,8 @@
 #include "ResponseBuilder.hpp"
 #include "Logger.hpp"
 
+#define UPLOAD_ENABLED 1
+
 // Static function to initialize the mime types
 std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 {
@@ -52,6 +54,25 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 	mime_types[".exe"] = "application/x-msdownload";
 	mime_types[".bin"] = "application/octet-stream";
 	mime_types[".iso"] = "application/x-iso9660-image";
+	mime_types[".img"] = "application/x-iso9660-image";
+	mime_types[".avi"] = "video/x-msvideo";
+	mime_types[".ppt"] = "application/vnd.ms-powerpoint";
+	mime_types[".pptx"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+	mime_types[".xls"] = "application/vnd.ms-excel";
+	mime_types[".xlsx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+	mime_types[".doc"] = "application/msword";
+	mime_types[".docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+	mime_types[".odt"] = "application/vnd.oasis.opendocument.text";
+	mime_types[".ods"] = "application/vnd.oasis.opendocument.spreadsheet";
+	mime_types[".odp"] = "application/vnd.oasis.opendocument.presentation";
+	mime_types[".ics"] = "text/calendar";
+	mime_types[".vcf"] = "text/x-vcard";
+	mime_types[".torrent"] = "application/x-bittorrent";
+	mime_types[".m3u"] = "audio/x-mpegurl";
+	mime_types[".m3u8"] = "application/vnd.apple.mpegurl";
+	mime_types[".ts"] = "video/mp2t";
+	mime_types[".mkv"] = "video/x-matros";
+	mime_types[".webmanifest"] = "application/manifest+json";
 
 	return mime_types;
 }
@@ -148,13 +169,20 @@ void ResponseBuilder::doGET()
 	LOG_DEBUG("GET METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
+	struct stat file_stat;
 
 	// Check if the file exists
-	struct stat file_stat;
 	if (stat(path.c_str(), &file_stat) == -1)
 	{
 		set_status(404);
 		body = generate_error_page(status_code);
+		return;
+	}
+
+	// If the requested path is a CGI script
+	if (is_cgi_request(path))
+	{
+		// HANDLE CGI IN GET
 		return;
 	}
 
@@ -165,8 +193,9 @@ void ResponseBuilder::doGET()
 		if (uri[uri.size() - 1] != '/')
 		{
 			set_status(301);
-			set_headers("Location", uri + "/");
-			body = generate_error_page(status_code);
+			std::string file_name = "errors/" + to_string(status_code) + ".html";
+			body = read_html_file(file_name);
+			this->headers["Location"] = uri + "/";
 			return;
 		}
 
@@ -191,13 +220,6 @@ void ResponseBuilder::doGET()
 		}
 	}
 
-	// CGI Execution
-	if (is_cgi_request(path))
-	{
-		// HANDLE CGI IN GET
-		return;
-	}
-
 	// Check Read persmission
 	if (!(file_stat.st_mode & S_IRUSR))
 	{
@@ -206,27 +228,7 @@ void ResponseBuilder::doGET()
 		return;
 	}
 
-	// 	Open The file
-	std::ifstream file(path.c_str(), std::ios::in | std::ios::binary);
-	if (!file)
-	{
-		set_status(500);
-		body = generate_error_page(status_code);
-		return;
-	}
-
-	// Determine mime type
-	std::string extension = path.substr(path.find_last_of('.'));
-	std::map<std::string, std::string>::iterator it = mime_types.find(extension);
-	if (it != mime_types.end())
-		set_headers("Content-Type", it->second);
-	else
-		set_headers("Content-Type", "application/octet-stream");
-
-	// Read File
-	std::ostringstream file_stream;
-	file_stream << file.rdbuf();
-	body = file_stream.str();
+	body = read_html_file(path);
 	set_status(200);
 }
 
@@ -236,17 +238,17 @@ void ResponseBuilder::doPOST()
 	LOG_DEBUG("POST METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
-	std::vector<byte> req_body = request.get_body();
-	std::string upload_path = location_config->uploadStore + "/uploaded";
 	std::string content_type = request.get_header_value("content-type");
+	std::vector<byte> req_body = request.get_body();
 
-	if (is_cgi_request(path))
+	if (req_body.size() > server_config->clientMaxBodySize)
 	{
-		// HANDLE CGI IN POST
+		set_status(413);
+		body = generate_error_page(status_code);
 		return;
 	}
 
-	// Handle file upload if content type is multipart/form-data
+	// Reject file upload if content type is multipart/form-data
 	if (content_type.find("multipart/form-data") != std::string::npos)
 	{
 		set_status(415);
@@ -254,22 +256,33 @@ void ResponseBuilder::doPOST()
 		return;
 	}
 
-	// Handle file upload if content type is application/octet-stream (binary)
-	if (content_type == "application/octet-stream")
+	if (is_cgi_request(path))
 	{
-		if (!handle_binary_upload(upload_path))
-		{
-			set_status(500);
-			body = generate_error_page(status_code);
-			return;
-		}
-		set_status(201);
-		body = "Binary file uploaded successfully";
+		// HANDLE CGI IN POST
 		return;
 	}
 
-	// Handle normal POST request -- Regular data (Text-Based)
-	std::ofstream file(upload_path.c_str(), std::ios::binary);
+	std::string upload_path = location_config->uploadStore;
+	if (upload_path.empty()) // in config file make sure upload store in there
+	{
+		upload_path = location_config->root + "/upload";
+	}
+
+	// Just to make sure if someone tries to upload a file to a non-existing directory
+	struct stat dir_stat;
+	if (stat(upload_path.c_str(), &dir_stat) == -1 || !S_ISDIR(dir_stat.st_mode))
+	{
+		LOG_ERROR("Upload path not found: " + upload_path);
+		set_status(500);
+		body = generate_error_page(status_code);
+		return;
+	}
+
+	std::string filename = "uploaded" + get_timestamp_str() + ".bin";
+	std::string full_path = upload_path + "/" + filename;
+
+	// Write the data to the file
+	std::ofstream file(full_path.c_str(), std::ios::binary);
 	if (!file)
 	{
 		set_status(403);
@@ -278,8 +291,9 @@ void ResponseBuilder::doPOST()
 	}
 	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
 	file.close();
+
 	set_status(201);
-	set_body("Data written successfully");
+	set_body(generate_upload_success_page(filename));
 }
 
 // DELETE method implementation
@@ -298,7 +312,7 @@ void ResponseBuilder::doDELETE()
 		return;
 	}
 
-	// Check if it's a file or directory
+	// Check if The file is a directory
 	if (S_ISDIR(path_stat.st_mode))
 	{
 		// Ensure URI ends with '/'
@@ -365,7 +379,6 @@ void ResponseBuilder::doDELETE()
 	{
 		set_status(204);
 		body = "";
-		return;
 	}
 	else
 	{
@@ -385,8 +398,7 @@ bool ResponseBuilder::handle_redirection()
 		else
 			set_status(302);
 		std::string file_name = "errors/" + to_string(status_code) + ".html";
-		body = readFile(file_name);
-		this->headers["Content-Type"] = "text/html";
+		body = read_html_file(file_name);
 		this->headers["Location"] = redirect_url;
 		include_required_headers();
 		return true;
@@ -446,10 +458,7 @@ bool ResponseBuilder::handle_binary_upload(const std::string &path)
 std::string ResponseBuilder::generate_error_page(short status_code)
 {
 	std::string error_page_name = server_config->errorPages.at(status_code);
-	std::string error_page_file = readFile(error_page_name);
-	if (error_page_file == "")
-		LOG_ERROR("Error: Could not open the file " + error_page_name);
-	this->headers["Content-Type"] = "text/html";
+	std::string error_page_file = read_html_file(error_page_name);
 	return error_page_file;
 }
 
@@ -547,6 +556,50 @@ std::string ResponseBuilder::get_http_date()
 	std::tm *gmt = std::gmtime(&now);
 	std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", gmt);
 	return std::string(buffer);
+}
+
+// Method to read the html file
+std::string ResponseBuilder::read_html_file(const std::string &filename)
+{
+	std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
+	if (!file)
+	{
+		set_status(500);
+		body = generate_error_page(status_code);
+		return "";
+	}
+
+	// Determine mime type
+	std::string extension = filename.substr(filename.find_last_of('.'));
+	std::map<std::string, std::string>::iterator it = mime_types.find(extension);
+	if (it != mime_types.end())
+		set_headers("Content-Type", it->second);
+	else
+		set_headers("Content-Type", "application/octet-stream");
+
+	std::ostringstream content;
+	content << file.rdbuf();
+	return content.str();
+}
+
+// Method to generate upload success page
+std::string ResponseBuilder::generate_upload_success_page(const std::string &filename)
+{
+	std::ostringstream html;
+	html << "<!DOCTYPE html>\n"
+		 << "<html>\n"
+		 << "<head><title>Upload Successful</title></head>\n"
+		 << "<body>\n"
+		 << "<h1>File Upload Successful</h1>\n"
+		 << "<p>Your file has been uploaded successfully.</p>\n"
+		 << "<p><strong>Saved as:</strong> " << filename << "</p>\n"
+		 << "<p><a href=\"/uploads/" << filename << "\">View Uploaded File</a></p>\n"
+		 << "<a href=\"/\">Return to Home</a>\n"
+		 << "</body>\n"
+		 << "</html>";
+
+	set_headers("Content-Type", "text/html");
+	return html.str();
 }
 
 /****************************
