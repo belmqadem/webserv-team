@@ -14,14 +14,16 @@
 #define BOLD_MAGENTA "\033[1;35m"
 #define BOLD_YELLOW "\033[1;33m"
 #define BOLD_CYAN "\033[1;36m"
+#define BOLD_WHITE "\033[1;37m"
+#define UNDERLINE "\033[4m"
 
 // STATUS CODES
 #define STATUS_200 "200 OK"
 #define STATUS_201 "201 Created"
 #define STATUS_204 "204 No Content"
 #define STATUS_206 "206 Partial Content"
-#define STATUS_301 "301 Moved Permanently" // Permanent redirect
-#define STATUS_302 "302 Found" // Temporary redirect
+#define STATUS_301 "301 Moved Permanently"
+#define STATUS_302 "302 Found"
 #define STATUS_303 "303 See Other"
 #define STATUS_304 "304 Not Modified"
 #define STATUS_400 "400 Bad Request"
@@ -111,9 +113,9 @@ struct ServerConfig;
 // Utils Functions
 std::vector<std::string> split(const char *start, const char *end, char delimiter);
 std::string trim(const std::string &str, const std::string &delim);
-std::string readFile(const std::string &filename);
 bool writeFile(const std::string &filename, const std::string &content);
 bool is_numeric(const std::string &str);
+std::string get_timestamp_str();
 void printServerConfig(const ServerConfig &server);
 
 #define WEBSERV_NAME "Not Nginx/4.2"

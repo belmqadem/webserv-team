@@ -25,16 +25,6 @@ std::string trim(const std::string &str, const std::string &delim)
 	return str.substr(start, end - start + 1);
 }
 
-std::string readFile(const std::string &filename)
-{
-	std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
-	if (!file)
-		return "";
-	std::ostringstream content;
-	content << file.rdbuf();
-	return content.str();
-}
-
 bool writeFile(const std::string &filename, const std::string &content)
 {
 	std::ofstream file(filename.c_str());
@@ -53,6 +43,25 @@ bool is_numeric(const std::string &str)
 	}
 	return true;
 }
+
+std::string get_timestamp_str()
+{
+	std::time_t now = std::time(NULL);
+	std::tm* tm_info = std::localtime(&now);
+
+	std::ostringstream oss;
+	oss << std::setfill('0')
+		<< (tm_info->tm_year + 1900)
+		<< std::setw(2) << (tm_info->tm_mon + 1)
+		<< std::setw(2) << tm_info->tm_mday
+		<< "_"
+		<< std::setw(2) << tm_info->tm_hour
+		<< std::setw(2) << tm_info->tm_min
+		<< std::setw(2) << tm_info->tm_sec;
+
+	return oss.str();
+}
+
 
 void printServerConfig(const ServerConfig &server)
 {
