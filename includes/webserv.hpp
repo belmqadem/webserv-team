@@ -115,6 +115,7 @@ std::vector<std::string> split(const char *start, const char *end, char delimite
 std::string trim(const std::string &str, const std::string &delim);
 bool writeFile(const std::string &filename, const std::string &content);
 bool is_numeric(const std::string &str);
+std::string get_timestamp_str();
 void printServerConfig(const ServerConfig &server);
 
 #define WEBSERV_NAME "Not Nginx/4.2"
