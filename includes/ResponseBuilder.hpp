@@ -21,12 +21,10 @@ private:
 	void doPOST();
 	void doDELETE();
 
-	// Helper Methodsz
+	// Helper Methods
 	void init_config();
 	void init_routes();
 	bool handle_redirection();
-	bool handle_binary_upload(const std::string &path);
-	bool handle_file_upload(const std::string &path);
 	std::string generate_error_page(short status_code);
 	std::string generate_directory_listing(const std::string &path);
 	std::string generate_response_string();
@@ -37,8 +35,11 @@ private:
 	std::string read_html_file(const std::string &filename);
 	std::string generate_upload_success_page(const std::string &filename);
 
-	// A map to save the mime types
+	// Map to save the mime types
 	static std::map<std::string, std::string> mime_types;
+
+	// Method to initialize the mime types
+	static std::map<std::string, std::string> init_mime_types();
 
 	ResponseBuilder(const ResponseBuilder &);
 	ResponseBuilder &operator=(const ResponseBuilder &);
@@ -61,9 +62,6 @@ public:
 	std::string get_body();
 	short get_status_code();
 
-	// Method to initialize the mime types
-	static std::map<std::string, std::string> init_mime_types();
-
-	// Core Function that builds the response
+	// Main Function that builds the response
 	std::string build_response();
 };

@@ -1,12 +1,6 @@
 #include "RequestParser.hpp"
 #include "Logger.hpp"
 
-// LIMITS FOR SOME REQUEST ELEMENTS
-#define MAX_REQUEST_LINE_LENGTH 8192
-#define MAX_URI_LENGTH 2048
-#define MAX_HEADER_LENGTH 8192
-#define MAX_HEADER_COUNT 100
-
 // Constructor
 RequestParser::RequestParser()
 {
@@ -16,8 +10,6 @@ RequestParser::RequestParser()
 	this->has_transfer_encoding = false;
 	this->server_config = NULL;
 	this->location_config = NULL;
-	this->is_headers_completed = false;
-	this->is_body_completed = false;
 }
 
 // Copy Constructor
@@ -34,11 +26,7 @@ RequestParser::RequestParser(const RequestParser &other) : state(other.state),
 														   has_content_length(other.has_content_length),
 														   has_transfer_encoding(other.has_transfer_encoding),
 														   server_config(other.server_config),
-														   location_config(other.location_config)
-{
-	// Note: No need to deep-copy server_config and location_config
-	// as they are pointers to configurations owned by ConfigManager
-}
+														   location_config(other.location_config) {}
 
 // Copy Assignement
 RequestParser &RequestParser::operator=(const RequestParser &other)
@@ -123,11 +111,12 @@ const char *RequestParser::parse_request_line(const char *pos, const char *end)
 	if (!set_http_method(parts[0]) || !set_request_uri(parts[1]) || !set_http_version(parts[2]))
 		return pos;
 
+	set_request_line();
 	state = HEADERS;
 	return line_end;
 }
 
-// Method to extract headers from the request
+// Method to extract headers
 const char *RequestParser::parse_headers(const char *pos, const char *end)
 {
 	bool has_host = false;
@@ -157,12 +146,9 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 					return pos;
 				}
 				state = DONE; // Ignore the Body by marking the request as DONE
-				this->is_headers_completed = true;
-				this->is_body_completed = true;
 				return header_end;
 			}
 			state = BODY;
-			this->is_headers_completed = true;
 			return header_end;
 		}
 
@@ -268,7 +254,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 	return pos;
 }
 
-// Method to extract body of the request
+// Method to extract body
 const char *RequestParser::parse_body(const char *pos, const char *end)
 {
 	// Case 1: Transfer-Encoding: chunked
@@ -304,7 +290,6 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 		// If body is fully received -> Parse is done
 		if (body.size() == content_length)
 		{
-			this->is_body_completed = true;
 			state = DONE;
 		}
 
@@ -349,7 +334,6 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 
 			pos += 2;
 			state = DONE;
-			this->is_body_completed = true;
 			this->headers["connection"] = "close";
 			return pos;
 		}
@@ -550,9 +534,6 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 	}
 }
 
-bool RequestParser::headers_completed() { return is_headers_completed; }
-bool RequestParser::body_completed() { return is_body_completed; }
-
 /****************************
 		START SETTERS
 ****************************/
@@ -647,10 +628,10 @@ bool RequestParser::set_http_version(const std::string &http_version)
 		log_error(HTTP_PARSE_INVALID_VERSION, 400);
 	return false;
 }
-void RequestParser::set_query_string(const std::string &query_string) { this->query_string = query_string; }
-void RequestParser::set_body(std::vector<byte> &body) { this->body = body; }
-void RequestParser::set_headers(const std::string &key, const std::string &value) { headers[key] = value; }
-void RequestParser::set_error_code(short error_code) { this->error_code = error_code; }
+void RequestParser::set_query_string(const std::string &query_string)
+{
+	this->query_string = query_string;
+}
 /****************************
 		END SETTERS
 ****************************/
@@ -663,7 +644,6 @@ std::string &RequestParser::get_http_method() { return http_method; }
 std::string &RequestParser::get_request_uri() { return request_uri; }
 std::string &RequestParser::get_query_string() { return query_string; }
 std::string &RequestParser::get_http_version() { return http_version; }
-std::map<std::string, std::string> &RequestParser::get_headers() { return headers; }
 std::string &RequestParser::get_header_value(const std::string &key) { return headers[key]; }
 std::vector<byte> &RequestParser::get_body() { return body; }
 short &RequestParser::get_error_code() { return error_code; }

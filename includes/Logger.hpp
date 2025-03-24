@@ -38,7 +38,6 @@ public:
 	~Logger();
 
 	static Logger &getInstance();
-	static void cleanup();
 
 	void setLevel(LogLevel level);
 	void setOutput(bool toConsole, bool toFile);

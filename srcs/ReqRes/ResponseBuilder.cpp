@@ -1,8 +1,6 @@
 #include "ResponseBuilder.hpp"
 #include "Logger.hpp"
 
-#define UPLOAD_ENABLED 1
-
 // Static function to initialize the mime types
 std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 {
@@ -128,7 +126,7 @@ std::string ResponseBuilder::build_response()
 
 	std::string method = request.get_http_method();
 
-	// Return error 405 if the method is not allowed in config file
+	// Check if the method is not allowed in config file
 	if (routes.find(method) == routes.end())
 	{
 		set_status(405);
@@ -171,7 +169,9 @@ void ResponseBuilder::doGET()
 	bool is_root = (uri == "/") ? true : false;
 	std::string root = location_config->root;
 	std::string path;
-	is_root &&root.empty() ? path = "errors/root.html" : path = root + uri;
+
+	// Check if (uri is /) and (no root directive) in config
+	(is_root && root.empty()) ? path = "errors/root.html" : path = root + uri;
 
 	struct stat file_stat;
 
@@ -274,10 +274,6 @@ void ResponseBuilder::doPOST()
 	}
 
 	std::string upload_path = location_config->uploadStore;
-	if (upload_path.empty()) // in config file make sure upload store in there
-	{
-		upload_path = location_config->root + "/upload";
-	}
 
 	// Just to make sure if someone tries to upload a file to a non-existing directory
 	struct stat dir_stat;
@@ -417,54 +413,6 @@ bool ResponseBuilder::handle_redirection()
 	return false;
 }
 
-// Method to handle file upload (multipart/form-data)
-bool ResponseBuilder::handle_file_upload(const std::string &path)
-{
-	std::string boundary = request.get_header_value("content-type");
-	boundary = boundary.substr(boundary.find("boundary=") + 9);
-	std::string end_boundary = "--" + boundary + "--";
-	std::string content = std::string(request.get_body().begin(), request.get_body().end());
-	size_t start = content.find(boundary);
-	size_t end = content.find(end_boundary);
-	if (start == std::string::npos || end == std::string::npos)
-		return false;
-
-	std::string file_content = content.substr(start, end - start);
-	std::string file_name = path + "uploaded_file";
-
-	/*Later the file name should be generated randomly*/
-
-	std::ofstream file(file_name.c_str(), std::ios::binary);
-	if (!file)
-		return false;
-	file.write(file_content.c_str(), file_content.size());
-	file.close();
-	return true;
-}
-
-// Method to handle binary upload (application/octet-stream)
-bool ResponseBuilder::handle_binary_upload(const std::string &path)
-{
-	// If no upload_store directiive in config
-	if (path.empty())
-	{
-		LOG_ERROR("No upload_store directive in config file");
-		return false;
-	}
-	std::ofstream file(path.c_str(), std::ios::binary);
-	std::cout << path << std::endl;
-	if (!file)
-	{
-		LOG_ERROR("Cannot open file for binary writing: " + path);
-		return false;
-	}
-
-	std::vector<byte> req_body = request.get_body();
-	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
-	file.close();
-	return true;
-}
-
 // Method to generate error pages
 std::string ResponseBuilder::generate_error_page(short status_code)
 {
@@ -575,6 +523,7 @@ std::string ResponseBuilder::read_html_file(const std::string &filename)
 	std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
 	if (!file)
 	{
+		LOG_ERROR("Error: Cannot open file: " + filename);
 		set_status(500);
 		body = generate_error_page(status_code);
 		return "";
@@ -604,7 +553,6 @@ std::string ResponseBuilder::generate_upload_success_page(const std::string &fil
 		 << "<h1>File Upload Successful</h1>\n"
 		 << "<p>Your file has been uploaded successfully.</p>\n"
 		 << "<p><strong>Saved as:</strong> " << filename << "</p>\n"
-		 << "<p><a href=\"/uploads/" << filename << "\">View Uploaded File</a></p>\n"
 		 << "<a href=\"/\">Return to Home</a>\n"
 		 << "</body>\n"
 		 << "</html>";
