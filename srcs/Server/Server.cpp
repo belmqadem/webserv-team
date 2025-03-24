@@ -28,7 +28,7 @@ sockaddr_in Server::getListenAddress(ServerConfig conf)
 	{
 		addr.sin_addr.s_addr = INADDR_ANY;
 		return addr;
-	} 
+	}
 	if (conf.host == "127.0.0.1")
 	{
 		addr.sin_addr.s_addr = INADDR_LOOPBACK;
@@ -62,7 +62,7 @@ void Server::listenOnAddr(sockaddr_in addr)
 
 		std::string ip_address = inet_ntoa(addr.sin_addr);
 		int port = ntohs(addr.sin_port);
-		LOG_INFO("Server listening on " + ip_address + ":" + to_string(port));
+		LOG_SERVER("Listening on " + ip_address + ":" + to_string(port));
 	}
 	catch (std::exception &e)
 	{
@@ -74,6 +74,7 @@ void Server::listenOnAddr(sockaddr_in addr)
 
 void Server::StartServer(void)
 {
+	LOG_SERVER("Our Webserver *Not Nginx* Is Starting...");
 	_is_started = true;
 
 	std::vector<ServerConfig>::iterator it = _config.begin();
@@ -112,7 +113,7 @@ void Server::terminate()
 		}
 		_clients.clear();
 	}
-	LOG_INFO("Our Webserver *Not Nginx* is Shuted down !");
+	LOG_SERVER("Our Webserver *Not Nginx* is Shuted down !");
 }
 
 void Server::onEvent(int fd, epoll_event ev)

@@ -36,7 +36,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 		_is_started = true;
 
 		std::string addr = inet_ntoa(_client_addr.sin_addr);
-		LOG_INFO("Client Connected: " + addr + ":" + to_string(ntohs(_client_addr.sin_port)) + " Fd " + to_string(_peer_socket_fd));
+		LOG_CLIENT("Connected on " + addr + ":" + to_string(ntohs(_client_addr.sin_port)) + " Fd " + to_string(_peer_socket_fd));
 	}
 	catch (std::exception &e)
 	{
@@ -67,7 +67,7 @@ void ClientServer::terminate()
 	_is_started = false;
 
 	std::string addr = inet_ntoa(_client_addr.sin_addr);
-	LOG_INFO("Client " + addr + " Fd " + to_string(_peer_socket_fd) + " Disconnected!");
+	LOG_CLIENT(addr + " Fd " + to_string(_peer_socket_fd) + " Disconnected!");
 	close(_peer_socket_fd);
 }
 
@@ -82,43 +82,6 @@ void ClientServer::onEvent(int fd, epoll_event ev)
 	if (ev.events & EPOLLOUT)
 	{
 		handleResponse();
-	}
-}
-
-void ClientServer::handleResponse()
-{
-	if (!_response_ready || _response_buffer.empty())
-	{
-		return;
-	}
-	if (hasTimeOut()) {
-		LOG_INFO("Client: " + to_string(this->_peer_socket_fd) + "Reached Timeout after " + to_string(TIME_OUT_SECONDS) + " Seconds of inactivity");
-		terminate();
-		return ;
-	}
-	ssize_t bytes_sent = send(_peer_socket_fd, _response_buffer.c_str(),
-	_response_buffer.size(), MSG_DONTWAIT);
-	if (bytes_sent <= 0)
-	{
-		LOG_ERROR("Error sending response to client");
-		this->terminate();
-		return;
-	}
-	updateActivity();
-
-	if (static_cast<size_t>(bytes_sent) < _response_buffer.size())
-	{
-		_response_buffer = _response_buffer.substr(bytes_sent);
-	}
-	else
-	{
-		_response_buffer.clear();
-		_response_ready = false;
-
-		if (!shouldKeepAlive())
-		{
-			this->terminate();
-		}
 	}
 }
 
@@ -139,15 +102,16 @@ void ClientServer::handleIncomingData()
 	{
 		try
 		{
-			RequestParser parser(_request_buffer, ConfigManager::getInstance().getServers());
+			RequestParser parser;
+			size_t bytes_read = 0;
+			bytes_read += parser.parse_request(_request_buffer);
+			parser.match_location(ConfigManager::getInstance().getServers());
 			if (_parser)
 				delete _parser;
 			_parser = new RequestParser(parser);
-			if (parser.get_error_code() != 1)
-			{
-				LOG_ERROR("Error parsing request: " + to_string(parser.get_error_code()));
-			}
-			parser.print_request();
+			if (_parser->get_error_code() == 1)
+				LOG_REQUEST(_parser->get_request_line());
+			// parser.print_request();
 			ResponseBuilder response(parser);
 			_response_buffer = response.get_response();
 			_response_ready = true;
@@ -156,6 +120,44 @@ void ClientServer::handleIncomingData()
 		catch (std::exception &e)
 		{
 			LOG_ERROR("Exception in request processing -- " + std::string(e.what()));
+		}
+	}
+}
+
+void ClientServer::handleResponse()
+{
+	if (!_response_ready || _response_buffer.empty())
+	{
+		return;
+	}
+	if (hasTimeOut())
+	{
+		LOG_INFO("Client: " + to_string(this->_peer_socket_fd) + "Reached Timeout after " + to_string(TIME_OUT_SECONDS) + " Seconds of inactivity");
+		terminate();
+		return;
+	}
+	ssize_t bytes_sent = send(_peer_socket_fd, _response_buffer.c_str(),
+							  _response_buffer.size(), MSG_DONTWAIT);
+	if (bytes_sent <= 0)
+	{
+		LOG_ERROR("Error sending response to client");
+		this->terminate();
+		return;
+	}
+	updateActivity();
+
+	if (static_cast<size_t>(bytes_sent) < _response_buffer.size())
+	{
+		_response_buffer = _response_buffer.substr(bytes_sent);
+	}
+	else
+	{
+		_response_buffer.clear();
+		_response_ready = false;
+
+		if (!shouldKeepAlive())
+		{
+			this->terminate();
 		}
 	}
 }
@@ -184,24 +186,12 @@ void ClientServer::modifyEpollEvent(uint32_t events)
 	}
 }
 
-
-void ClientServer::updateActivity() {
+void ClientServer::updateActivity()
+{
 	_last_activity = time(NULL);
 }
 
-bool ClientServer::hasTimeOut() const {
-	std::cout << time(NULL) - _last_activity << std::endl;
+bool ClientServer::hasTimeOut() const
+{
 	return ((time(NULL) - _last_activity) > TIME_OUT_SECONDS);
 }
-
-
-// void ClientServer::enableWriteEvent()
-// {
-// 	_epoll_ev.events = EPOLLIN | EPOLLOUT;
-
-// 	try {
-//         IOMultiplexer::getInstance().modifyListener(this, _epoll_ev);
-//     } catch (std::exception &e) {
-//         LOG_ERROR("Failed to modify epoll event: " + std::string(e.what()));
-//     }
-// }

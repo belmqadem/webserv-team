@@ -1,32 +1,15 @@
 #include "RequestParser.hpp"
 #include "Logger.hpp"
 
-// LIMITS FOR SOME REQUEST ELEMENTS
-#define MAX_REQUEST_LINE_LENGTH 8192
-#define MAX_URI_LENGTH 2048
-#define MAX_HEADER_LENGTH 8192
-#define MAX_HEADER_COUNT 100
-
 // Constructor
-RequestParser::RequestParser(const std::string &request, const std::vector<ServerConfig> &servers)
+RequestParser::RequestParser()
 {
 	this->state = REQUEST_LINE;
 	this->error_code = 1;
 	this->has_content_length = false;
 	this->has_transfer_encoding = false;
-	this->bytes_read = 0;
 	this->server_config = NULL;
 	this->location_config = NULL;
-	this->is_headers_completed = false;
-	this->is_body_completed = false;
-	this->bytes_read += parse_request(request);
-	if (this->bytes_read > 0)
-	{
-		set_request_line();
-		match_location(servers); // Match the request to the correct server and location block
-		if (this->body.size() > server_config->clientMaxBodySize)
-			log_error(HTTP_PARSE_PAYLOAD_TOO_LARGE, 413);
-	}
 }
 
 // Copy Constructor
@@ -38,15 +21,34 @@ RequestParser::RequestParser(const RequestParser &other) : state(other.state),
 														   http_version(other.http_version),
 														   headers(other.headers),
 														   body(other.body),
-														   bytes_read(other.bytes_read),
+														   port(other.port),
 														   error_code(other.error_code),
 														   has_content_length(other.has_content_length),
 														   has_transfer_encoding(other.has_transfer_encoding),
 														   server_config(other.server_config),
-														   location_config(other.location_config)
+														   location_config(other.location_config) {}
+
+// Copy Assignement
+RequestParser &RequestParser::operator=(const RequestParser &other)
 {
-	// Note: No need to deep-copy server_config and location_config
-	// as they are pointers to configurations owned by ConfigManager
+	if (this != &other)
+	{
+		this->state = other.state;
+		this->request_line = other.request_line;
+		this->http_method = other.http_method;
+		this->request_uri = other.request_uri;
+		this->query_string = other.query_string;
+		this->http_version = other.http_version;
+		this->headers = other.headers;
+		this->body = other.body;
+		this->port = other.port;
+		this->error_code = other.error_code;
+		this->has_content_length = other.has_content_length;
+		this->has_transfer_encoding = other.has_transfer_encoding;
+		this->server_config = other.server_config;
+		this->location_config = other.location_config;
+	}
+	return *this;
 }
 
 // Main Function that parses the request
@@ -109,11 +111,12 @@ const char *RequestParser::parse_request_line(const char *pos, const char *end)
 	if (!set_http_method(parts[0]) || !set_request_uri(parts[1]) || !set_http_version(parts[2]))
 		return pos;
 
+	set_request_line();
 	state = HEADERS;
 	return line_end;
 }
 
-// Method to extract headers from the request
+// Method to extract headers
 const char *RequestParser::parse_headers(const char *pos, const char *end)
 {
 	bool has_host = false;
@@ -143,12 +146,9 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 					return pos;
 				}
 				state = DONE; // Ignore the Body by marking the request as DONE
-				this->is_headers_completed = true;
-				this->is_body_completed = true;
 				return header_end;
 			}
 			state = BODY;
-			this->is_headers_completed = true;
 			return header_end;
 		}
 
@@ -200,8 +200,17 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			content_length_value = value;
 		}
 
+		// Special Handling for `Transfer-Encoding`
 		if (key == "transfer-encoding")
-			has_transfer_encoding = true;
+		{
+			if (value == "chunked" || value == "compress" || value == "deflate" || value == "gzip")
+				has_transfer_encoding = true;
+			else
+			{
+				log_error(HTTP_PARSE_INVALID_TRANSFER_ENCODING, 400);
+				return pos;
+			}
+		}
 
 		// Special Handling for `Host`
 		if (key == "host")
@@ -245,7 +254,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 	return pos;
 }
 
-// Method to extract body of the request
+// Method to extract body
 const char *RequestParser::parse_body(const char *pos, const char *end)
 {
 	// Case 1: Transfer-Encoding: chunked
@@ -281,7 +290,6 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 		// If body is fully received -> Parse is done
 		if (body.size() == content_length)
 		{
-			this->is_body_completed = true;
 			state = DONE;
 		}
 
@@ -326,7 +334,7 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 
 			pos += 2;
 			state = DONE;
-			this->is_body_completed = true;
+			this->headers["connection"] = "close";
 			return pos;
 		}
 
@@ -500,7 +508,9 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 
 	// If no exact match -> point to the first configured server
 	if (!server_config && !servers.empty())
+	{
 		this->server_config = &servers[0];
+	}
 
 	// Find the best matching Location
 	size_t best_match_length = 0;
@@ -518,13 +528,11 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 	// this check will be in config parse (Remove later)
 	if (!location_config)
 	{
-		log_error(HTTP_PARSE_INVALID_LOCATION, 404);
+		if (error_code == 1)
+			log_error(HTTP_PARSE_INVALID_LOCATION, 404);
 		return;
 	}
 }
-
-bool RequestParser::headers_completed() { return is_headers_completed; }
-bool RequestParser::body_completed() { return is_body_completed; }
 
 /****************************
 		START SETTERS
@@ -620,10 +628,10 @@ bool RequestParser::set_http_version(const std::string &http_version)
 		log_error(HTTP_PARSE_INVALID_VERSION, 400);
 	return false;
 }
-void RequestParser::set_query_string(const std::string &query_string) { this->query_string = query_string; }
-void RequestParser::set_body(std::vector<byte> &body) { this->body = body; }
-void RequestParser::set_headers(const std::string &key, const std::string &value) { headers[key] = value; }
-void RequestParser::set_error_code(short error_code) { this->error_code = error_code; }
+void RequestParser::set_query_string(const std::string &query_string)
+{
+	this->query_string = query_string;
+}
 /****************************
 		END SETTERS
 ****************************/
@@ -653,7 +661,6 @@ void RequestParser::print_request()
 {
 	if (error_code == 1)
 	{
-		LOG_REQUEST(request_line);
 		std::cout << BLUE "Method: " RESET << http_method << std::endl;
 		std::cout << BLUE "PATH: " RESET << request_uri << std::endl;
 		if (!query_string.empty())

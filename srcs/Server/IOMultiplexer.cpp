@@ -4,7 +4,6 @@
 #include "Logger.hpp"
 #include "Server.hpp"
 
-int webserv_signal = 0;
 
 IOMultiplexer::IOMultiplexer() : _epoll_fd(epoll_create(__INT32_MAX__)), _is_started(false)
 {
@@ -12,6 +11,10 @@ IOMultiplexer::IOMultiplexer() : _epoll_fd(epoll_create(__INT32_MAX__)), _is_sta
 	{
 		throw IOMultiplexerExceptions("epoll_create failed!");
 	}
+}
+
+void IOMultiplexer::setStarted(bool state) {
+	_is_started = state;
 }
 
 IOMultiplexer::~IOMultiplexer()
@@ -41,17 +44,14 @@ void IOMultiplexer::runEventLoop(void)
 		return;
 	}
 	_is_started = true;
-	while (true)
+	while (_is_started)
 	{
 		int events_count = epoll_wait(_epoll_fd, _events, EPOLL_MAX_EVENTS, -1);
 		if (events_count == -1)
 		{
-			if (webserv_signal == SIGINT) {
-				LOG_INFO("Signal catched");
-				break;
-			}
 			terminate();
-			throw IOMultiplexerExceptions("epoll_wait() failed.");
+			if (_is_started)
+				throw IOMultiplexerExceptions("epoll_wait() failed.");
 		}
 		for (int i = 0; i < events_count; i++)
 		{
@@ -121,11 +121,6 @@ void IOMultiplexer::removeListener(epoll_event ev, int fd)
 
 void IOMultiplexer::terminate(void)
 {
-	if (_is_started == false)
-	{
-		return;
-	}
-	_is_started = false;
 	std::map<int, IEvenetListeners *>::reverse_iterator it = _listeners.rbegin();
 	for (; it != _listeners.rend(); it = _listeners.rbegin())
 	{

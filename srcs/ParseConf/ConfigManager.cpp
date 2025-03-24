@@ -24,12 +24,13 @@ void ConfigManager::destroyInstance()
 
 bool ConfigManager::loadConfig(const std::string &configFile)
 {
+	checkOpen = true;
 	std::string config;
 	std::ifstream file(configFile.c_str());
-
 	if (!file.is_open())
 	{
-		LOG_ERROR("Error: Cannot open config file: " + configFile);	
+		LOG_ERROR("Error: Cannot open config file: " + configFile);
+		checkOpen = false;
 		return false;
 	}
 
@@ -91,3 +92,5 @@ void ConfigManager::setServers(const std::vector<ServerConfig> &servers)
 {
 	_servers = servers;
 }
+
+bool ConfigManager::check_open() { return checkOpen; }
