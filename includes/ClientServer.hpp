@@ -20,7 +20,7 @@ private:
 	std::string _request_buffer;
 	std::string _response_buffer;
 	bool _response_ready;
-	time_t	_last_activity;
+	time_t _last_activity;
 
 private:
 	void handleIncomingData();
@@ -28,7 +28,7 @@ private:
 	void modifyEpollEvent(uint32_t events);
 
 	void updateActivity();
-	bool hasTimeOut() const ;
+	bool hasTimeOut() const;
 
 public:
 	bool isStarted() const;

@@ -14,14 +14,15 @@
 #define BOLD_MAGENTA "\033[1;35m"
 #define BOLD_YELLOW "\033[1;33m"
 #define BOLD_CYAN "\033[1;36m"
+#define BOLD_WHITE "\033[1;37m"
+#define UNDERLINE "\033[4m"
 
 // STATUS CODES
 #define STATUS_200 "200 OK"
 #define STATUS_201 "201 Created"
 #define STATUS_204 "204 No Content"
-#define STATUS_206 "206 Partial Content"
-#define STATUS_301 "301 Moved Permanently" // Permanent redirect
-#define STATUS_302 "302 Found" // Temporary redirect
+#define STATUS_301 "301 Moved Permanently"
+#define STATUS_302 "302 Found"
 #define STATUS_303 "303 See Other"
 #define STATUS_304 "304 Not Modified"
 #define STATUS_400 "400 Bad Request"
@@ -40,46 +41,36 @@
 
 // SPECIAL CHARACTERS
 #define SP " "
-#define CR "\r"
-#define LF "\n"
 #define CRLF "\r\n"
 
+// PROGRAM MACROS
+#define WEBSERV_NAME "Not Nginx/4.2"
+#define DEFAULT_CONF "config/webserv.conf"
+#define LOG_FILE "Webserv.log"
+#define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
+
 // ERROR MESSAGES (Response: 400 Bad Request)
-#define HTTP_PARSE_INVALID_REQUEST_LINE "Client sent a request with invalid request line"			// DONE
-#define HTTP_PARSE_INVALID_METHOD "Client sent a request with invalid http method"					// DONE
-#define HTTP_PARSE_INVALID_VERSION "Client sent a request with invalid http version"				// DONE
-#define HTTP_PARSE_MISSING_REQUEST_URI "Client sent a request without uri"							// DONE
-#define HTTP_PARSE_INVALID_URI "Client sent a request with invalid uri"								// DONE
-#define HTTP_PARSE_MISSING_HOST "Client sent a request without host header"							// DONE
-#define HTTP_PARSE_INVALID_HOST "Client sent a request with invalid host header"					// DONE
-#define HTTP_PARSE_INVALID_CONTENT_LENGTH "Client sent a request with invalid content-length value" // DONE
-#define HTTP_PARSE_INVALID_HEADER_FIELD "Client sent a request with malformed header field"			// DONE
-#define HTTP_PARSE_INVALID_CHUNKED_TRANSFER "Client sent a request with invalid chunked body"		// DONE
+#define HTTP_PARSE_INVALID_REQUEST_LINE "Client sent a request with invalid request line"
+#define HTTP_PARSE_INVALID_METHOD "Client sent a request with invalid http method"
+#define HTTP_PARSE_INVALID_VERSION "Client sent a request with invalid http version"
+#define HTTP_PARSE_MISSING_REQUEST_URI "Client sent a request without uri"
+#define HTTP_PARSE_INVALID_URI "Client sent a request with invalid uri"
+#define HTTP_PARSE_MISSING_HOST "Client sent a request without host header"
+#define HTTP_PARSE_INVALID_HOST "Client sent a request with invalid host header"
+#define HTTP_PARSE_INVALID_CONTENT_LENGTH "Client sent a request with invalid content-length value"
+#define HTTP_PARSE_INVALID_HEADER_FIELD "Client sent a request with malformed header field"
+#define HTTP_PARSE_INVALID_CHUNKED_TRANSFER "Client sent a request with invalid chunked body"
 #define HTTP_PARSE_INVALID_TRANSFER_ENCODING "Client sent a request with invalid transfer-encoding value"
-#define HTTP_PARSE_INVALID_PERCENT_ENCODING "Client sent a request with invalid percent encoding"		 // DONE
-#define HTTP_PARSE_CONFLICTING_HEADERS "Client sent a request with transfer-encoding and content-length" // DONE
-#define HTTP_PARSE_INVALID_PORT "Client sent a request with invalid port number" // DONE
-
-// ERROR MESSAGES (Response: 404 Not Found)
-#define HTTP_PARSE_INVALID_LOCATION "Client sent a request with invalid location" // DONE
-
-// ERROR MESSAGES (Response: 411 Lenght Required)
-#define HTTP_PARSE_MISSING_CONTENT_LENGTH "Client sent a request without content-length header" // DONE
-
-// ERROR MESSAGES (Response: 413 Payload Too Large)
-#define HTTP_PARSE_PAYLOAD_TOO_LARGE "Client sent a request with payload too large" // DONE
-
-// ERROR MESSAGES (Response: 414 URI Too Long)
-#define HTTP_PARSE_URI_TOO_LONG "Client sent a request with uri too long" // DONE
-
-// ERROR MESSAGES (Response: 431 Request Header Fields Too Large)
-#define HTTP_PARSE_HEADER_FIELDS_TOO_LARGE "Client sent a request with too large header fields" // DONE
-
-// ERROR MESSAGES (Response: 501 Not Implemented)
-#define HTTP_PARSE_METHOD_NOT_IMPLEMENTED "Client sent a request with unimplemented method" // DONE
-
-// ERROR MESSAGES (Response: 505 HTTP Version Not Supported)
-#define HTTP_PARSE_HTTP_VERSION_NOT_SUPPORTED "Client sent a request with unsupported http version" // DONE
+#define HTTP_PARSE_INVALID_PERCENT_ENCODING "Client sent a request with invalid percent encoding"
+#define HTTP_PARSE_CONFLICTING_HEADERS "Client sent a request with transfer-encoding and content-length"
+#define HTTP_PARSE_INVALID_PORT "Client sent a request with invalid port number"
+#define HTTP_PARSE_INVALID_LOCATION "Client sent a request with invalid location"
+#define HTTP_PARSE_MISSING_CONTENT_LENGTH "Client sent a request without content-length header"
+#define HTTP_PARSE_PAYLOAD_TOO_LARGE "Client sent a request with payload too large"
+#define HTTP_PARSE_URI_TOO_LONG "Client sent a request with uri too long"
+#define HTTP_PARSE_HEADER_FIELDS_TOO_LARGE "Client sent a request with too large header fields"
+#define HTTP_PARSE_METHOD_NOT_IMPLEMENTED "Client sent a request with unimplemented method"
+#define HTTP_PARSE_HTTP_VERSION_NOT_SUPPORTED "Client sent a request with unsupported http version"
 
 // HEADER FILES
 #include <ctime>
@@ -102,25 +93,20 @@
 #include <sys/wait.h>
 #include <dirent.h>
 #include <signal.h>
-#include <cerrno>
 #include <cstring>
-#include <poll.h>
 #include <sys/epoll.h>
 struct ServerConfig;
 
 // Utils Functions
 std::vector<std::string> split(const char *start, const char *end, char delimiter);
 std::string trim(const std::string &str, const std::string &delim);
-std::string readFile(const std::string &filename);
-bool writeFile(const std::string &filename, const std::string &content);
 bool is_numeric(const std::string &str);
+std::string get_timestamp_str();
+void sigint_handle(int sig);
+void signalhandler();
 void printServerConfig(const ServerConfig &server);
 
-#define WEBSERV_NAME "Not Nginx/4.2"
-#define DEFAULT_CONF "config/webserv.conf"
-#define LOG_FILE "Webserv.log"
-#define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
-
+// Template Function
 template <class T>
 std::string to_string(T t)
 {

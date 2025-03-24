@@ -52,6 +52,25 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 	mime_types[".exe"] = "application/x-msdownload";
 	mime_types[".bin"] = "application/octet-stream";
 	mime_types[".iso"] = "application/x-iso9660-image";
+	mime_types[".img"] = "application/x-iso9660-image";
+	mime_types[".avi"] = "video/x-msvideo";
+	mime_types[".ppt"] = "application/vnd.ms-powerpoint";
+	mime_types[".pptx"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+	mime_types[".xls"] = "application/vnd.ms-excel";
+	mime_types[".xlsx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+	mime_types[".doc"] = "application/msword";
+	mime_types[".docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+	mime_types[".odt"] = "application/vnd.oasis.opendocument.text";
+	mime_types[".ods"] = "application/vnd.oasis.opendocument.spreadsheet";
+	mime_types[".odp"] = "application/vnd.oasis.opendocument.presentation";
+	mime_types[".ics"] = "text/calendar";
+	mime_types[".vcf"] = "text/x-vcard";
+	mime_types[".torrent"] = "application/x-bittorrent";
+	mime_types[".m3u"] = "audio/x-mpegurl";
+	mime_types[".m3u8"] = "application/vnd.apple.mpegurl";
+	mime_types[".ts"] = "video/mp2t";
+	mime_types[".mkv"] = "video/x-matros";
+	mime_types[".webmanifest"] = "application/manifest+json";
 
 	return mime_types;
 }
@@ -60,19 +79,19 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 std::map<std::string, std::string> ResponseBuilder::mime_types = init_mime_types();
 
 // Method for initializing the Request Matching configuration for server and location
-void ResponseBuilder::init_config(RequestParser &request)
+void ResponseBuilder::init_config()
 {
 	this->server_config = request.get_server_config();
 	this->location_config = request.get_location_config();
 }
 
 // Constructor Takes Request as parameter
-ResponseBuilder::ResponseBuilder(RequestParser &request)
+ResponseBuilder::ResponseBuilder(RequestParser &raw_request)
 {
-	this->http_version = "HTTP/1.1";		  // Only version 1.1 is implemented
-	this->init_config(request);				  // Init the config from request match
-	init_routes();							  // set routes with allowed methods
-	this->response = build_response(request); // Here we build the response
+	this->http_version = "HTTP/1.1";
+	this->request = raw_request;
+	init_config();
+	this->response = build_response();
 }
 
 // Method to initialize the routes (GET | POST | DELETE)
@@ -91,7 +110,7 @@ void ResponseBuilder::init_routes()
 }
 
 // Method to process the response
-std::string ResponseBuilder::build_response(RequestParser &request)
+std::string ResponseBuilder::build_response()
 {
 	short request_error_code = request.get_error_code();
 
@@ -99,30 +118,32 @@ std::string ResponseBuilder::build_response(RequestParser &request)
 	{
 		set_status(request_error_code);
 		body = generate_error_page(status_code);
-		include_required_headers(request);
+		include_required_headers();
 		return generate_response_string();
 	}
 
+	init_routes();
+
 	std::string method = request.get_http_method();
 
-	// Return error 405 if the method is not allowed in config file
+	// Check if the method is not allowed in config file
 	if (routes.find(method) == routes.end())
 	{
 		set_status(405);
 		body = generate_error_page(status_code);
-		include_required_headers(request);
+		include_required_headers();
 		return generate_response_string();
 	}
 
 	// Handle redirections (if there is any)
-	if (handle_redirection(request))
+	if (handle_redirection())
 		return generate_response_string();
 
 	// Route the request to the correct handler
-	(this->*routes[method])(request);
+	(this->*routes[method])();
 
 	// Set required headers
-	include_required_headers(request);
+	include_required_headers();
 
 	return generate_response_string();
 }
@@ -140,98 +161,115 @@ std::string ResponseBuilder::generate_response_string()
 	return response.str();
 }
 
-bool ResponseBuilder::isCgiRequest(const std::string &uri) {
-    // Check if the URI ends with .cgi to determine if it's a CGI request
-    return uri.size() >= 4 && uri.compare(uri.size() - 4, 4, ".php") == 0;
-}
+std::pair<std::string, std::string> parseCGIOutput(const std::string &cgiOutput)
+{
+	std::istringstream stream(cgiOutput);
+	std::string line;
+	std::string headers;
+	std::string body;
+	bool headerParsed = false;
 
-std::pair<std::string, std::string> parseCGIOutput(const std::string &cgiOutput) {
-    std::istringstream stream(cgiOutput);
-    std::string line;
-    std::string headers;
-    std::string body;
-    bool headerParsed = false;
+	// Read line by line
+	while (std::getline(stream, line))
+	{
+		// Trim any trailing carriage return
+		if (!line.empty() && line[line.size() - 1] == '\r')
+		{
+			line.erase(line.size() - 1);
+		}
 
-    // Read line by line
-    while (std::getline(stream, line)) {
-        // Trim any trailing carriage return
-        if (!line.empty() && line[line.size() - 1] == '\r') {
-            line.erase(line.size() - 1);
-        }
+		// Check for the blank line separating headers from the body
+		if (line.empty())
+		{
+			headerParsed = true;
+			break;
+		}
 
-        // Check for the blank line separating headers from the body
-        if (line.empty()) {
-            headerParsed = true;
-            break;
-        }
+		// Append to headers
+		headers += line + "\n";
+	}
 
-        // Append to headers
-        headers += line + "\n";
-    }
+	// If headers are parsed, the rest is the body
+	if (headerParsed)
+	{
+		char buffer[1024];
+		while (stream.read(buffer, sizeof(buffer)))
+		{
+			body.append(buffer, stream.gcount());
+		}
+		body.append(buffer, stream.gcount());
+	}
+	else
+	{
+		throw std::runtime_error("Invalid CGI output: Missing headers");
+	}
 
-    // If headers are parsed, the rest is the body
-    if (headerParsed) {
-        char buffer[1024];
-        while (stream.read(buffer, sizeof(buffer))) {
-            body.append(buffer, stream.gcount());
-        }
-        body.append(buffer, stream.gcount());
-    } else {
-        throw std::runtime_error("Invalid CGI output: Missing headers");
-    }
+	// Extract the Content-Type from headers
+	std::string contentType = "text/html"; // Default content type
+	std::istringstream headerStream(headers);
+	while (std::getline(headerStream, line))
+	{
+		if (line.find("Content-Type:") == 0)
+		{
+			contentType = line.substr(13); // Extract content type value
+			// Trim any whitespace
+			size_t start = contentType.find_first_not_of(" \t");
+			size_t end = contentType.find_last_not_of(" \t");
+			if (start != std::string::npos && end != std::string::npos)
+			{
+				contentType = contentType.substr(start, end - start + 1);
+			}
+			else
+			{
+				contentType = ""; // No valid content type found
+			}
+			break;
+		}
+	}
 
-    // Extract the Content-Type from headers
-    std::string contentType = "text/html"; // Default content type
-    std::istringstream headerStream(headers);
-    while (std::getline(headerStream, line)) {
-        if (line.find("Content-Type:") == 0) {
-            contentType = line.substr(13); // Extract content type value
-            // Trim any whitespace
-            size_t start = contentType.find_first_not_of(" \t");
-            size_t end = contentType.find_last_not_of(" \t");
-            if (start != std::string::npos && end != std::string::npos) {
-                contentType = contentType.substr(start, end - start + 1);
-            } else {
-                contentType = ""; // No valid content type found
-            }
-            break;
-        }
-    }
-
-    return std::make_pair(contentType, body);
+	return std::make_pair(contentType, body);
 }
 
 // GET method implementation
-void ResponseBuilder::doGET(RequestParser &request)
+void ResponseBuilder::doGET()
 {
-	std::cout << "GET METHOD EXECUTED" << std::endl;
+	LOG_DEBUG("GET METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
-	std::string path = location_config->root + uri;
+	bool is_root = (uri == "/") ? true : false;
+	std::string root = location_config->root;
+	std::string path;
+
+	// Check if (uri is /) and (no root directive) in config
+	(is_root && root.empty()) ? path = "errors/root.html" : path = root + uri;
 
 	// Check if the file exists
-
-    if (isCgiRequest(uri)) {
-		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
-        try {
-            std::string cgiOutput = cgiHandler.executeCGI();
-            std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
-            // Set headers and body in the response
-            set_headers("Content-Type", parsedOutput.first); // Use the content type from the CGI output
-            body = parsedOutput.second;
-            set_status(200);
-        } catch (const std::exception &e) {
-            set_status(500);
-            body = generate_error_page(status_code);
-            Logger::getInstance().error(e.what());
-        }
-        return;
-	}
 	struct stat file_stat;
 	if (stat(path.c_str(), &file_stat) == -1)
 	{
-		LOG_DEBUG("PAGE NOOOOOT FOUUUND");
 		set_status(404);
 		body = generate_error_page(status_code);
+		return;
+	}
+
+	// If the requested path is a CGI script
+	if (is_cgi_request(uri))
+	{
+		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
+		try
+		{
+			std::string cgiOutput = cgiHandler.executeCGI();
+			std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
+			// Set headers and body in the response
+			set_headers("Content-Type", parsedOutput.first); // Use the content type from the CGI output
+			body = parsedOutput.second;
+			set_status(200);
+		}
+		catch (const std::exception &e)
+		{
+			set_status(500);
+			body = generate_error_page(status_code);
+			Logger::getInstance().error(e.what());
+		}
 		return;
 	}
 
@@ -242,8 +280,9 @@ void ResponseBuilder::doGET(RequestParser &request)
 		if (uri[uri.size() - 1] != '/')
 		{
 			set_status(301);
-			set_headers("Location", uri + "/");
-			body = generate_error_page(status_code);
+			std::string file_name = "errors/" + to_string(status_code) + ".html";
+			body = read_html_file(file_name);
+			this->headers["Location"] = uri + "/";
 			return;
 		}
 
@@ -256,6 +295,12 @@ void ResponseBuilder::doGET(RequestParser &request)
 		else if (location_config->autoindex) // If auto index is enabled in the config file
 		{
 			body = generate_directory_listing(path);
+			if (body == "")
+			{
+				set_status(403);
+				body = generate_error_page(status_code);
+				return;
+			}
 			set_status(200);
 			set_headers("Content-Type", "text/html");
 			return;
@@ -276,58 +321,28 @@ void ResponseBuilder::doGET(RequestParser &request)
 		return;
 	}
 
-	// 	Open The file
-	std::ifstream file(path.c_str(), std::ios::in | std::ios::binary);
-	if (!file)
-	{
-		set_status(500);
-		body = generate_error_page(status_code);
-		return;
-	}
-
-	// Determine mime type
-	std::string extension = path.substr(path.find_last_of('.'));
-	std::map<std::string, std::string>::iterator it = mime_types.find(extension);
-	if (it != mime_types.end())
-		set_headers("Content-Type", it->second);
-	else
-		set_headers("Content-Type", "application/octet-stream");
-
-	// Read File
-	std::ostringstream file_stream;
-	file_stream << file.rdbuf();
-	body = file_stream.str();
+	body = read_html_file(path);
 	set_status(200);
 }
 
 // POST method implementation
-void ResponseBuilder::doPOST(RequestParser &request)
+void ResponseBuilder::doPOST()
 {
-	std::cout << "POST METHOD EXECUTED" << std::endl;
+	LOG_DEBUG("POST METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
-	std::vector<byte> req_body = request.get_body();
-	std::string upload_path = location_config->uploadStore + "/uploaded";
 	std::string content_type = request.get_header_value("content-type");
+	std::vector<byte> req_body = request.get_body();
 
-	if (isCgiRequest(uri)) {
-		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
-        try {
-            std::string cgiOutput = cgiHandler.executeCGI();
-            std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
-            // Set headers and body in the response
-            set_headers("Content-Type", parsedOutput.first); // Use the content type from the CGI output
-            body = parsedOutput.second;
-            set_status(200);
-        } catch (const std::exception &e) {
-            set_status(500);
-            body = generate_error_page(status_code);
-            Logger::getInstance().error(e.what());
-        }
-        return;
+	if (req_body.size() > server_config->clientMaxBodySize)
+	{
+		LOG_ERROR(HTTP_PARSE_PAYLOAD_TOO_LARGE);
+		set_status(413);
+		body = generate_error_page(status_code);
+		return;
 	}
 
-	// Handle file upload if content type is multipart/form-data
+	// Reject file upload if content type is multipart/form-data
 	if (content_type.find("multipart/form-data") != std::string::npos)
 	{
 		set_status(415);
@@ -335,22 +350,44 @@ void ResponseBuilder::doPOST(RequestParser &request)
 		return;
 	}
 
-	// Handle file upload if content type is application/octet-stream (binary)
-	if (content_type == "application/octet-stream")
+	if (is_cgi_request(uri))
 	{
-		if (!handle_binary_upload(request, upload_path))
+		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
+		try
+		{
+			std::string cgiOutput = cgiHandler.executeCGI();
+			std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
+			// Set headers and body in the response
+			set_headers("Content-Type", parsedOutput.first); // Use the content type from the CGI output
+			body = parsedOutput.second;
+			set_status(200);
+		}
+		catch (const std::exception &e)
 		{
 			set_status(500);
 			body = generate_error_page(status_code);
-			return;
+			Logger::getInstance().error(e.what());
 		}
-		set_status(201);
-		body = "Binary file uploaded successfully";
 		return;
 	}
 
-	// Handle normal POST request -- Regular data (Text-Based)
-	std::ofstream file(upload_path.c_str(), std::ios::binary);
+	std::string upload_path = location_config->uploadStore;
+
+	// Just to make sure if someone tries to upload a file to a non-existing directory
+	struct stat dir_stat;
+	if (stat(upload_path.c_str(), &dir_stat) == -1 || !S_ISDIR(dir_stat.st_mode))
+	{
+		LOG_ERROR("Upload path not found: " + upload_path);
+		set_status(500);
+		body = generate_error_page(status_code);
+		return;
+	}
+
+	std::string filename = "uploaded" + get_timestamp_str() + ".bin";
+	std::string full_path = upload_path + "/" + filename;
+
+	// Write the data to the file
+	std::ofstream file(full_path.c_str(), std::ios::binary);
 	if (!file)
 	{
 		set_status(403);
@@ -359,14 +396,15 @@ void ResponseBuilder::doPOST(RequestParser &request)
 	}
 	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
 	file.close();
+
 	set_status(201);
-	set_body("Data written successfully");
+	set_body(generate_upload_success_page(filename));
 }
 
 // DELETE method implementation
-void ResponseBuilder::doDELETE(RequestParser &request)
+void ResponseBuilder::doDELETE()
 {
-	std::cout << "DELETE METHOD EXECUTED" << std::endl;
+	LOG_DEBUG("DELETE METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
 	struct stat path_stat;
@@ -379,7 +417,7 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 		return;
 	}
 
-	// Check if it's a file or directory
+	// Check if The file is a directory
 	if (S_ISDIR(path_stat.st_mode))
 	{
 		// Ensure URI ends with '/'
@@ -446,7 +484,6 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 	{
 		set_status(204);
 		body = "";
-		return;
 	}
 	else
 	{
@@ -456,7 +493,7 @@ void ResponseBuilder::doDELETE(RequestParser &request)
 }
 
 // Method to handle redirection
-bool ResponseBuilder::handle_redirection(RequestParser &request)
+bool ResponseBuilder::handle_redirection()
 {
 	if (location_config->isRedirect)
 	{
@@ -465,71 +502,20 @@ bool ResponseBuilder::handle_redirection(RequestParser &request)
 			set_status(301);
 		else
 			set_status(302);
+		std::string file_name = "errors/" + to_string(status_code) + ".html";
+		body = read_html_file(file_name);
 		this->headers["Location"] = redirect_url;
-		body = ""; // Empty response body
-		include_required_headers(request);
+		include_required_headers();
 		return true;
 	}
 	return false;
-}
-
-// Method to handle file upload (multipart/form-data)
-bool ResponseBuilder::handle_file_upload(RequestParser &request, const std::string &path)
-{
-	std::string boundary = request.get_header_value("content-type");
-	boundary = boundary.substr(boundary.find("boundary=") + 9);
-	std::string end_boundary = "--" + boundary + "--";
-	std::string content = std::string(request.get_body().begin(), request.get_body().end());
-	size_t start = content.find(boundary);
-	size_t end = content.find(end_boundary);
-	if (start == std::string::npos || end == std::string::npos)
-		return false;
-
-	std::string file_content = content.substr(start, end - start);
-	std::string file_name = path + "uploaded_file";
-
-	/*Later the file name should be generated randomly*/
-
-	std::ofstream file(file_name.c_str(), std::ios::binary);
-	if (!file)
-		return false;
-	file.write(file_content.c_str(), file_content.size());
-	file.close();
-	return true;
-}
-
-// Method to handle binary upload (application/octet-stream)
-bool ResponseBuilder::handle_binary_upload(RequestParser &request, const std::string &path)
-{
-	// If no upload_store directiive in config
-	if (path.empty())
-	{
-		LOG_ERROR("No upload_store directive in config file");
-		return false;
-	}
-	std::ofstream file(path.c_str(), std::ios::binary);
-	std::cout << path << std::endl;
-	if (!file)
-	{
-		LOG_ERROR("Cannot open file for binary writing: " + path);
-		return false;
-	}
-
-	std::vector<byte> req_body = request.get_body();
-	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
-	file.close();
-	LOG_INFO("Binary file uploaded successfully: " + path);
-	return true;
 }
 
 // Method to generate error pages
 std::string ResponseBuilder::generate_error_page(short status_code)
 {
 	std::string error_page_name = server_config->errorPages.at(status_code);
-	std::string error_page_file = readFile(error_page_name);
-	if (error_page_file == "")
-		LOG_ERROR("Error: Could not open the file " + error_page_name);
-	this->headers["Content-Type"] = "text/html";
+	std::string error_page_file = read_html_file(error_page_name);
 	return error_page_file;
 }
 
@@ -550,36 +536,35 @@ std::string ResponseBuilder::detect_mime_type(const std::string &path)
 std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 {
 	std::ostringstream page;
-	page << "<html><head><title>Directory Listing</title></head>";
-	page << "<body><h1>Directory Listing</h1><hr>";
-	page << "<ul>";
+	page << "<html>\n<head><title>Directory Listing</title></head>\n";
+	page << "<body>\n<h1>Directory Listing</h1><hr>\n";
+	page << "<ul>\n";
 	DIR *dir;
 	struct dirent *ent;
 	if ((dir = opendir(path.c_str())) != NULL)
 	{
 		while ((ent = readdir(dir)) != NULL)
 		{
-			page << "<li style=\"letter-spacing: 1.5\"><a href=\"" << ent->d_name << "/\">" << ent->d_name << "</a>&emsp;&emsp;&emsp;" << get_http_date() << "&emsp;&emsp;&emsp;-</li><br>";
+			page << "<li style=\"letter-spacing: 1.5\"><a href=\"" << ent->d_name << "/\">" << ent->d_name << "</a>&emsp;&emsp;&emsp;" << get_http_date() << "&emsp;&emsp;&emsp;-</li><br>\n";
 		}
 		closedir(dir);
 	}
 	else
 	{
-		page << "<p>Error: Could not open directory</p>";
+		return "";
 	}
-	page << "</ul></body></html>";
+	page << "</ul>\n</body></html>";
 	return page.str();
 }
 
 // Method to check if the requested uri is for cgi
 bool ResponseBuilder::is_cgi_request(const std::string &file_path)
 {
-	(void)file_path;
-	return false;
+	return file_path.size() >= 4 && file_path.compare(file_path.size() - 4, 4, ".php") == 0;
 }
 
 // Method to add the required headers into response
-void ResponseBuilder::include_required_headers(RequestParser &request)
+void ResponseBuilder::include_required_headers()
 {
 	// Include standard headers
 	headers["Server"] = WEBSERV_NAME;
@@ -629,6 +614,50 @@ std::string ResponseBuilder::get_http_date()
 	return std::string(buffer);
 }
 
+// Method to read the html file
+std::string ResponseBuilder::read_html_file(const std::string &filename)
+{
+	std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
+	if (!file)
+	{
+		LOG_ERROR("Error: Cannot open file: " + filename);
+		set_status(500);
+		body = generate_error_page(status_code);
+		return "";
+	}
+
+	// Determine mime type
+	std::string extension = filename.substr(filename.find_last_of('.'));
+	std::map<std::string, std::string>::iterator it = mime_types.find(extension);
+	if (it != mime_types.end())
+		set_headers("Content-Type", it->second);
+	else
+		set_headers("Content-Type", "application/octet-stream");
+
+	std::ostringstream content;
+	content << file.rdbuf();
+	return content.str();
+}
+
+// Method to generate upload success page
+std::string ResponseBuilder::generate_upload_success_page(const std::string &filename)
+{
+	std::ostringstream html;
+	html << "<!DOCTYPE html>\n"
+		 << "<html>\n"
+		 << "<head><title>Upload Successful</title></head>\n"
+		 << "<body>\n"
+		 << "<h1>File Upload Successful</h1>\n"
+		 << "<p>Your file has been uploaded successfully.</p>\n"
+		 << "<p><strong>Saved as:</strong> " << filename << "</p>\n"
+		 << "<a href=\"/\">Return to Home</a>\n"
+		 << "</body>\n"
+		 << "</html>";
+
+	set_headers("Content-Type", "text/html");
+	return html.str();
+}
+
 /****************************
 		START SETTERS
 ****************************/
@@ -646,9 +675,6 @@ void ResponseBuilder::set_status(short status_code)
 		break;
 	case 204:
 		this->status = STATUS_204;
-		break;
-	case 206:
-		this->status = STATUS_206;
 		break;
 	case 301:
 		this->status = STATUS_301;

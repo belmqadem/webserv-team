@@ -11,6 +11,8 @@ enum LogLevel
 {
 	DEBUG,
 	INFO,
+	SERVERS,
+	CLIENT,
 	REQUEST,
 	RESPONSE,
 	WARNING,
@@ -36,7 +38,6 @@ public:
 	~Logger();
 
 	static Logger &getInstance();
-	static void cleanup();
 
 	void setLevel(LogLevel level);
 	void setOutput(bool toConsole, bool toFile);
@@ -46,6 +47,8 @@ public:
 
 	void debug(const std::string &message);
 	void info(const std::string &message);
+	void server(const std::string &message);
+	void client(const std::string &message);
 	void request(const std::string &message);
 	void response(const std::string &message);
 	void warning(const std::string &message);
@@ -56,6 +59,8 @@ public:
 // Convenience macros
 #define LOG_DEBUG(msg) Logger::getInstance().debug(msg)
 #define LOG_INFO(msg) Logger::getInstance().info(msg)
+#define LOG_SERVER(msg) Logger::getInstance().server(msg)
+#define LOG_CLIENT(msg) Logger::getInstance().client(msg)
 #define LOG_REQUEST(msg) Logger::getInstance().request(msg)
 #define LOG_RESPONSE(msg) Logger::getInstance().response(msg)
 #define LOG_WARNING(msg) Logger::getInstance().warning(msg)

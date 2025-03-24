@@ -1,21 +1,6 @@
 #include "webserv.hpp"
 #include "Server.hpp"
 
-extern int webserv_signal;
-
-void sigint_handle(int sig)
-{
-	webserv_signal = sig;
-}
-
-void signalhandler()
-{
-	if (signal(SIGQUIT, SIG_IGN) == SIG_ERR)
-		throw std::runtime_error(RED "signal() faild." RESET);
-	if (signal(SIGINT, &sigint_handle) == SIG_ERR)
-		throw std::runtime_error(RED "signal() faild." RESET);
-}
-
 int main(int ac, char **av)
 {
 	if (ac > 2)
@@ -30,6 +15,8 @@ int main(int ac, char **av)
 	try
 	{
 		(ac == 2) ? ConfigManager::getInstance().loadConfig(av[1]) : ConfigManager::getInstance().loadConfig(DEFAULT_CONF);
+		if (!ConfigManager::getInstance().check_open())
+			return (1);
 		std::vector<ServerConfig> virtual_servers = ConfigManager::getInstance().getServers();
 
 		// for (std::vector<ServerConfig>::iterator it = servers.begin(); it != servers.end(); ++it)
@@ -37,7 +24,6 @@ int main(int ac, char **av)
 
 		Server &server = Server::getInstance(virtual_servers);
 		server.StartServer();
-		LOG_INFO("Our Webserver *Not Nginx* Starting...");
 		IOMultiplexer::getInstance().runEventLoop();
 	}
 	catch (std::exception &e)
