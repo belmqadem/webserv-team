@@ -13,19 +13,9 @@
   box-sizing: border-box;
   font-family: var(--main-font-familly);
 }
-html {
-  scroll-behavior: smooth;
-}
 body {
   color: var(--main-color);
   text-align: center;
-}
-ul {
-  list-style: none;
-}
-a {
-  color: inherit;
-  font-weight: lighter;
 }
 
 /* Start Main */
@@ -80,9 +70,6 @@ main header h1::after {
   background-color: var(--main-bg-color);
   padding: 100px;
   border-radius: var(--main-border-radius);
-}
-.about p {
   font-size: 28px;
-  font-weight: 700;
 }
 /* End About */

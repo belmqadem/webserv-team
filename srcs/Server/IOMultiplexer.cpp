@@ -50,7 +50,8 @@ void IOMultiplexer::runEventLoop(void)
 		if (events_count == -1)
 		{
 			terminate();
-			throw IOMultiplexerExceptions("epoll_wait() failed.");
+			if (_is_started)
+				throw IOMultiplexerExceptions("epoll_wait() failed.");
 		}
 		for (int i = 0; i < events_count; i++)
 		{

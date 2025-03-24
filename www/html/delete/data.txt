@@ -1,4 +1,0 @@
-Use 
-curl -X DELETE http://localhost:5050/delete/data.txt 
-
-To delete this file

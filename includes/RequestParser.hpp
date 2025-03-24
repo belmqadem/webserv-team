@@ -2,6 +2,11 @@
 
 #include "ConfigManager.hpp"
 
+#define MAX_REQUEST_LINE_LENGTH 8192
+#define MAX_URI_LENGTH 2048
+#define MAX_HEADER_LENGTH 8192
+#define MAX_HEADER_COUNT 100
+
 typedef uint8_t byte; // 8 bit unsigned integers
 
 // This is an enum to save the parsing state of the request
@@ -29,9 +34,6 @@ private:
 	short error_code;
 	bool has_content_length;
 	bool has_transfer_encoding;
-	bool is_headers_completed;
-	bool is_body_completed;
-
 	const ServerConfig *server_config; // Pointer to the matched server block
 	const Location *location_config;   // Pointer to the matched location block
 
@@ -52,9 +54,11 @@ public:
 	RequestParser(const RequestParser &other);
 	RequestParser &operator=(const RequestParser &other);
 
+	// Public Helper methods
 	size_t parse_request(const std::string &request);
 	void match_location(const std::vector<ServerConfig> &servers);
 	void print_request();
+	bool is_connection_close();
 
 	// Setters
 	void set_request_line();
@@ -62,9 +66,6 @@ public:
 	bool set_request_uri(const std::string &request_uri);
 	void set_query_string(const std::string &query_string);
 	bool set_http_version(const std::string &http_version);
-	void set_headers(const std::string &key, const std::string &value);
-	void set_body(std::vector<byte> &body);
-	void set_error_code(short error_code);
 
 	// Getters
 	std::string &get_request_line();
@@ -72,7 +73,6 @@ public:
 	std::string &get_request_uri();
 	std::string &get_query_string();
 	std::string &get_http_version();
-	std::map<std::string, std::string> &get_headers();
 	std::string &get_header_value(const std::string &key);
 	std::vector<byte> &get_body();
 	short &get_error_code();
@@ -80,9 +80,4 @@ public:
 	ParseState &get_state();
 	const ServerConfig *get_server_config();
 	const Location *get_location_config();
-
-	// Public Helper methods
-	bool is_connection_close();
-	bool headers_completed();
-	bool body_completed();
 };
