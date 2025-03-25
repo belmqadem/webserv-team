@@ -27,10 +27,8 @@ a {
   color: inherit;
   font-weight: lighter;
 }
-
-/* Start Main */
 main {
-  height: 100vh;
+  min-height: 100vh;
   padding: 40px;
   display: flex;
   flex-direction: column;
@@ -49,6 +47,7 @@ main header {
 }
 main header h1 {
   font-size: 112px;
+  font-weight: 700;
   text-transform: uppercase;
   color: var(--main-color);
   display: inline;
@@ -104,12 +103,11 @@ main header h1::after {
 		font-size: 12px;
 	}
 }
-/* End Main */
-
-/* Start Profiles */
 .profiles {
   display: flex;
   justify-content: space-between;
+  padding-top: 30px;
+  padding-bottom: 30px;
 }
 .profile {
   background-color: rgba(41, 41, 41, 0.6);
@@ -120,7 +118,6 @@ main header h1::after {
 .profile:hover {
   background-color: rgba(41, 41, 41, 0.8);
   box-shadow: 0 1px 20px -2px var(--main-bg-color);
-  cursor: pointer;
 }
 .profiles img {
   width: 260px;
@@ -154,7 +151,6 @@ main header h1::after {
 	.profile {
 		width: 70%;
 		margin: 0 auto;
-		/* background-color: transparent; */
 	}
 	.profiles img {
 		width: 200px;
@@ -170,10 +166,6 @@ main header h1::after {
   background-color: var(--main-color);
   color: var(--main-bg-color);
 }
-
-/* End Profiles */
-
-/* Start Testing */
 .testing {
   height: 100vh;
   padding: 40px;
@@ -212,4 +204,3 @@ input[type="file"],
 input[type="text"] {
   padding: 8px;
 }
-/* End Testing */
