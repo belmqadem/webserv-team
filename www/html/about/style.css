@@ -17,10 +17,8 @@ body {
   color: var(--main-color);
   text-align: center;
 }
-
-/* Start Main */
 main {
-  height: 100vh;
+  min-height: 100vh;
   padding: 100px;
   display: flex;
   flex-direction: column;
@@ -36,6 +34,7 @@ main header {
   padding: 50px 140px;
   margin: 0 auto;
   border-radius: var(--main-border-radius);
+  margin-bottom: 30px;
 }
 main header h1 {
   font-size: 112px;
@@ -63,13 +62,30 @@ main header h1::after {
   font-size: 16px;
   font-weight: 700;
 }
-/* End Main */
-
-/* Start About */
+@media (max-width: 1200px) {
+  main header {
+    padding: 30px 80px;
+  }
+  main header h1 {
+    font-size: 64px;
+  }
+  main header h1::before {
+    width: 75%;
+    height: 8px;
+  }
+  main header h1::after {
+    font-size: 12px;
+  }
+}
 .about {
   background-color: var(--main-bg-color);
   padding: 100px;
   border-radius: var(--main-border-radius);
   font-size: 28px;
 }
-/* End About */
+@media (max-width: 1200px) {
+	.about {
+		padding: 50px;
+		font-size: 20px;
+	}
+}
