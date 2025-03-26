@@ -100,7 +100,7 @@ const char *RequestParser::parse_request_line(const char *pos, const char *end)
 	}
 
 	// Split the request line by exactly one SP and check if its 3 parts ([METHOD] SP [URI] SP [VERSION])
-	std::vector<std::string> parts = split(pos, line_end - 2, ' ');
+	std::vector<std::string> parts = Utils::split(pos, line_end - 2, ' ');
 	if (parts.size() != 3)
 	{
 		log_error(HTTP_PARSE_INVALID_REQUEST_LINE, 400);
@@ -176,7 +176,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 
 		// Set the header key and header value
 		std::string key = header_line.substr(0, colon_pos);
-		std::string value = trim(header_line.substr(colon_pos + 1), " \t");
+		std::string value = Utils::trim(header_line.substr(colon_pos + 1), " \t");
 
 		// Convert header names to lowercase
 		std::transform(key.begin(), key.end(), key.begin(), ::tolower);
@@ -191,7 +191,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 		// Special Handling for `Content-Length`
 		if (key == "content-length")
 		{
-			if (!is_numeric(value) || (has_content_length && content_length_value != value))
+			if (!Utils::is_numeric(value) || (has_content_length && content_length_value != value))
 			{
 				log_error(HTTP_PARSE_INVALID_CONTENT_LENGTH, 400);
 				return pos;
@@ -310,7 +310,7 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 		}
 
 		// Convert hex size to int
-		std::string chunk_size_str = trim(std::string(pos, chunk_size_end - pos), "\r\n \t");
+		std::string chunk_size_str = Utils::trim(std::string(pos, chunk_size_end - pos), "\r\n \t");
 		char *endptr = NULL;
 		size_t chunk_size = std::strtoul(chunk_size_str.c_str(), &endptr, 16);
 		if (*endptr != '\0')
