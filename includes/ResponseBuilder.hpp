@@ -2,6 +2,7 @@
 
 #include "RequestParser.hpp"
 #include "CGIHandler.hpp"
+// #include "SessionCookieHandler.hpp"
 
 class ResponseBuilder
 {
@@ -41,15 +42,16 @@ private:
 
 	// Method to initialize the mime types
 	static std::map<std::string, std::string> init_mime_types();
-
+bool isFileUpload( RequestParser request);
 	ResponseBuilder(const ResponseBuilder &);
 	ResponseBuilder &operator=(const ResponseBuilder &);
-
-public:
+	
+	public:
 	ResponseBuilder(RequestParser &request);
 	std::map<std::string, std::string> prepareEnv( RequestParser &request) const ;
-
+	
 	// Setters
+	void handleFileUpload( std::string body, const std::map<std::string, std::string> &headers);
 	void set_http_version(const std::string &http_version);
 	void set_status(short status_code);
 	void set_headers(const std::string &key, const std::string &value);
