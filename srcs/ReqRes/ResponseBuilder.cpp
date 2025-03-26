@@ -240,7 +240,7 @@ void ResponseBuilder::doGET()
 	std::string path;
 
 	// Check if (uri is /) and (no root directive) in config
-	(is_root && root.empty()) ? path = "errors/root.html" : path = root + uri;
+	(is_root && root.empty()) ? path = "default/root.html" : path = root + uri;
 
 	// Check if the file exists
 	struct stat file_stat;
@@ -280,7 +280,7 @@ void ResponseBuilder::doGET()
 		if (uri[uri.size() - 1] != '/')
 		{
 			set_status(301);
-			std::string file_name = "errors/" + to_string(status_code) + ".html";
+			std::string file_name = "default/" + to_string(status_code) + ".html";
 			body = read_html_file(file_name);
 			this->headers["Location"] = uri + "/";
 			return;
@@ -383,7 +383,7 @@ void ResponseBuilder::doPOST()
 		return;
 	}
 
-	std::string filename = "uploaded" + get_timestamp_str() + ".bin";
+	std::string filename = "uploaded" + Utils::get_timestamp_str() + ".bin";
 	std::string full_path = upload_path + "/" + filename;
 
 	// Write the data to the file
@@ -398,6 +398,7 @@ void ResponseBuilder::doPOST()
 	file.close();
 
 	set_status(201);
+	LOG_INFO("File uploaded: " + full_path);
 	set_body(generate_upload_success_page(filename));
 }
 
@@ -502,7 +503,7 @@ bool ResponseBuilder::handle_redirection()
 			set_status(301);
 		else
 			set_status(302);
-		std::string file_name = "errors/" + to_string(status_code) + ".html";
+		std::string file_name = "default/" + to_string(status_code) + ".html";
 		body = read_html_file(file_name);
 		this->headers["Location"] = redirect_url;
 		include_required_headers();
@@ -636,6 +637,7 @@ std::string ResponseBuilder::read_html_file(const std::string &filename)
 
 	std::ostringstream content;
 	content << file.rdbuf();
+	file.close();
 	return content.str();
 }
 

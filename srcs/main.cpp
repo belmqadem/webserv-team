@@ -11,7 +11,7 @@ int main(int ac, char **av)
 	Logger::getInstance().setLevel(DEBUG);
 	Logger::getInstance().setOutput(true, true);
 	Logger::getInstance().setLogFile(LOG_FILE);
-	signalhandler();
+	Utils::signalhandler();
 	try
 	{
 		(ac == 2) ? ConfigManager::getInstance().loadConfig(av[1]) : ConfigManager::getInstance().loadConfig(DEFAULT_CONF);
@@ -20,7 +20,7 @@ int main(int ac, char **av)
 		std::vector<ServerConfig> virtual_servers = ConfigManager::getInstance().getServers();
 
 		// for (std::vector<ServerConfig>::iterator it = servers.begin(); it != servers.end(); ++it)
-		// 	printServerConfig(*it);
+		// 	Utils::printServerConfig(*it);
 
 		Server &server = Server::getInstance(virtual_servers);
 		server.StartServer();

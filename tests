@@ -9,3 +9,5 @@ tests:
    curl -v http://localhost:8080/
    curl -X POST -F "file=@test.txt" http://localhost:8080/upload
    curl -X DELETE http://localhost:8080/file.txt
+
+3. ab -n 1000 -c 100 http://localhost:8080/

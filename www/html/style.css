@@ -167,7 +167,7 @@ main header h1::after {
   color: var(--main-bg-color);
 }
 .testing {
-  height: 100vh;
+  min-height: 100vh;
   padding: 40px;
   background-image: var(--main-bg-img);
   background-color: var(--main-color);
