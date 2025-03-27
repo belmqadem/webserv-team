@@ -357,7 +357,7 @@ void ResponseBuilder::doGET()
 		SessionCookieHandler::set_cookie(*this, "session_id", session_id, 3600); // Set session cookie with 1-hour expiration
 		LOG_INFO("New session created: " + session_id);
 	}
-	if (is_cgi_request(uri))
+	if (is_cgi_request(uri) && location_config->useCgi)
 	{
 		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
 		try
@@ -430,28 +430,56 @@ void ResponseBuilder::doGET()
 }
 bool ResponseBuilder::isFileUpload( RequestParser request) {
     // Ensure the configuration is initialized
-    if (!location_config) {
-        throw std::runtime_error("Location configuration is not initialized");
+		std::string content_type = request.get_header_value("Content-Type");
+		LOG_DEBUG("Content-Type: " + content_type);
+		return content_type.find("multipart/form-data") != std::string::npos;
+	 // File upload is allowed
+}
+bool ResponseBuilder::handleMultipartFormData(const std::vector<unsigned char>& req_body, const std::string& content_type, const std::string& upload_path) {
+    // Parse the boundary from the content-type header
+    size_t boundary_pos = content_type.find("boundary=");
+    if (boundary_pos == std::string::npos) {
+        std::cerr << "Boundary not found in content-type" << std::endl;
+        return false;
+    }
+    std::string boundary = "--" + content_type.substr(boundary_pos + 9);
+
+    // Convert request body to a string
+    std::string body(req_body.begin(), req_body.end());
+
+    // Split the body into parts based on the boundary
+    size_t pos = 0, next_pos;
+    while ((next_pos = body.find(boundary, pos)) != std::string::npos) {
+        std::string part = body.substr(pos, next_pos - pos);
+        pos = next_pos + boundary.length();
+
+        // Parse headers and content
+        size_t header_end = part.find("\r\n\r\n");
+        if (header_end == std::string::npos) continue;
+        std::string headers = part.substr(0, header_end);
+        std::string content = part.substr(header_end + 4);
+
+        // Parse filename from headers
+        size_t filename_pos = headers.find("filename=\"");
+        if (filename_pos != std::string::npos) {
+            size_t filename_end = headers.find("\"", filename_pos + 10);
+            std::string filename = headers.substr(filename_pos + 10, filename_end - (filename_pos + 10));
+
+            // Save the file
+            std::string full_path = upload_path + "/" + filename;
+            std::ofstream file(full_path.c_str(), std::ios::binary);
+            if (!file) {
+                std::cerr << "Failed to open file for writing: " << full_path << std::endl;
+                return false;
+            }
+            file.write(content.c_str(), content.size());
+            file.close();
+            std::cout << "File uploaded: " << full_path << std::endl;
+			generate_upload_success_page(filename);
+        }
     }
 
-    // Check if the upload store is configured for the current location
-    if (location_config->uploadStore.empty()) {
-        return false; // File uploads are not allowed here
-    }
-
-    // Check if the method is POST
-    if (request.get_http_method() != "POST") {
-        return false; // File uploads only work with POST
-    }
-
-    // Check if the Content-Type indicates a file upload (e.g., multipart/form-data)
-    const std::map<std::string, std::string> &headers = request.get_headers();
-    std::map<std::string, std::string>::const_iterator it = headers.find("Content-Type");
-    if (it == headers.end() || it->second.find("multipart/form-data") == std::string::npos) {
-        return false; // Not a file upload
-    }
-
-    return true; // File upload is allowed
+    return true;
 }
 
 // POST method implementation
@@ -471,6 +499,16 @@ void ResponseBuilder::doPOST()
 		body = generate_error_page(status_code);
 		return;
 	}
+	if(content_type.find("multipart/form-data") != std::string::npos)
+	{
+		if(!handleMultipartFormData(req_body,content_type,location_config->uploadStore))
+		{
+			set_status(403);
+			body = generate_error_page(status_code);
+			return;
+		}
+		return;
+	}
 	std::string session_id = SessionCookieHandler::get_cookie(request, "session_id");
     if (session_id.empty())
     {
@@ -480,12 +518,6 @@ void ResponseBuilder::doPOST()
         LOG_INFO("New session created: " + session_id);
     }
 	// Reject file upload if content type is multipart/form-data
-	if (content_type.find("multipart/form-data") != std::string::npos)
-	{
-		set_status(415);
-		body = generate_error_page(status_code);
-		return;
-	}
 
 	if (is_cgi_request(uri))
 	{

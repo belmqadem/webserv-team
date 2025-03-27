@@ -48,6 +48,8 @@ bool isFileUpload( RequestParser request);
 	
 	public:
 	ResponseBuilder(RequestParser &request);
+	bool handleMultipartFormData(const std::vector<unsigned char>& req_body, const std::string& content_type, const std::string& upload_path);
+
 	std::map<std::string, std::string> prepareEnv( RequestParser &request) const ;
 	
 	// Setters
