@@ -1,5 +1,4 @@
 #include "ClientServer.hpp"
-#include "webserv.hpp"
 
 bool ClientServer::isStarted() const
 {
