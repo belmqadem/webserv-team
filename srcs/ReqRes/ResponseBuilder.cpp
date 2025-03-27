@@ -1,5 +1,102 @@
 #include "ResponseBuilder.hpp"
 #include "Logger.hpp"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <map>
+#include <ctime>
+// #include <chrono>
+#include <sstream>
+#include <iomanip>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <map>
+#include <ctime>
+#include <sstream>
+#include <iomanip>
+#include <cstdlib>
+#include <cstring>
+
+class SessionCookieHandler
+{
+public:
+    // Generate a session ID based on current time and a random number
+    static std::string generate_session_id()
+    {
+        time_t now = time(NULL);
+        struct tm *timeinfo = localtime(&now);
+
+        char buffer[14];
+        strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S", timeinfo);
+
+        srand(time(NULL)); // Seed for random number generation
+        int random_number = rand() % 10000;
+
+        // Using manual string concatenation in C++98
+        std::string session_id(buffer);
+        session_id += "_" + int_to_string(random_number); // Convert integer to string
+
+        return session_id;
+    }
+
+    // Convert integer to string (manual conversion)
+    static std::string int_to_string(int number)
+    {
+        std::ostringstream oss;
+        oss << number;
+        return oss.str(); // Convert int to string using ostringstream (valid in C++98)
+    }
+
+    // Set a cookie
+    static void set_cookie(ResponseBuilder &response, const std::string &name, const std::string &value, int max_age_seconds = 3600)
+    {
+        std::string cookie_header = name + "=" + value;
+        if (max_age_seconds > 0)
+        {
+            cookie_header += "; Max-Age=" + int_to_string(max_age_seconds);
+        }
+        cookie_header += "; Path=/";
+        cookie_header += "; HttpOnly; SameSite=Strict";
+
+        response.set_headers("Set-Cookie", cookie_header); // Add cookie to headers
+    }
+
+    // Get a cookie value from request headers
+    static std::string get_cookie( RequestParser &request, const std::string &name)
+    {
+        std::string cookie_header = request.get_header_value("Cookie");
+        size_t start_pos = cookie_header.find(name + "=");
+        if (start_pos != std::string::npos)
+        {
+            start_pos += name.length() + 1;
+            size_t end_pos = cookie_header.find(";", start_pos);
+            if (end_pos == std::string::npos)
+            {
+                end_pos = cookie_header.length();
+            }
+            return cookie_header.substr(start_pos, end_pos - start_pos);
+        }
+        return ""; // Return empty string if cookie not found
+    }
+
+    // Delete a cookie (set its Max-Age to 0)
+    static void delete_cookie(ResponseBuilder &response, const std::string &name)
+    {
+        std::string cookie_header = name + "=; Max-Age=0; Path=/";
+        response.set_headers("Set-Cookie", cookie_header); // Add cookie to headers for deletion
+    }
+
+    // Validate the session (check if a session ID exists in cookies)
+    static bool validate_session( RequestParser &request)
+    {
+        std::string session_id = get_cookie(request, "session_id");
+        return !session_id.empty(); // If session_id exists, consider the session valid
+    }
+};
+
+
+
 
 // Static function to initialize the mime types
 std::map<std::string, std::string> ResponseBuilder::init_mime_types()
@@ -199,10 +296,10 @@ std::pair<std::string, std::string> parseCGIOutput(const std::string &cgiOutput)
 		}
 		body.append(buffer, stream.gcount());
 	}
-	else
-	{
-		throw std::runtime_error("Invalid CGI output: Missing headers");
-	}
+	// else
+	// {
+	// 	throw std::runtime_error("Invalid CGI output: Missing headers");
+	// }
 
 	// Extract the Content-Type from headers
 	std::string contentType = "text/html"; // Default content type
@@ -252,7 +349,15 @@ void ResponseBuilder::doGET()
 	}
 
 	// If the requested path is a CGI script
-	if (is_cgi_request(uri))
+	std::string session_id = SessionCookieHandler::get_cookie(request, "session_id");
+	if (session_id.empty())
+	{
+		// If no session, generate and set a new session ID
+		session_id = SessionCookieHandler::generate_session_id();
+		SessionCookieHandler::set_cookie(*this, "session_id", session_id, 3600); // Set session cookie with 1-hour expiration
+		LOG_INFO("New session created: " + session_id);
+	}
+	if (is_cgi_request(uri) && location_config->useCgi)
 	{
 		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
 		try
@@ -272,7 +377,6 @@ void ResponseBuilder::doGET()
 		}
 		return;
 	}
-
 	// Check if the file is a directory
 	if (S_ISDIR(file_stat.st_mode))
 	{
@@ -324,6 +428,59 @@ void ResponseBuilder::doGET()
 	body = read_html_file(path);
 	set_status(200);
 }
+bool ResponseBuilder::isFileUpload( RequestParser request) {
+    // Ensure the configuration is initialized
+		std::string content_type = request.get_header_value("Content-Type");
+		LOG_DEBUG("Content-Type: " + content_type);
+		return content_type.find("multipart/form-data") != std::string::npos;
+	 // File upload is allowed
+}
+bool ResponseBuilder::handleMultipartFormData(const std::vector<unsigned char>& req_body, const std::string& content_type, const std::string& upload_path) {
+    // Parse the boundary from the content-type header
+    size_t boundary_pos = content_type.find("boundary=");
+    if (boundary_pos == std::string::npos) {
+        std::cerr << "Boundary not found in content-type" << std::endl;
+        return false;
+    }
+    std::string boundary = "--" + content_type.substr(boundary_pos + 9);
+
+    // Convert request body to a string
+    std::string body(req_body.begin(), req_body.end());
+
+    // Split the body into parts based on the boundary
+    size_t pos = 0, next_pos;
+    while ((next_pos = body.find(boundary, pos)) != std::string::npos) {
+        std::string part = body.substr(pos, next_pos - pos);
+        pos = next_pos + boundary.length();
+
+        // Parse headers and content
+        size_t header_end = part.find("\r\n\r\n");
+        if (header_end == std::string::npos) continue;
+        std::string headers = part.substr(0, header_end);
+        std::string content = part.substr(header_end + 4);
+
+        // Parse filename from headers
+        size_t filename_pos = headers.find("filename=\"");
+        if (filename_pos != std::string::npos) {
+            size_t filename_end = headers.find("\"", filename_pos + 10);
+            std::string filename = headers.substr(filename_pos + 10, filename_end - (filename_pos + 10));
+
+            // Save the file
+            std::string full_path = upload_path + "/" + filename;
+            std::ofstream file(full_path.c_str(), std::ios::binary);
+            if (!file) {
+                std::cerr << "Failed to open file for writing: " << full_path << std::endl;
+                return false;
+            }
+            file.write(content.c_str(), content.size());
+            file.close();
+            std::cout << "File uploaded: " << full_path << std::endl;
+			generate_upload_success_page(filename);
+        }
+    }
+
+    return true;
+}
 
 // POST method implementation
 void ResponseBuilder::doPOST()
@@ -333,6 +490,7 @@ void ResponseBuilder::doPOST()
 	std::string path = location_config->root + uri;
 	std::string content_type = request.get_header_value("content-type");
 	std::vector<byte> req_body = request.get_body();
+	
 
 	if (req_body.size() > server_config->clientMaxBodySize)
 	{
@@ -341,14 +499,25 @@ void ResponseBuilder::doPOST()
 		body = generate_error_page(status_code);
 		return;
 	}
-
-	// Reject file upload if content type is multipart/form-data
-	if (content_type.find("multipart/form-data") != std::string::npos)
+	if(content_type.find("multipart/form-data") != std::string::npos)
 	{
-		set_status(415);
-		body = generate_error_page(status_code);
+		if(!handleMultipartFormData(req_body,content_type,location_config->uploadStore))
+		{
+			set_status(403);
+			body = generate_error_page(status_code);
+			return;
+		}
 		return;
 	}
+	std::string session_id = SessionCookieHandler::get_cookie(request, "session_id");
+    if (session_id.empty())
+    {
+        // If no session, generate and set a new session ID
+        session_id = SessionCookieHandler::generate_session_id();
+        SessionCookieHandler::set_cookie(*this, "session_id", session_id, 3600); // Set session cookie with 1-hour expiration
+        LOG_INFO("New session created: " + session_id);
+    }
+	// Reject file upload if content type is multipart/form-data
 
 	if (is_cgi_request(uri))
 	{
@@ -396,7 +565,7 @@ void ResponseBuilder::doPOST()
 	}
 	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
 	file.close();
-
+	// set_cookie("session_id", generate_session_id(), 3600);
 	set_status(201);
 	LOG_INFO("File uploaded: " + full_path);
 	set_body(generate_upload_success_page(filename));
@@ -641,7 +810,8 @@ std::string ResponseBuilder::read_html_file(const std::string &filename)
 	return content.str();
 }
 
-// Method to generate upload success page
+
+// // Method to generate upload success page
 std::string ResponseBuilder::generate_upload_success_page(const std::string &filename)
 {
 	std::ostringstream html;

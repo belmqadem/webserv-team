@@ -18,7 +18,12 @@
       <header>
         <h1>webserv</h1>
       </header>
-
+      <form action="/upload" method="POST" enctype="multipart/form-data">
+        <label for="file">Choose file to upload:</label>
+        <input type="file" id="file" name="file">
+        <button type="submit">Upload</button>
+    </form>
+    
       <div class="profiles">
         <div class="profile">
           <a href="/images/abel-mqa.jpeg"
