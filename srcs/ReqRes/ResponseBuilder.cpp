@@ -810,66 +810,6 @@ std::string ResponseBuilder::read_html_file(const std::string &filename)
 	return content.str();
 }
 
-// void ResponseBuilder::handleFileUpload( std::string body, const std::map<std::string, std::string> &headers) {
-//     // Check Content-Type for multipart/form-data
-//     if (headers.find("Content-Type") == headers.end() || headers.at("Content-Type").find("multipart/form-data") == std::string::npos) {
-//         set_status(400);
-//         body = "400 Bad Request: Not a multipart form-data request.";
-//         return;
-//     }
-
-//     // Extract boundary from Content-Type
-//     std::string boundary = headers.at("Content-Type");
-//     size_t boundaryPos = boundary.find("boundary=");
-//     if (boundaryPos == std::string::npos) {
-//         set_status(400);
-//         body = "400 Bad Request: Missing boundary.";
-//         return;
-//     }
-//     boundary = "--" + boundary.substr(boundaryPos + 9); // "boundary=" is 9 characters long
-
-//     // Split body into parts based on boundary
-//     std::vector<std::string> parts;
-//     size_t start = body.find(boundary);
-//     while (start != std::string::npos) {
-//         size_t end = body.find(boundary, start + boundary.length());
-//         parts.push_back(body.substr(start + boundary.length() + 2, end - start - boundary.length() - 4));
-//         start = end;
-//     }
-
-//     // Process each part
-//     for (const std::string &part : parts) {
-//         size_t headerEnd = part.find("\r\n\r\n");
-//         if (headerEnd == std::string::npos) continue;
-
-//         // Extract headers
-//         std::string headersPart = part.substr(0, headerEnd);
-//         std::string fileContent = part.substr(headerEnd + 4);
-
-//         // Look for Content-Disposition
-//         size_t filenamePos = headersPart.find("filename=\"");
-//         if (filenamePos != std::string::npos) {
-//             size_t filenameEnd = headersPart.find("\"", filenamePos + 10);
-//             std::string filename = headersPart.substr(filenamePos + 10, filenameEnd - filenamePos - 10);
-
-//             // Save file to upload directory
-//             std::string filePath = location_config->uploadStore + "/" + filename;
-//             std::ofstream outFile(filePath.c_str(), std::ios::binary);
-//             if (outFile) {
-//                 outFile.write(fileContent.c_str(), fileContent.size());
-//                 outFile.close();
-//             } else {
-//                 set_status(500);
-//                 body = "500 Internal Server Error: Failed to save file.";
-//                 return;
-//             }
-//         }
-//     }
-
-//     // Respond with success
-//     set_status(200);
-//     body = "File uploaded successfully.";
-// }
 
 // // Method to generate upload success page
 std::string ResponseBuilder::generate_upload_success_page(const std::string &filename)

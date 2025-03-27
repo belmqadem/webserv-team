@@ -53,7 +53,6 @@ bool isFileUpload( RequestParser request);
 	std::map<std::string, std::string> prepareEnv( RequestParser &request) const ;
 	
 	// Setters
-	void handleFileUpload( std::string body, const std::map<std::string, std::string> &headers);
 	void set_http_version(const std::string &http_version);
 	void set_status(short status_code);
 	void set_headers(const std::string &key, const std::string &value);
