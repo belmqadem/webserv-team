@@ -254,15 +254,21 @@ void ResponseBuilder::doGET()
 	// If the requested path is a CGI script
 	if (is_cgi_request(uri))
 	{
-		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
 		try
 		{
-			std::string cgiOutput = cgiHandler.executeCGI();
-			std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
-			// Set headers and body in the response
-			set_headers("Content-Type", parsedOutput.first); // Use the content type from the CGI output
-			body = parsedOutput.second;
-			set_status(200);
+			// Create CGI handler but don't wait for it
+			CGIHandler* cgiHandler = new CGIHandler(request, "/usr/bin/php-cgi", this);
+			
+			// Start the CGI process asynchronously
+			cgiHandler->startCGI();
+			
+			// Set a placeholder response
+			set_status(202); // Accepted
+			body = "CGI request is being processed";
+			
+			// Don't delete the handler - it will clean itself up when done
+			// The response will be populated by CGIHandler::onEvent when complete
+			
 		}
 		catch (const std::exception &e)
 		{
@@ -350,26 +356,26 @@ void ResponseBuilder::doPOST()
 		return;
 	}
 
-	if (is_cgi_request(uri))
-	{
-		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
-		try
-		{
-			std::string cgiOutput = cgiHandler.executeCGI();
-			std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
-			// Set headers and body in the response
-			set_headers("Content-Type", parsedOutput.first); // Use the content type from the CGI output
-			body = parsedOutput.second;
-			set_status(200);
-		}
-		catch (const std::exception &e)
-		{
-			set_status(500);
-			body = generate_error_page(status_code);
-			Logger::getInstance().error(e.what());
-		}
-		return;
-	}
+	// if (is_cgi_request(uri))
+	// {
+	// 	CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
+	// 	try
+	// 	{
+	// 		std::string cgiOutput = cgiHandler.executeCGI();
+	// 		std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
+	// 		// Set headers and body in the response
+	// 		set_headers("Content-Type", parsedOutput.first); // Use the content type from the CGI output
+	// 		body = parsedOutput.second;
+	// 		set_status(200);
+	// 	}
+	// 	catch (const std::exception &e)
+	// 	{
+	// 		set_status(500);
+	// 		body = generate_error_page(status_code);
+	// 		Logger::getInstance().error(e.what());
+	// 	}
+	// 	return;
+	// }
 
 	std::string upload_path = location_config->uploadStore;
 

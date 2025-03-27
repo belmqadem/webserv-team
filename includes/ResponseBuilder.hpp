@@ -13,7 +13,6 @@ private:
 	std::string body;
 	short status_code;
 	std::map<std::string, void (ResponseBuilder::*)(void)> routes; // A map to route the request to the correct method
-	RequestParser request;
 	const ServerConfig *server_config; // Pointer to the matched server block
 	const Location *location_config;   // Pointer to the matched location block
 
@@ -26,7 +25,6 @@ private:
 	void init_config();
 	void init_routes();
 	bool handle_redirection();
-	std::string generate_error_page(short status_code);
 	std::string generate_directory_listing(const std::string &path);
 	std::string generate_response_string();
 	std::string detect_mime_type(const std::string &path);
@@ -38,23 +36,25 @@ private:
 
 	// Map to save the mime types
 	static std::map<std::string, std::string> mime_types;
-
+	
 	// Method to initialize the mime types
 	static std::map<std::string, std::string> init_mime_types();
-
+	
 	ResponseBuilder(const ResponseBuilder &);
 	ResponseBuilder &operator=(const ResponseBuilder &);
-
+	
 public:
-	ResponseBuilder(RequestParser &request);
+RequestParser request;
+ResponseBuilder(RequestParser &request);
 	std::map<std::string, std::string> prepareEnv( RequestParser &request) const ;
-
+	
+	std::string generate_error_page(short status_code);
 	// Setters
 	void set_http_version(const std::string &http_version);
 	void set_status(short status_code);
 	void set_headers(const std::string &key, const std::string &value);
 	void set_body(const std::string &body);
-
+	
 	// Getters
 	std::string get_response();
 	std::string get_http_version();

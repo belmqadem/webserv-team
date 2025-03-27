@@ -30,5 +30,8 @@ fclean :
 
 re : fclean all
 
-.PHONY : all clean fclean re
+debug: CXXFLAGS = -Wall -Wextra -std=c++98 -g -O0
+debug: $(NAME)
+
+.PHONY : all clean fclean re debug
 .SECONDARY : $(OBJS)
