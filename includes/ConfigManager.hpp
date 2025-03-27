@@ -56,20 +56,20 @@ struct ServerConfig
 	ServerConfig() : port(80), host("0.0.0.0"), defaultServer(false), clientMaxBodySize(DEFAULT_CLIENT_MAX_BODY_SIZE)
 	{
 		serverNames.push_back("localhost");
-		errorPages[400] = "errors/400.html";
-		errorPages[403] = "errors/403.html";
-		errorPages[404] = "errors/404.html";
-		errorPages[405] = "errors/405.html";
-		errorPages[409] = "errors/409.html";
-		errorPages[410] = "errors/410.html";
-		errorPages[413] = "errors/413.html";
-		errorPages[414] = "errors/414.html";
-		errorPages[415] = "errors/415.html";
-		errorPages[416] = "errors/416.html";
-		errorPages[431] = "errors/431.html";
-		errorPages[500] = "errors/500.html";
-		errorPages[501] = "errors/501.html";
-		errorPages[505] = "errors/505.html";
+		errorPages[400] = "default/400.html";
+		errorPages[403] = "default/403.html";
+		errorPages[404] = "default/404.html";
+		errorPages[405] = "default/405.html";
+		errorPages[409] = "default/409.html";
+		errorPages[410] = "default/410.html";
+		errorPages[413] = "default/413.html";
+		errorPages[414] = "default/414.html";
+		errorPages[415] = "default/415.html";
+		errorPages[416] = "default/416.html";
+		errorPages[431] = "default/431.html";
+		errorPages[500] = "default/500.html";
+		errorPages[501] = "default/501.html";
+		errorPages[505] = "default/505.html";
 	}
 };
 

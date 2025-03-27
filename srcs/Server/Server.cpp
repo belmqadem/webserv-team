@@ -1,7 +1,5 @@
 #include "Server.hpp"
 #include "Exceptions.hpp"
-#include "webserv.hpp"
-#include <string.h>
 
 Server::Server(std::vector<ServerConfig> config) : IEvenetListeners(), _config(config), _is_started(false)
 {
@@ -74,7 +72,7 @@ void Server::listenOnAddr(sockaddr_in addr)
 
 void Server::StartServer(void)
 {
-	LOG_SERVER("Our Webserver *Not Nginx* Is Starting...");
+	LOG_SERVER("Our Webserver *Not Nginx* Is Starting . . .");
 	_is_started = true;
 
 	std::vector<ServerConfig>::iterator it = _config.begin();
