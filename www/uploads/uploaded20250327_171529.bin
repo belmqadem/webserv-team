@@ -1,0 +1,10 @@
+------geckoformboundarye1d10e476a1a9aa188f2bee990b91719
+Content-Disposition: form-data; name="file"; filename="test(6).php"
+Content-Type: application/octet-stream
+
+<?php
+header("Content-Type: text/html");
+echo "<html><body>Hello, CGI World!</body></html>";
+?>
+
+------geckoformboundarye1d10e476a1a9aa188f2bee990b91719--
