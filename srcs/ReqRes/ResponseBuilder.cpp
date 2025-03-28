@@ -18,85 +18,6 @@
 #include <cstdlib>
 #include <cstring>
 
-class SessionCookieHandler
-{
-public:
-    // Generate a session ID based on current time and a random number
-    static std::string generate_session_id()
-    {
-        time_t now = time(NULL);
-        struct tm *timeinfo = localtime(&now);
-
-        char buffer[14];
-        strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S", timeinfo);
-
-        srand(time(NULL)); // Seed for random number generation
-        int random_number = rand() % 10000;
-
-        // Using manual string concatenation in C++98
-        std::string session_id(buffer);
-        session_id += "_" + int_to_string(random_number); // Convert integer to string
-
-        return session_id;
-    }
-
-    // Convert integer to string (manual conversion)
-    static std::string int_to_string(int number)
-    {
-        std::ostringstream oss;
-        oss << number;
-        return oss.str(); // Convert int to string using ostringstream (valid in C++98)
-    }
-
-    // Set a cookie
-    static void set_cookie(ResponseBuilder &response, const std::string &name, const std::string &value, int max_age_seconds = 3600)
-    {
-        std::string cookie_header = name + "=" + value;
-        if (max_age_seconds > 0)
-        {
-            cookie_header += "; Max-Age=" + int_to_string(max_age_seconds);
-        }
-        cookie_header += "; Path=/";
-        cookie_header += "; HttpOnly; SameSite=Strict";
-
-        response.set_headers("Set-Cookie", cookie_header); // Add cookie to headers
-    }
-
-    // Get a cookie value from request headers
-    static std::string get_cookie( RequestParser &request, const std::string &name)
-    {
-        std::string cookie_header = request.get_header_value("Cookie");
-        size_t start_pos = cookie_header.find(name + "=");
-        if (start_pos != std::string::npos)
-        {
-            start_pos += name.length() + 1;
-            size_t end_pos = cookie_header.find(";", start_pos);
-            if (end_pos == std::string::npos)
-            {
-                end_pos = cookie_header.length();
-            }
-            return cookie_header.substr(start_pos, end_pos - start_pos);
-        }
-        return ""; // Return empty string if cookie not found
-    }
-
-    // Delete a cookie (set its Max-Age to 0)
-    static void delete_cookie(ResponseBuilder &response, const std::string &name)
-    {
-        std::string cookie_header = name + "=; Max-Age=0; Path=/";
-        response.set_headers("Set-Cookie", cookie_header); // Add cookie to headers for deletion
-    }
-
-    // Validate the session (check if a session ID exists in cookies)
-    static bool validate_session( RequestParser &request)
-    {
-        std::string session_id = get_cookie(request, "session_id");
-        return !session_id.empty(); // If session_id exists, consider the session valid
-    }
-};
-
-
-
 
 // Static function to initialize the mime types
 std::map<std::string, std::string> ResponseBuilder::init_mime_types()
@@ -491,7 +412,7 @@ void ResponseBuilder::doPOST()
 	std::string content_type = request.get_header_value("content-type");
 	std::vector<byte> req_body = request.get_body();
 	
-
+	
 	if (req_body.size() > server_config->clientMaxBodySize)
 	{
 		LOG_ERROR(HTTP_PARSE_PAYLOAD_TOO_LARGE);
@@ -526,8 +447,7 @@ void ResponseBuilder::doPOST()
 		{
 			std::string cgiOutput = cgiHandler.executeCGI();
 			std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
-			// Set headers and body in the response
-			set_headers("Content-Type", parsedOutput.first); // Use the content type from the CGI output
+			set_headers("Content-Type", parsedOutput.first); 
 			body = parsedOutput.second;
 			set_status(200);
 		}
@@ -551,24 +471,6 @@ void ResponseBuilder::doPOST()
 		body = generate_error_page(status_code);
 		return;
 	}
-
-	std::string filename = "uploaded" + Utils::get_timestamp_str() + ".bin";
-	std::string full_path = upload_path + "/" + filename;
-
-	// Write the data to the file
-	std::ofstream file(full_path.c_str(), std::ios::binary);
-	if (!file)
-	{
-		set_status(403);
-		body = generate_error_page(status_code);
-		return;
-	}
-	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
-	file.close();
-	// set_cookie("session_id", generate_session_id(), 3600);
-	set_status(201);
-	LOG_INFO("File uploaded: " + full_path);
-	set_body(generate_upload_success_page(filename));
 }
 
 // DELETE method implementation

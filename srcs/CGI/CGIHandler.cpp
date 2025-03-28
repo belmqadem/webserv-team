@@ -2,7 +2,7 @@
 
 #define ROOT_DIRECTORY "www/html"
 
-CGIHandler::CGIHandler(RequestParser &request, const std::string &php_cgi_path)
+CGIHandler::CGIHandler(RequestParser &request, const std::string &_path)
 {
 	Logger &logger = Logger::getInstance();
 	scriptPath = ROOT_DIRECTORY + request.get_request_uri();
@@ -17,7 +17,11 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &php_cgi_path)
 		std::string extension = scriptPath.substr(dotPos);
 		if (extension == ".php")
 		{
-			interpreter = php_cgi_path;
+			interpreter = _path;
+		}
+		else if (extension == ".py")
+		{
+			interpreter = "usr/bin/python3";
 		}
 	}
 	if (interpreter.empty())
@@ -57,10 +61,13 @@ std::string CGIHandler::executeCGI()
 			argv[i] = const_cast<char *>(args[i].c_str());
 		argv[args.size()] = NULL;
 		std::vector<std::string> env;
+		env.push_back("GATEWAY_INTERFACE=CGI/1.1");
+		env.push_back("SERVER_PROTOCOL=HTTP/1.1");
+		env.push_back("SERVER_SOFTWARE=CustomServer/1.0");
 		env.push_back("REQUEST_METHOD=" + method);
 		env.push_back("QUERY_STRING=" + queryString);
 		env.push_back("CONTENT_LENGTH=" + oss.str());
-		env.push_back("CONTENT_TYPE=" + headers["Content-Type"]);
+		env.push_back("CONTENT_TYPE=" + (headers.count("Content-Type") ? headers["Content-Type"] : "application/x-www-form-urlencoded"));
 		env.push_back("REDIRECT_STATUS=200");
 		env.push_back("SCRIPT_FILENAME=" + scriptPath);
 		env.push_back("SCRIPT_NAME=" + scriptPath);
@@ -73,7 +80,7 @@ std::string CGIHandler::executeCGI()
 		envp[env.size()] = NULL;
 		execve(argv[0], argv, envp);
 		logger.error("execve failed");
-		exit(1);
+		exit(127);
 	}
 	else
 	{
@@ -81,6 +88,7 @@ std::string CGIHandler::executeCGI()
 		if (method == "POST")
 		{
 			write(cgi_socket[0], body.c_str(), body.length());
+			logger.info("CGI POST Body: " + body);
 		}
 		char buffer[1024];
 		std::string cgi_output;
@@ -90,8 +98,14 @@ std::string CGIHandler::executeCGI()
 			buffer[bytesRead] = '\0';
 			cgi_output += buffer;
 		}
+		logger.info("CGI Output: " + cgi_output);
 		close(cgi_socket[0]);
-		waitpid(pid, NULL, 0);
+		int status;
+        waitpid(pid, &status, 0);
+        if (WIFEXITED(status) && WEXITSTATUS(status) != 0) // Check child exit status
+        {
+            throw std::runtime_error("500 Internal Server Error: CGI execution failed");
+        }
 		return cgi_output;
 	}
 }
