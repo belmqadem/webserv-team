@@ -80,6 +80,15 @@
           <input type="submit" value="Upload File" />
         </form>
       </section>
+
+      <section>
+        <h2>Test File Upload (With CGI)</h2>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+          <label for="file">Choose file to upload:</label>
+          <input type="file" id="file" name="file" />
+          <button type="submit">Upload</button>
+        </form>
+      </section>
     </section>
   </body>
 </html>
