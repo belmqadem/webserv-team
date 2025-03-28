@@ -2,7 +2,7 @@
 
 #include "RequestParser.hpp"
 #include "CGIHandler.hpp"
-// #include "SessionCookieHandler.hpp"
+#include "SessionCookieHandler.hpp"
 
 class ResponseBuilder
 {
