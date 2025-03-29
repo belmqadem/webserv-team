@@ -112,7 +112,7 @@ std::string ResponseBuilder::build_response()
 		}
 	}
 
-	handle_session_cookies();
+	// handle_session_cookies();
 
 	if (handle_redirection())
 	{
@@ -247,25 +247,10 @@ void ResponseBuilder::doGET()
 		return;
 	}
 
-	// If the requested path is a CGI script
+	// If the requested path is a CGI script - this is now handled by ClientServer
 	if (is_cgi_request(uri) && location_config->useCgi)
 	{
-		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
-		try
-		{
-			std::string cgiOutput = cgiHandler.executeCGI();
-			std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
-			// Set headers and body in the response
-			set_headers("Content-Type", parsedOutput.first); // Use the content type from the CGI output
-			body = parsedOutput.second;
-			set_status(200);
-		}
-		catch (const std::exception &e)
-		{
-			set_status(500);
-			body = generate_error_page();
-			Logger::getInstance().error(e.what());
-		}
+		// Just return, actual CGI processing happens in ClientServer
 		return;
 	}
 
@@ -340,21 +325,7 @@ void ResponseBuilder::doPOST()
 
 	if (is_cgi_request(uri))
 	{
-		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
-		try
-		{
-			std::string cgiOutput = cgiHandler.executeCGI();
-			std::pair<std::string, std::string> parsedOutput = parseCGIOutput(cgiOutput);
-			set_headers("Content-Type", parsedOutput.first);
-			body = parsedOutput.second;
-			set_status(200);
-		}
-		catch (const std::exception &e)
-		{
-			set_status(500);
-			body = generate_error_page();
-			Logger::getInstance().error(e.what());
-		}
+		// Just return, actual CGI processing happens in ClientServer
 		return;
 	}
 

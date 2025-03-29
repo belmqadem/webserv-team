@@ -1,4 +1,5 @@
 #include "ClientServer.hpp"
+#include "CGIHandler.hpp"
 
 bool ClientServer::isStarted() const
 {
@@ -45,7 +46,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 }
 
 ClientServer::ClientServer(const int &server_socket_fd, const int &peer_socket_fd) : _is_started(false),
-																					 _server_socket_fd(server_socket_fd), _peer_socket_fd(peer_socket_fd), _parser(NULL), _last_activity(time(NULL)) {}
+																					 _server_socket_fd(server_socket_fd), _peer_socket_fd(peer_socket_fd), _parser(NULL), _last_activity(time(NULL)), _pendingCgi(NULL), _waitingForCGI(false) {}
 
 ClientServer::~ClientServer()
 {
@@ -54,20 +55,36 @@ ClientServer::~ClientServer()
 
 void ClientServer::terminate()
 {
-	if (_is_started == false)
-		return;
-	_is_started = false;
-	if (_parser)
-	{
-		delete _parser;
-		_parser = NULL;
-	}
-	IOMultiplexer::getInstance().removeListener(_epoll_ev, _peer_socket_fd);
-	_is_started = false;
+    if (_is_started == false)
+        return;
+    _is_started = false;
+    
+    // Clean up parser
+    if (_parser)
+    {
+        delete _parser;
+        _parser = NULL;
+    }
+    
+    // Clean up pending CGI and its ResponseBuilder
+    if (_pendingCgi)
+    {
+        ResponseBuilder* respBuilder = _pendingCgi->getResponseBuilder();
+        delete _pendingCgi;
+        _pendingCgi = NULL;
+        
+        // Also delete the response builder if it exists
+        if (respBuilder)
+        {
+            delete respBuilder;
+        }
+    }
+    
+    IOMultiplexer::getInstance().removeListener(_epoll_ev, _peer_socket_fd);
 
-	std::string addr = inet_ntoa(_client_addr.sin_addr);
-	LOG_CLIENT(addr + " Fd " + to_string(_peer_socket_fd) + " Disconnected!");
-	close(_peer_socket_fd);
+    std::string addr = inet_ntoa(_client_addr.sin_addr);
+    LOG_CLIENT(addr + " Fd " + to_string(_peer_socket_fd) + " Disconnected!");
+    close(_peer_socket_fd);
 }
 
 void ClientServer::onEvent(int fd, epoll_event ev)
@@ -80,6 +97,8 @@ void ClientServer::onEvent(int fd, epoll_event ev)
 
 	if (ev.events & EPOLLOUT)
 	{
+		if (_waitingForCGI)
+			checkCGIProgress();
 		handleResponse();
 	}
 }
@@ -110,10 +129,50 @@ void ClientServer::handleIncomingData()
 			_parser = new RequestParser(parser);
 			if (_parser->get_error_code() == 1)
 				LOG_REQUEST(_parser->get_request_line());
-			// parser.print_request();
-			ResponseBuilder response(parser);
-			_response_buffer = response.get_response();
-			_response_ready = true;
+
+			// Check if this is a CGI request
+			if (_parser->get_location_config() &&
+				_parser->get_location_config()->useCgi &&
+				ResponseBuilder::is_cgi_request(_parser->get_request_uri()))
+			{
+				LOG_INFO("Processing CGI request");
+
+				// Create a response builder but don't execute it yet
+				ResponseBuilder *respBuilder = new ResponseBuilder(*_parser);
+
+				// Create a CGI handler
+				_pendingCgi = new CGIHandler(*_parser, "/usr/bin/php-cgi", respBuilder, this);
+
+				try
+				{
+					// Start the CGI process
+					_pendingCgi->startCGI();
+					_waitingForCGI = true;
+
+					// Don't set _response_ready, we'll wait for CGI completion
+				}
+				catch (const std::exception &e)
+				{
+					LOG_ERROR("CGI failed: " + std::string(e.what()));
+					delete _pendingCgi;
+					_pendingCgi = NULL;
+
+					// Create an error response
+					respBuilder->set_status(500);
+					respBuilder->set_body(respBuilder->generate_error_page());
+					_response_buffer = respBuilder->get_response();
+					_response_ready = true;
+					delete respBuilder;
+				}
+			}
+			else
+			{
+				// Normal (non-CGI) request processing
+				ResponseBuilder response(*_parser);
+				_response_buffer = response.get_response();
+				_response_ready = true;
+			}
+
 			_request_buffer.clear();
 		}
 		catch (std::exception &e)
@@ -121,6 +180,56 @@ void ClientServer::handleIncomingData()
 			LOG_ERROR("Exception in request processing -- " + std::string(e.what()));
 		}
 	}
+}
+
+void ClientServer::onCGIComplete(CGIHandler *handler)
+{
+    if (_pendingCgi == handler)
+    {
+        LOG_INFO("CGI processing complete, sending response");
+
+        // Get the response builder
+        ResponseBuilder *respBuilder = handler->getResponseBuilder();
+
+        // Build the response
+        _response_buffer = respBuilder->build_response();
+        _response_ready = true;
+        _waitingForCGI = false;
+        
+        updateActivity();
+
+        // Clean up both the CGI handler and the response builder
+        delete _pendingCgi;
+        _pendingCgi = NULL;
+        
+        // Clean up the response builder after we've generated the response
+        delete respBuilder;
+    }
+}
+
+void ClientServer::checkCGIProgress()
+{
+    if (_waitingForCGI && _pendingCgi)
+    {
+        // Keep the connection alive while CGI is processing
+        updateActivity();
+        
+        // Check if it's been too long (e.g., 60 seconds)
+        time_t elapsed = time(NULL) - _pendingCgi->getStartTime();
+        if (elapsed > TIME_OUT_SECONDS) {
+            LOG_ERROR("CGI execution exceeded maximum allowed time");
+            delete _pendingCgi;
+            _pendingCgi = NULL;
+            _waitingForCGI = false;
+            
+            // Create an error response
+            ResponseBuilder response(*_parser);
+            response.set_status(504);  // Gateway Timeout
+            response.set_body(response.generate_error_page());
+            _response_buffer = response.get_response();
+            _response_ready = true;
+        }
+    }
 }
 
 void ClientServer::handleResponse()

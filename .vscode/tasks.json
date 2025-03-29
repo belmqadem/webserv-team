@@ -1,0 +1,69 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "make",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": ["relative", "${workspaceFolder}"],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
+            "label": "build-debug",
+            "type": "shell",
+            "command": "make clean && make CXXFLAGS='-Wall -Wextra -Werror -std=c++98 -g -O0'",
+            "group": "build",
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "make clean",
+            "problemMatcher": []
+        },
+        {
+            "label": "rebuild",
+            "type": "shell",
+            "command": "make fclean && make",
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "kill-server-port",
+            "type": "shell",
+            "command": "lsof -i :5050 | grep LISTEN | awk '{print $2}' | xargs kill -9 2>/dev/null || echo 'No process on port 5050'",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "create-test-script",
+            "type": "shell",
+            "command": "echo '<?php header(\"Content-Type: text/plain\"); sleep(5); echo \"Hello after sleep!\"; ?>' > www/html/sleep-test.php && chmod +x www/html/sleep-test.php",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "prepare-cgi-debug",
+            "dependsOrder": "sequence",
+            "dependsOn": ["build-debug", "kill-server-port", "create-test-script"],
+            "problemMatcher": []
+        }
+    ]
+}
