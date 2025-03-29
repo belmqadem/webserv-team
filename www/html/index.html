@@ -72,21 +72,25 @@
         <a href="/test.php">Run Php CGI Script</a>
       </section>
 
-      <!-- File Upload -->
+      <!-- File Upload Test (application/octet-stream) -->
       <section class="test-section">
-        <h2>Test File Upload (No CGI)</h2>
+        <h2>File Upload Test (Binary - application/octet-stream)</h2>
         <form action="/upload" method="POST" enctype="application/octet-stream">
-          <input type="file" name="file" id="file" required />
-          <input type="submit" value="Upload File" />
+          <label for="binary-file">Choose a file to upload:</label><br />
+          <input type="file" name="file" id="binary-file" required />
+          <br /><br />
+          <input type="submit" value="Upload Binary File" />
         </form>
       </section>
 
-      <section>
-        <h2>Test File Upload (With CGI)</h2>
+      <!-- File Upload Test (multipart/form-data) -->
+      <section class="test-section">
+        <h2>File Upload Test (multipart/form-data)</h2>
         <form action="/upload" method="POST" enctype="multipart/form-data">
-          <label for="file">Choose file to upload:</label>
-          <input type="file" id="file" name="file" />
-          <button type="submit">Upload</button>
+          <label for="multipart-file">Choose a file to upload:</label><br />
+          <input type="file" name="file" id="multipart-file" required />
+          <br /><br />
+          <input type="submit" value="Upload Form Data File" />
         </form>
       </section>
     </section>

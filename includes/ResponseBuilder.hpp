@@ -37,10 +37,14 @@ private:
 	std::string get_http_date();
 	std::string read_html_file(const std::string &filename);
 	std::string generate_upload_success_page(const std::string &filename);
+	bool handleMultipartFormData();
+	bool validate_upload_path(const std::string &upload_path);
+	bool save_uploaded_file(const std::string &full_path, const std::vector<byte> &req_body);
+	void handle_session_cookies();
 
 	static std::map<std::string, std::string> mime_types;
 	static std::map<std::string, std::string> init_mime_types();
-	bool isFileUpload(RequestParser request);
+
 	ResponseBuilder(const ResponseBuilder &);
 	ResponseBuilder &operator=(const ResponseBuilder &);
 
@@ -49,9 +53,6 @@ public:
 
 	// Main Function that builds the response
 	std::string build_response();
-	bool handleMultipartFormData(const std::vector<unsigned char> &req_body, const std::string &content_type, const std::string &upload_path);
-
-	std::map<std::string, std::string> prepareEnv(RequestParser &request) const;
 
 	// Setters
 	void set_status(short status_code);

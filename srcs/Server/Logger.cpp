@@ -101,16 +101,18 @@ void Logger::log(LogLevel level, const std::string &message)
 
 	if (_toConsole)
 	{
-		if (level >= ERROR)
+		if (level == ERROR)
 			std::cerr << BOLD_RED << logMessage << RESET << std::endl;
 		else if (level == SERVERS)
 			std::cout << BOLD_WHITE UNDERLINE << logMessage << RESET << std::endl;
 		else if (level == CLIENT)
-			std::cout << YELLOW << logMessage << RESET << std::endl;
+			std::cout << BOLD_YELLOW << logMessage << RESET << std::endl;
 		else if (level == REQUEST)
-			std::cout << BOLD_GREEN << logMessage << RESET << std::endl;
+			std::cout << BLUE << logMessage << RESET << std::endl;
 		else if (level == RESPONSE)
 			std::cout << BOLD_BLUE << logMessage << RESET << std::endl;
+		else if (level == INFO)
+			std::cout << BOLD_MAGENTA << logMessage << RESET << std::endl;
 		else
 			std::cout << logMessage << std::endl;
 	}

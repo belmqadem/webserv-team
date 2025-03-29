@@ -134,6 +134,10 @@ namespace Utils
 					std::cout << "        " << it->first << ": " << it->second << std::endl;
 				}
 			}
+			else
+			{
+				std::cout << "    CGI Enabled: no" << std::endl;
+			}
 
 			if (!loc.uploadStore.empty())
 			{
