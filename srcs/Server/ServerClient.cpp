@@ -190,19 +190,20 @@ void ClientServer::onCGIComplete(CGIHandler *handler)
 
         // Get the response builder
         ResponseBuilder *respBuilder = handler->getResponseBuilder();
-
-        // Build the response
-        _response_buffer = respBuilder->build_response();
+        
+        // CRITICAL FIX: Don't rebuild the entire response, just generate the string
+        _response_buffer = respBuilder->generate_response_only();
+        
+        // Log the status to debug
+        LOG_INFO("CGI Response status: " + to_string(respBuilder->get_status_code()));
+        LOG_INFO("Response buffer size: " + to_string(_response_buffer.size()));
+        
         _response_ready = true;
         _waitingForCGI = false;
-        
-        updateActivity();
 
-        // Clean up both the CGI handler and the response builder
+        // Clean up
         delete _pendingCgi;
         _pendingCgi = NULL;
-        
-        // Clean up the response builder after we've generated the response
         delete respBuilder;
     }
 }

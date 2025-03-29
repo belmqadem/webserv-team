@@ -356,76 +356,70 @@ void CGIHandler::processCGIOutput()
     if (!responseBuilder)
         return;
     
-    // Use the appropriate version of parseCGIOutput
-    std::pair<std::string, std::string> parsed = parseCGIOutput(cgi_output);
+    Logger &logger = Logger::getInstance();
+    logger.info("Processing CGI output: " + to_string(cgi_output.size()) + " bytes");
     
-    // Update the response builder
-    responseBuilder->set_headers("Content-Type", parsed.first);
-    responseBuilder->set_body(parsed.second);
-    responseBuilder->set_status(200);
-}
-
-std::pair<std::string, std::string> CGIHandler::parseCGIOutput(const std::string& output)
-{
-    std::istringstream stream(output);
-    std::string line;
+    // First, reset the response builder's state
+    responseBuilder->set_status(200); // Start with 200 OK by default
+    
+    // Identify headers and body
     std::string headers;
     std::string body;
-    bool headerParsed = false;
-
-    // Read line by line
-    while (std::getline(stream, line))
-    {
-        // Trim any trailing carriage return
-        if (!line.empty() && line[line.size() - 1] == '\r')
-        {
-            line.erase(line.size() - 1);
-        }
-
-        // Check for the blank line separating headers from the body
-        if (line.empty())
-        {
-            headerParsed = true;
-            break;
-        }
-
-        // Append to headers
-        headers += line + "\n";
+    size_t headerEnd = cgi_output.find("\r\n\r\n");
+    
+    if (headerEnd != std::string::npos) {
+        headers = cgi_output.substr(0, headerEnd);
+        body = cgi_output.substr(headerEnd + 4);
+    } else {
+        // No header/body split found, treat as body
+        body = cgi_output;
     }
-
-    // If headers are parsed, the rest is the body
-    if (headerParsed)
-    {
-        char buffer[1024];
-        while (stream.read(buffer, sizeof(buffer)))
-        {
-            body.append(buffer, stream.gcount());
-        }
-        body.append(buffer, stream.gcount());
-    }
-
-    // Extract the Content-Type from headers
-    std::string contentType = "text/html"; // Default content type
+    
+    // Look for Content-Type
+    std::string contentType = "text/html"; // Default
+    
+    // Look for status code in headers
+    bool statusSet = false;
     std::istringstream headerStream(headers);
-    while (std::getline(headerStream, line))
-    {
-        if (line.find("Content-Type:") == 0)
-        {
-            contentType = line.substr(13); // Extract content type value
-            // Trim any whitespace
-            size_t start = contentType.find_first_not_of(" \t");
-            size_t end = contentType.find_last_not_of(" \t");
-            if (start != std::string::npos && end != std::string::npos)
-            {
-                contentType = contentType.substr(start, end - start + 1);
+    std::string line;
+    
+    while (std::getline(headerStream, line)) {
+        // Trim any trailing CR
+        if (!line.empty() && line[line.size() - 1] == '\r')
+            line.erase(line.size() - 1);
+        
+        if (line.find("Content-Type:") == 0) {
+            contentType = line.substr(13);
+            // Trim spaces
+            contentType.erase(0, contentType.find_first_not_of(" \t"));
+            logger.info("Found Content-Type: " + contentType);
+        }
+        else if (line.find("Status:") == 0 || line.find("HTTP/1.1") == 0) {
+            // Extract status code
+            std::string statusLine = line;
+            size_t codeStart = statusLine.find_first_of("0123456789");
+            if (codeStart != std::string::npos) {
+                std::string codeStr = statusLine.substr(codeStart, 3);
+                int statusCode = std::atoi(codeStr.c_str());
+                if (statusCode >= 100 && statusCode < 600) {
+                    responseBuilder->set_status(statusCode);
+                    statusSet = true;
+                    logger.info("Setting status code: " + to_string(statusCode));
+                }
             }
-            else
-            {
-                contentType = ""; // No valid content type found
-            }
-            break;
         }
     }
-
-    return std::make_pair(contentType, body);
+    
+    // Set default status if none was found
+    if (!statusSet) {
+        responseBuilder->set_status(200); // Default to 200 OK
+        logger.info("No status found, using default 200 OK");
+    }
+    
+    // Set content type and body
+    responseBuilder->set_headers("Content-Type", contentType);
+    responseBuilder->set_body(body);
+    
+    // After processing is done, dump debug info about final state
+    logger.info("Final CGI status code: " + to_string(responseBuilder->get_status_code()));
 }

@@ -47,6 +47,7 @@ private:
 	ResponseBuilder &operator=(const ResponseBuilder &);
 
 	public:
+	std::string generate_response_only();
 	std::string generate_error_page();
 	static bool is_cgi_request(const std::string &file_path);
 ResponseBuilder(RequestParser &request);
