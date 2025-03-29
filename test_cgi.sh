@@ -7,7 +7,7 @@ TOTAL_CLIENTS=${1:-10}      # Total number of requests to make
 BATCH_SIZE=${2:-3}          # How many clients to launch at once
 DELAY=${3:-1}               # Delay between batches in seconds
 ENDPOINT=${4:-"test.php"}   # Which endpoint to test
-SERVER="http://localhost:5050"
+SERVER="http://localhost:8080"
 
 echo "=== CGI Load Test ==="
 echo "Total clients: $TOTAL_CLIENTS"
