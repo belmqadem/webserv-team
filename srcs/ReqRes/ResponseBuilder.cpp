@@ -154,14 +154,15 @@ void ResponseBuilder::handle_session_cookies()
 // Method for creating the response
 std::string ResponseBuilder::generate_response_string()
 {
-	std::ostringstream response;
-	response << http_version << SP << status;
-	LOG_RESPONSE(response.str());
-	response << CRLF;
-	for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
-		response << it->first << ": " << it->second << CRLF;
-	response << CRLF << body;
-	return response.str();
+    std::ostringstream response;
+    response << http_version << SP << status;
+    // Fix the logging to show the complete status line
+    LOG_RESPONSE(http_version + " " + status);
+    response << CRLF;
+    for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
+        response << it->first << ": " << it->second << CRLF;
+    response << CRLF << body;
+    return response.str();
 }
 
 std::pair<std::string, std::string> parseCGIOutput(const std::string &cgiOutput)
@@ -339,6 +340,7 @@ void ResponseBuilder::doPOST()
 	if (is_cgi_request(uri))
 	{
 		// Just return, actual CGI processing happens in ClientServer
+		set_status(200);
 		return;
 	}
 
@@ -350,6 +352,7 @@ void ResponseBuilder::doPOST()
 			body = generate_error_page();
 			return;
 		}
+		set_status(200);
 		return;
 	}
 

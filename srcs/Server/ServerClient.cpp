@@ -80,6 +80,12 @@ void ClientServer::terminate()
         }
     }
     
+    // Clear any buffered data
+    _request_buffer.clear();
+    _response_buffer.clear();
+    _response_ready = false;
+    _waitingForCGI = false;
+    
     IOMultiplexer::getInstance().removeListener(_epoll_ev, _peer_socket_fd);
 
     std::string addr = inet_ntoa(_client_addr.sin_addr);
@@ -115,6 +121,14 @@ void ClientServer::handleIncomingData()
     }
     updateActivity();
     _request_buffer.append(buffer, rd_count);
+    
+    // for curl tests
+    if (_parser && _parser->get_expects_continue()) {
+        std::string continue_response = "HTTP/1.1 100 Continue\r\n\r\n";
+        send(_peer_socket_fd, continue_response.c_str(), continue_response.length(), 0);
+        _parser->expects_continue = false;
+        LOG_INFO("Sent 100 Continue response");
+    }
     
     // If we already have a parser and it's already parsing the body
     if (_parser && _parser->get_state() == BODY && !_waitingForCGI)
@@ -161,6 +175,7 @@ void ClientServer::handleIncomingData()
     {
         try
         {
+            // Reset the request buffer and state for a new request
             RequestParser parser;
             size_t bytes_read = parser.parse_request(_request_buffer);
             
@@ -170,9 +185,14 @@ void ClientServer::handleIncomingData()
                 
             parser.match_location(ConfigManager::getInstance().getServers());
             
+            // Make sure to fully clean up the previous parser
             if (_parser)
+            {
                 delete _parser;
-                
+                _parser = NULL;  // Important to set to NULL
+            }
+            
+            // Create a clean parser instance
             _parser = new RequestParser(parser);
             
             if (_parser->get_error_code() == 1)
@@ -203,6 +223,12 @@ void ClientServer::handleIncomingData()
         catch (std::exception &e)
         {
             LOG_ERROR("Exception in request processing -- " + std::string(e.what()));
+            
+            // Make sure to clean up on error too
+            if (_parser) {
+                delete _parser;
+                _parser = NULL;
+            }
         }
     }
 }
@@ -324,6 +350,11 @@ void ClientServer::handleResponse()
 		if (!shouldKeepAlive())
 		{
 			this->terminate();
+		}
+		// Reset parser state for the next request if keeping alive
+		else if (_parser && _parser->get_error_code() != 1) {
+			delete _parser;
+			_parser = NULL;
 		}
 	}
 }
