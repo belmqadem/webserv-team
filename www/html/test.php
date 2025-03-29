@@ -8,4 +8,5 @@ if (isset($_POST['name'])) {
     echo "<p>No name provided in POST request.</p>";
 }
 echo "</body></html>";
+sleep(5);
 ?>

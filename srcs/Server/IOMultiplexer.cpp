@@ -10,6 +10,10 @@ IOMultiplexer::IOMultiplexer() : _epoll_fd(epoll_create(__INT32_MAX__)), _is_sta
 	}
 }
 
+size_t IOMultiplexer::getListenersCount() const {
+	return _listeners.size();
+}
+
 void IOMultiplexer::setStarted(bool state)
 {
 	_is_started = state;
@@ -31,6 +35,10 @@ IOMultiplexer &IOMultiplexer::getInstance()
 	static IOMultiplexer inst;
 	return inst;
 }
+#define DEBUG_MODE true
+bool debug_mode() {
+	return DEBUG_MODE;
+}
 
 void IOMultiplexer::runEventLoop(void)
 {
@@ -47,7 +55,10 @@ void IOMultiplexer::runEventLoop(void)
 		int events_count = epoll_wait(_epoll_fd, _events, EPOLL_MAX_EVENTS, -1);
 		if (events_count == -1)
 		{
-			terminate();
+			if (debug_mode())
+				continue;
+			if (errno == SIGINT)
+				terminate();
 			if (_is_started)
 				throw IOMultiplexerExceptions("epoll_wait() failed.");
 		}
@@ -119,9 +130,26 @@ void IOMultiplexer::removeListener(epoll_event ev, int fd)
 
 void IOMultiplexer::terminate(void)
 {
-	std::map<int, IEvenetListeners *>::reverse_iterator it = _listeners.rbegin();
-	for (; it != _listeners.rend(); it = _listeners.rbegin())
+	// Copy the listeners to avoid iterator invalidation during termination
+	std::map<int, IEvenetListeners *> listeners_copy = _listeners;
+
+	// Iterate through and terminate each listener
+	for (std::map<int, IEvenetListeners *>::iterator it = listeners_copy.begin();
+		 it != listeners_copy.end(); ++it)
 	{
-		it->second->terminate();
+		if (it->second)
+		{
+			try
+			{
+				it->second->terminate();
+			}
+			catch (const std::exception &e)
+			{
+				LOG_ERROR("Error terminating listener: " + std::string(e.what()));
+			}
+		}
 	}
+
+	// Clear the listeners map
+	_listeners.clear();
 }

@@ -59,6 +59,11 @@ namespace Utils
 	{
 		(void)sig;
 		LOG_INFO("SIG_INT The Server will shut down");
+		
+		// Log active resources before shutdown
+		LOG_INFO("Active connections: " + to_string(IOMultiplexer::getInstance().getListenersCount()));
+		
+		// Then shut down
 		IOMultiplexer::getInstance().setStarted(false);
 		return;
 	}
@@ -69,6 +74,8 @@ namespace Utils
 			throw std::runtime_error(RED "signal() faild." RESET);
 		if (signal(SIGINT, &sigint_handle) == SIG_ERR)
 			throw std::runtime_error(RED "signal() faild." RESET);
+		if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+			throw std::runtime_error(RED "signal() failed for SIGPIPE." RESET);
 	}
 
 	void printServerConfig(const ServerConfig &server)

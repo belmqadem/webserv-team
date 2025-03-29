@@ -8,7 +8,9 @@
 
 #define TIME_OUT_SECONDS 15
 
-class ClientServer : IEvenetListeners
+class CGIHandler;
+
+class ClientServer : public IEvenetListeners
 {
 private:
 	bool _is_started;
@@ -22,15 +24,20 @@ private:
 	bool _response_ready;
 	time_t _last_activity;
 
+	// Add new members for CGI support
+	CGIHandler* _pendingCgi;
+	bool _waitingForCGI;
+
 private:
 	void handleIncomingData();
 	void handleResponse();
 	void modifyEpollEvent(uint32_t events);
 
-	void updateActivity();
 	bool hasTimeOut() const;
-
+	
 public:
+	void updateActivity();
+	void checkCGIProgress();
 	bool isStarted() const;
 	void setPeerSocketFd(uint32_t fd);
 	void setServerSocketFd(uint32_t fd);
@@ -43,4 +50,7 @@ public:
 
 	virtual void terminate();
 	virtual void onEvent(int fd, epoll_event ev);
+
+	// Add new method for CGI completion callback
+	void onCGIComplete(CGIHandler* handler);
 };

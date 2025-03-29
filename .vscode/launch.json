@@ -1,0 +1,110 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug WebServ",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/webserv",
+            "args": ["config/webserv.conf"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set disassembly flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build-debug"
+        },
+        {
+            "name": "Debug CGI Timeout",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/webserv",
+            "args": ["config/webserv.conf"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set disassembly flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Break on CGI timeout detection",
+                    "text": "break ResponseBuilder.cpp:400",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Break in CGIHandler::onEvent",
+                    "text": "break CGIHandler.cpp:178",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build-debug"
+        },
+        {
+            "name": "Debug CGI Processing",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/webserv",
+            "args": ["config/webserv.conf"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Break in CGIHandler::startCGI",
+                    "text": "break CGIHandler::startCGI",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Break in CGIHandler::onEvent",
+                    "text": "break CGIHandler::onEvent",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Break in CGIHandler::finalizeCGI",
+                    "text": "break CGIHandler::finalizeCGI",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Break in ClientServer::onCGIComplete",
+                    "text": "break ClientServer::onCGIComplete",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set watchpoint for isCompleted",
+                    "text": "watch isCompleted",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build-debug"
+        }
+    ]
+}

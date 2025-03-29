@@ -30,6 +30,7 @@ public:
 
 public:
 	const int &getEpollFd() const;
+	size_t	getListenersCount() const ;
 	void setStarted(bool);
 	static IOMultiplexer &getInstance();
 };

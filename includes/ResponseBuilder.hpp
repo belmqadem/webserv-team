@@ -27,13 +27,11 @@ private:
 	void init_config();
 	void init_routes();
 	bool handle_redirection();
-	std::string generate_error_page();
 	std::string generate_default_root();
 	std::string generate_directory_listing(const std::string &path);
 	std::string generate_response_string();
 	std::string detect_mime_type(const std::string &path);
 	void include_required_headers();
-	bool is_cgi_request(const std::string &file_path);
 	std::string get_http_date();
 	std::string read_html_file(const std::string &filename);
 	std::string generate_upload_success_page(const std::string &filename);
@@ -41,17 +39,19 @@ private:
 	bool validate_upload_path(const std::string &upload_path);
 	bool save_uploaded_file(const std::string &full_path, const std::vector<byte> &req_body);
 	void handle_session_cookies();
-
+	
 	static std::map<std::string, std::string> mime_types;
 	static std::map<std::string, std::string> init_mime_types();
-
+	
 	ResponseBuilder(const ResponseBuilder &);
 	ResponseBuilder &operator=(const ResponseBuilder &);
 
-public:
-	ResponseBuilder(RequestParser &request);
+	public:
+	std::string generate_error_page();
+	static bool is_cgi_request(const std::string &file_path);
+ResponseBuilder(RequestParser &request);
 
-	// Main Function that builds the response
+// Main Function that builds the response
 	std::string build_response();
 
 	// Setters
