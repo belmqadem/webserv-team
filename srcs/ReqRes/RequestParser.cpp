@@ -13,26 +13,29 @@ RequestParser::RequestParser()
 	this->current_chunk_size = 0;
 	this->current_chunk_read = 0;
 	this->reading_chunk_data = false;
+	this->expects_continue = false;
 }
 
 // Copy Constructor
-RequestParser::RequestParser(const RequestParser &other) : state(other.state),
-														   request_line(other.request_line),
-														   http_method(other.http_method),
-														   request_uri(other.request_uri),
-														   query_string(other.query_string),
-														   http_version(other.http_version),
-														   headers(other.headers),
-														   body(other.body),
-														   port(other.port),
-														   error_code(other.error_code),
-														   has_content_length(other.has_content_length),
-														   has_transfer_encoding(other.has_transfer_encoding),
-														   server_config(other.server_config),
-														   location_config(other.location_config),
-														   current_chunk_size(other.current_chunk_size),
-														   current_chunk_read(other.current_chunk_read),
-														   reading_chunk_data(other.reading_chunk_data) {}
+RequestParser::RequestParser(const RequestParser &other) : 
+    state(other.state),
+    request_line(other.request_line),
+    http_method(other.http_method),
+    request_uri(other.request_uri),
+    query_string(other.query_string),
+    http_version(other.http_version),
+    headers(other.headers),
+    body(other.body),
+    port(other.port),
+    error_code(other.error_code),  // Make sure this is copied correctly
+    has_content_length(other.has_content_length),
+    has_transfer_encoding(other.has_transfer_encoding),
+    server_config(other.server_config),
+    location_config(other.location_config),
+    current_chunk_size(other.current_chunk_size),
+    current_chunk_read(other.current_chunk_read),
+    reading_chunk_data(other.reading_chunk_data),
+    expects_continue(other.expects_continue) {}
 
 // Copy Assignement
 RequestParser &RequestParser::operator=(const RequestParser &other)
@@ -56,6 +59,7 @@ RequestParser &RequestParser::operator=(const RequestParser &other)
 		this->current_chunk_size = other.current_chunk_size;
 		this->current_chunk_read = other.current_chunk_read;
 		this->reading_chunk_data = other.reading_chunk_data;
+		this->expects_continue = other.expects_continue;
 	}
 	return *this;
 }
@@ -257,6 +261,15 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			}
 			this->port = port;
 		}
+
+		// Special Handling for `Expect`
+		if (headers.find("expect") != headers.end()) {
+					std::string expect_value = headers["expect"];
+					std::transform(expect_value.begin(), expect_value.end(), expect_value.begin(), ::tolower);
+					if (expect_value == "100-continue") {
+						expects_continue = true;
+					}
+				}
 
 		if (headers.size() >= MAX_HEADER_COUNT)
 		{
@@ -540,13 +553,24 @@ bool RequestParser::is_valid_header_value(const std::string &value)
 // Method to Log the error into console and logg file
 void RequestParser::log_error(const std::string &error_str, short error_code)
 {
-	std::ostringstream ss;
-	ss << error_str << " (code: " << error_code << ")";
-	LOG_ERROR(ss.str());
-	this->error_code = error_code;
-	if (this->error_code == 400 || this->error_code == 411 || this->error_code == 413 || this->error_code == 415 || this->error_code == 500 || this->error_code == 503)
-		this->headers["connection"] = "close";
-	state = ERROR_PARSE;
+    // Only set the error if there isn't already an error or if it's code 1 (no error)
+    if (this->error_code == 1 || this->error_code == 0)
+    {
+        std::ostringstream ss;
+        ss << error_str << " (code: " << error_code << ")";
+        LOG_ERROR(ss.str());
+        this->error_code = error_code;
+        if (this->error_code == 400 || this->error_code == 411 || this->error_code == 413 || 
+            this->error_code == 415 || this->error_code == 500 || this->error_code == 503)
+            this->headers["connection"] = "close";
+        state = ERROR_PARSE;
+    }
+    else
+    {
+        // Just log the error but don't override the existing error code
+        LOG_ERROR(error_str + " (code: " + to_string(error_code) + 
+                  ") - not overriding existing error " + to_string(this->error_code));
+    }
 }
 
 // Method for setting the right location for the request
@@ -706,6 +730,7 @@ uint16_t &RequestParser::get_port_number() { return port; }
 ParseState &RequestParser::get_state() { return state; }
 const ServerConfig *RequestParser::get_server_config() { return server_config; }
 const Location *RequestParser::get_location_config() { return location_config; }
+bool RequestParser::get_expects_continue() { return expects_continue; }
 /****************************
 		END GETTERS
 ****************************/
