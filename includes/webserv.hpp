@@ -20,6 +20,7 @@
 // STATUS CODES
 #define STATUS_200 "200 OK"
 #define STATUS_201 "201 Created"
+#define STATUS_202 "202 Accepted"
 #define STATUS_204 "204 No Content"
 #define STATUS_301 "301 Moved Permanently"
 #define STATUS_302 "302 Found"
@@ -66,7 +67,7 @@
 #define HTTP_PARSE_INVALID_PORT "Client sent a request with invalid port number"
 #define HTTP_PARSE_INVALID_LOCATION "Client sent a request with invalid location"
 #define HTTP_PARSE_MISSING_CONTENT_LENGTH "Client sent a request without content-length header"
-#define HTTP_PARSE_PAYLOAD_TOO_LARGE "Client sent a request with payload too large"
+#define HTTP_PARSE_PAYLOAD_TOO_LARGE "Client sent a request with large body size"
 #define HTTP_PARSE_URI_TOO_LONG "Client sent a request with uri too long"
 #define HTTP_PARSE_HEADER_FIELDS_TOO_LARGE "Client sent a request with too large header fields"
 #define HTTP_PARSE_METHOD_NOT_IMPLEMENTED "Client sent a request with unimplemented method"

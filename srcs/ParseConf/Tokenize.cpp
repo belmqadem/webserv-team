@@ -96,12 +96,6 @@ std::vector<Token> tokenize(std::string &input)
 			token.value = word;
 			tokens.push_back(token);
 		}
-		else if (word == "redirect_permanent") // TO REMOVE 
-		{
-			token.type = REDIRECT_PERMANENT;
-			token.value = word;
-			tokens.push_back(token);
-		}
 		else if (word == "cgi")
 		{
 			token.type = CGI;
@@ -135,12 +129,6 @@ std::vector<Token> tokenize(std::string &input)
 		else if (word == "upload_store")
 		{
 			token.type = UPLOAD_STORE;
-			token.value = word;
-			tokens.push_back(token);
-		}
-		else if (word == "max_upload_size")
-		{
-			token.type = MAX_UPLOAD_SIZE;
 			token.value = word;
 			tokens.push_back(token);
 		}

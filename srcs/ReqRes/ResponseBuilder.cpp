@@ -112,6 +112,8 @@ std::string ResponseBuilder::build_response()
 		}
 	}
 
+	handle_session_cookies();
+
 	if (handle_redirection())
 	{
 		include_required_headers();
@@ -122,6 +124,18 @@ std::string ResponseBuilder::build_response()
 	include_required_headers();
 	response = generate_response_string();
 	return response;
+}
+
+// Method for managing session cookies
+void ResponseBuilder::handle_session_cookies()
+{
+	std::string session_id = SessionCookieHandler::get_cookie(request, "session_id");
+	if (session_id.empty())
+	{
+		session_id = SessionCookieHandler::generate_session_id();
+		SessionCookieHandler::set_cookie(*this, "session_id", session_id, 3600); // 1-hour expiration
+		LOG_INFO("New session created: " + session_id);
+	}
 }
 
 // Method for creating the response
@@ -218,7 +232,6 @@ void ResponseBuilder::doGET()
 	if (is_root && root.empty())
 	{
 		body = generate_default_root();
-		;
 		set_status(200);
 		return;
 	}
@@ -235,14 +248,6 @@ void ResponseBuilder::doGET()
 	}
 
 	// If the requested path is a CGI script
-	std::string session_id = SessionCookieHandler::get_cookie(request, "session_id");
-	if (session_id.empty())
-	{
-		// If no session, generate and set a new session ID
-		session_id = SessionCookieHandler::generate_session_id();
-		SessionCookieHandler::set_cookie(*this, "session_id", session_id, 3600); // Set session cookie with 1-hour expiration
-		LOG_INFO("New session created: " + session_id);
-	}
 	if (is_cgi_request(uri) && location_config->useCgi)
 	{
 		CGIHandler cgiHandler(request, "/usr/bin/php-cgi");
@@ -263,6 +268,7 @@ void ResponseBuilder::doGET()
 		}
 		return;
 	}
+
 	// Check if the file is a directory
 	if (S_ISDIR(file_stat.st_mode))
 	{
@@ -313,66 +319,6 @@ void ResponseBuilder::doGET()
 	body = read_html_file(path);
 	set_status(200);
 }
-bool ResponseBuilder::isFileUpload(RequestParser request)
-{
-	// Ensure the configuration is initialized
-	std::string content_type = request.get_header_value("Content-Type");
-	LOG_DEBUG("Content-Type: " + content_type);
-	return content_type.find("multipart/form-data") != std::string::npos;
-	// File upload is allowed
-}
-bool ResponseBuilder::handleMultipartFormData(const std::vector<unsigned char> &req_body, const std::string &content_type, const std::string &upload_path)
-{
-	// Parse the boundary from the content-type header
-	size_t boundary_pos = content_type.find("boundary=");
-	if (boundary_pos == std::string::npos)
-	{
-		std::cerr << "Boundary not found in content-type" << std::endl;
-		return false;
-	}
-	std::string boundary = "--" + content_type.substr(boundary_pos + 9);
-
-	// Convert request body to a string
-	std::string body(req_body.begin(), req_body.end());
-
-	// Split the body into parts based on the boundary
-	size_t pos = 0, next_pos;
-	while ((next_pos = body.find(boundary, pos)) != std::string::npos)
-	{
-		std::string part = body.substr(pos, next_pos - pos);
-		pos = next_pos + boundary.length();
-
-		// Parse headers and content
-		size_t header_end = part.find("\r\n\r\n");
-		if (header_end == std::string::npos)
-			continue;
-		std::string headers = part.substr(0, header_end);
-		std::string content = part.substr(header_end + 4);
-
-		// Parse filename from headers
-		size_t filename_pos = headers.find("filename=\"");
-		if (filename_pos != std::string::npos)
-		{
-			size_t filename_end = headers.find("\"", filename_pos + 10);
-			std::string filename = headers.substr(filename_pos + 10, filename_end - (filename_pos + 10));
-
-			// Save the file
-			std::string full_path = upload_path + "/" + filename;
-			std::ofstream file(full_path.c_str(), std::ios::binary);
-			if (!file)
-			{
-				std::cerr << "Failed to open file for writing: " << full_path << std::endl;
-				return false;
-			}
-			file.write(content.c_str(), content.size());
-			file.close();
-			std::cout << "File uploaded: " << full_path << std::endl;
-			generate_upload_success_page(filename);
-		}
-	}
-
-	return true;
-}
 
 // POST method implementation
 void ResponseBuilder::doPOST()
@@ -382,6 +328,7 @@ void ResponseBuilder::doPOST()
 	std::string path = location_config->root + uri;
 	std::string content_type = request.get_header_value("content-type");
 	std::vector<byte> req_body = request.get_body();
+	std::string upload_path = location_config->uploadStore;
 
 	if (req_body.size() > server_config->clientMaxBodySize)
 	{
@@ -390,25 +337,6 @@ void ResponseBuilder::doPOST()
 		body = generate_error_page();
 		return;
 	}
-	if (content_type.find("multipart/form-data") != std::string::npos)
-	{
-		if (!handleMultipartFormData(req_body, content_type, location_config->uploadStore))
-		{
-			set_status(403);
-			body = generate_error_page();
-			return;
-		}
-		return;
-	}
-	std::string session_id = SessionCookieHandler::get_cookie(request, "session_id");
-	if (session_id.empty())
-	{
-		// If no session, generate and set a new session ID
-		session_id = SessionCookieHandler::generate_session_id();
-		SessionCookieHandler::set_cookie(*this, "session_id", session_id, 3600); // Set session cookie with 1-hour expiration
-		LOG_INFO("New session created: " + session_id);
-	}
-	// Reject file upload if content type is multipart/form-data
 
 	if (is_cgi_request(uri))
 	{
@@ -430,13 +358,19 @@ void ResponseBuilder::doPOST()
 		return;
 	}
 
-	std::string upload_path = location_config->uploadStore;
-
-	// Just to make sure if someone tries to upload a file to a non-existing directory
-	struct stat dir_stat;
-	if (stat(upload_path.c_str(), &dir_stat) == -1 || !S_ISDIR(dir_stat.st_mode))
+	if (content_type.find("multipart/form-data") != std::string::npos)
 	{
-		LOG_ERROR("Upload path not found: " + upload_path);
+		if (!handleMultipartFormData())
+		{
+			set_status(403);
+			body = generate_error_page();
+			return;
+		}
+		return;
+	}
+
+	if (!validate_upload_path(upload_path))
+	{
 		set_status(500);
 		body = generate_error_page();
 		return;
@@ -446,15 +380,12 @@ void ResponseBuilder::doPOST()
 	std::string full_path = upload_path + "/" + filename;
 
 	// Write the data to the file
-	std::ofstream file(full_path.c_str(), std::ios::binary);
-	if (!file)
+	if (!save_uploaded_file(full_path, req_body))
 	{
 		set_status(403);
 		body = generate_error_page();
 		return;
 	}
-	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
-	file.close();
 
 	set_status(201);
 	LOG_INFO("File uploaded: " + full_path);
@@ -552,6 +483,85 @@ void ResponseBuilder::doDELETE()
 	}
 }
 
+// Method to handle multipart/form-data
+bool ResponseBuilder::handleMultipartFormData()
+{
+	std::string content_type = request.get_header_value("content-type");
+	std::vector<byte> req_body = request.get_body();
+
+	// Parse the boundary from the content-type header
+	size_t boundary_pos = content_type.find("boundary=");
+	if (boundary_pos == std::string::npos)
+	{
+		LOG_ERROR("Boundary not found in content-type");
+		return false;
+	}
+	std::string boundary = "--" + content_type.substr(boundary_pos + 9);
+
+	// Convert request body to a string
+	std::string body(req_body.begin(), req_body.end());
+
+	// Split the body into parts based on the boundary
+	size_t pos = 0, next_pos;
+	while ((next_pos = body.find(boundary, pos)) != std::string::npos)
+	{
+		std::string part = body.substr(pos, next_pos - pos);
+		pos = next_pos + boundary.length();
+
+		// Parse headers and content
+		size_t header_end = part.find("\r\n\r\n");
+		if (header_end == std::string::npos)
+			continue;
+		std::string headers = part.substr(0, header_end);
+		std::string content = part.substr(header_end + 4);
+
+		// Parse filename from headers
+		size_t filename_pos = headers.find("filename=\"");
+		if (filename_pos != std::string::npos)
+		{
+			size_t filename_end = headers.find("\"", filename_pos + 10);
+			std::string filename = headers.substr(filename_pos + 10, filename_end - (filename_pos + 10));
+
+			// Save the file
+			std::string full_path = location_config->uploadStore + "/" + filename;
+			if (!save_uploaded_file(full_path, std::vector<byte>(content.begin(), content.end())))
+			{
+				LOG_ERROR("Failed to save uploaded file: " + full_path);
+				return false;
+			}
+			LOG_INFO("File uploaded: " + full_path);
+			set_body(generate_upload_success_page(filename));
+		}
+	}
+	return true;
+}
+
+// Method to make sure if someone tries to upload a file to a non-existing directory
+bool ResponseBuilder::validate_upload_path(const std::string &upload_path)
+{
+	struct stat dir_stat;
+	if (stat(upload_path.c_str(), &dir_stat) == -1 || !S_ISDIR(dir_stat.st_mode))
+	{
+		LOG_ERROR("Upload path not found: " + upload_path);
+		return false;
+	}
+	return true;
+}
+
+// Method to save uploaded files to the server
+bool ResponseBuilder::save_uploaded_file(const std::string &full_path, const std::vector<byte> &req_body)
+{
+	std::ofstream file(full_path.c_str(), std::ios::binary);
+	if (!file)
+	{
+		LOG_ERROR("Error: Cannot open file: " + full_path);
+		return false;
+	}
+	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
+	file.close();
+	return true;
+}
+
 // Method to handle redirection
 bool ResponseBuilder::handle_redirection()
 {
@@ -621,7 +631,7 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 {
 	std::ostringstream page;
 	page << "<html>\n<head><title>Directory Listing</title></head>\n";
-	page << "<body>\n<h1>Directory Listing</h1><hr>\n";
+	page << "<body>\n<h1 style=\"color:blue;\">Directory Listing for " << path << "</h1><hr>\n";
 	page << "<ul>\n";
 
 	DIR *dir;
@@ -630,12 +640,28 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 	{
 		while ((ent = readdir(dir)) != NULL)
 		{
-			page << "<li style=\"letter-spacing: 1.5\"><a href=\"" << ent->d_name << "/\">" << ent->d_name << "</a>&emsp;&emsp;&emsp;" << get_http_date() << "&emsp;&emsp;&emsp;-</li><br>\n";
+			std::string entry_name = ent->d_name;
+
+			if (entry_name == "." || entry_name == "..")
+				continue;
+
+			std::string full_path = path + "/" + entry_name;
+
+			struct stat path_stat;
+			if (stat(full_path.c_str(), &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
+			{
+				page << "<li style=\"letter-spacing: 1.5\"><a href=\"" << entry_name << "/\">" << entry_name << "/</a>&emsp;&emsp;&emsp;" << get_http_date() << "&emsp;&emsp;&emsp;-</li><br>\n";
+			}
+			else
+			{
+				page << "<li style=\"letter-spacing: 1.5\"><a href=\"" << entry_name << "\">" << entry_name << "</a>&emsp;&emsp;&emsp;" << get_http_date() << "&emsp;&emsp;&emsp;-</li><br>\n";
+			}
 		}
 		closedir(dir);
 	}
 	else
 	{
+		LOG_ERROR("Failed to open directory: " + path);
 		return "";
 	}
 

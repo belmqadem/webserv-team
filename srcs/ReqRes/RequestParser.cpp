@@ -659,7 +659,7 @@ const Location *RequestParser::get_location_config() { return location_config; }
 // Print the parsed request
 void RequestParser::print_request()
 {
-	if (error_code == 1)
+	if (error_code >= 1)
 	{
 		std::cout << BLUE "Method: " RESET << http_method << std::endl;
 		std::cout << BLUE "PATH: " RESET << request_uri << std::endl;
