@@ -57,8 +57,6 @@ void IOMultiplexer::runEventLoop(void)
 		{
 			if (debug_mode())
 				continue;
-			if (errno == SIGINT)
-				terminate();
 			if (_is_started)
 				throw IOMultiplexerExceptions("epoll_wait() failed.");
 		}

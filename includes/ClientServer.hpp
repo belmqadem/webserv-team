@@ -52,5 +52,6 @@ public:
 	virtual void onEvent(int fd, epoll_event ev);
 
 	// Add new method for CGI completion callback
+	void processCGIRequest();
 	void onCGIComplete(CGIHandler* handler);
 };

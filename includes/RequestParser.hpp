@@ -37,6 +37,10 @@ private:
 	const ServerConfig *server_config; // Pointer to the matched server block
 	const Location *location_config;   // Pointer to the matched location block
 
+	size_t current_chunk_size; // Size of the current chunk being processed
+	size_t current_chunk_read; // How much of the current chunk has been read
+	bool reading_chunk_data;   // Are we currently reading chunk data?
+
 	// Private Helper Methods
 	const char *parse_request_line(const char *pos, const char *end);
 	const char *parse_headers(const char *pos, const char *end);

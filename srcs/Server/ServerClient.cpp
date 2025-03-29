@@ -105,81 +105,138 @@ void ClientServer::onEvent(int fd, epoll_event ev)
 
 void ClientServer::handleIncomingData()
 {
-	char buffer[RD_SIZE];
-	ssize_t rd_count = recv(this->_peer_socket_fd, buffer, RD_SIZE, MSG_DONTWAIT);
+    char buffer[RD_SIZE];
+    ssize_t rd_count = recv(this->_peer_socket_fd, buffer, RD_SIZE, MSG_DONTWAIT);
 
-	if (rd_count <= 0)
-	{
-		this->terminate();
-		return;
-	}
-	updateActivity();
-	_request_buffer.append(buffer, rd_count);
-	size_t header_end = _request_buffer.find(CRLF CRLF);
-	if (header_end != std::string::npos)
-	{
-		try
-		{
-			RequestParser parser;
-			size_t bytes_read = 0;
-			bytes_read += parser.parse_request(_request_buffer);
-			parser.match_location(ConfigManager::getInstance().getServers());
-			if (_parser)
-				delete _parser;
-			_parser = new RequestParser(parser);
-			if (_parser->get_error_code() == 1)
-				LOG_REQUEST(_parser->get_request_line());
+    if (rd_count <= 0)
+    {
+        this->terminate();
+        return;
+    }
+    updateActivity();
+    _request_buffer.append(buffer, rd_count);
+    
+    // If we already have a parser and it's already parsing the body
+    if (_parser && _parser->get_state() == BODY && !_waitingForCGI)
+    {
+        try
+        {
+            size_t bytes_read = _parser->parse_request(_request_buffer);
+            
+            // Only remove the bytes we've successfully processed
+            if (bytes_read > 0)
+                _request_buffer.erase(0, bytes_read);
+                
+            // If the request is now complete
+            if (_parser->get_state() == DONE)
+            {
+                LOG_INFO("Chunked request body fully received");
+                
+                // Process the completed request (similar to below)
+                if (_parser->get_location_config() &&
+                    _parser->get_location_config()->useCgi &&
+                    ResponseBuilder::is_cgi_request(_parser->get_request_uri()))
+                {
+                    processCGIRequest();
+                }
+                else
+                {
+                    // Normal request processing
+                    ResponseBuilder response(*_parser);
+                    _response_buffer = response.get_response();
+                    _response_ready = true;
+                }
+            }
+            return;
+        }
+        catch (std::exception &e)
+        {
+            LOG_ERROR("Exception in chunked body processing -- " + std::string(e.what()));
+        }
+    }
+    
+    // Regular request header processing
+    size_t header_end = _request_buffer.find(CRLF CRLF);
+    if (header_end != std::string::npos)
+    {
+        try
+        {
+            RequestParser parser;
+            size_t bytes_read = parser.parse_request(_request_buffer);
+            
+            // Only remove the bytes we've successfully processed
+            if (bytes_read > 0) 
+                _request_buffer.erase(0, bytes_read);
+                
+            parser.match_location(ConfigManager::getInstance().getServers());
+            
+            if (_parser)
+                delete _parser;
+                
+            _parser = new RequestParser(parser);
+            
+            if (_parser->get_error_code() == 1)
+                LOG_REQUEST(_parser->get_request_line());
 
-			// Check if this is a CGI request
-			if (_parser->get_location_config() &&
-				_parser->get_location_config()->useCgi &&
-				ResponseBuilder::is_cgi_request(_parser->get_request_uri()))
-			{
-				LOG_INFO("Processing CGI request");
+            // Check if this is a chunked request that needs more data
+            if (_parser->get_state() == BODY)
+            {
+                LOG_INFO("Headers processed, waiting for more body data");
+                return;
+            }
 
-				// Create a response builder but don't execute it yet
-				ResponseBuilder *respBuilder = new ResponseBuilder(*_parser);
+            // Check if this is a CGI request
+            if (_parser->get_location_config() &&
+                _parser->get_location_config()->useCgi &&
+                ResponseBuilder::is_cgi_request(_parser->get_request_uri()))
+            {
+                processCGIRequest();
+            }
+            else
+            {
+                // Normal (non-CGI) request processing
+                ResponseBuilder response(*_parser);
+                _response_buffer = response.get_response();
+                _response_ready = true;
+            }
+        }
+        catch (std::exception &e)
+        {
+            LOG_ERROR("Exception in request processing -- " + std::string(e.what()));
+        }
+    }
+}
 
-				// Create a CGI handler
-				_pendingCgi = new CGIHandler(*_parser, "/usr/bin/php-cgi", respBuilder, this);
+// Extract CGI request processing to a separate method
+void ClientServer::processCGIRequest()
+{
+    LOG_INFO("Processing CGI request");
 
-				try
-				{
-					// Start the CGI process
-					_pendingCgi->startCGI();
-					_waitingForCGI = true;
+    // Create a response builder but don't execute it yet
+    ResponseBuilder *respBuilder = new ResponseBuilder(*_parser);
 
-					// Don't set _response_ready, we'll wait for CGI completion
-				}
-				catch (const std::exception &e)
-				{
-					LOG_ERROR("CGI failed: " + std::string(e.what()));
-					delete _pendingCgi;
-					_pendingCgi = NULL;
+    // Create a CGI handler
+    _pendingCgi = new CGIHandler(*_parser, "/usr/bin/php-cgi", respBuilder, this);
 
-					// Create an error response
-					respBuilder->set_status(500);
-					respBuilder->set_body(respBuilder->generate_error_page());
-					_response_buffer = respBuilder->get_response();
-					_response_ready = true;
-					delete respBuilder;
-				}
-			}
-			else
-			{
-				// Normal (non-CGI) request processing
-				ResponseBuilder response(*_parser);
-				_response_buffer = response.get_response();
-				_response_ready = true;
-			}
+    try
+    {
+        // Start the CGI process
+        _pendingCgi->startCGI();
+        _waitingForCGI = true;
+    }
+    catch (const std::exception &e)
+    {
+        LOG_ERROR("CGI failed: " + std::string(e.what()));
+        delete _pendingCgi;
+        _pendingCgi = NULL;
 
-			_request_buffer.clear();
-		}
-		catch (std::exception &e)
-		{
-			LOG_ERROR("Exception in request processing -- " + std::string(e.what()));
-		}
-	}
+        // Create an error response
+        respBuilder->set_status(500);
+        respBuilder->set_body(respBuilder->generate_error_page());
+        _response_buffer = respBuilder->get_response();
+        _response_ready = true;
+        delete respBuilder;
+    }
 }
 
 void ClientServer::onCGIComplete(CGIHandler *handler)
