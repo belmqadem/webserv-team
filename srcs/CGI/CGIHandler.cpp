@@ -388,24 +388,34 @@ void CGIHandler::processCGIOutput()
         if (!line.empty() && line[line.size() - 1] == '\r')
             line.erase(line.size() - 1);
         
-        if (line.find("Content-Type:") == 0) {
-            contentType = line.substr(13);
+        size_t colonPos = line.find(':');
+        if (colonPos != std::string::npos) {
+            std::string headerName = line.substr(0, colonPos);
+            std::string headerValue = line.substr(colonPos + 1);
             // Trim spaces
-            contentType.erase(0, contentType.find_first_not_of(" \t"));
-            logger.info("Found Content-Type: " + contentType);
-        }
-        else if (line.find("Status:") == 0 || line.find("HTTP/1.1") == 0) {
-            // Extract status code
-            std::string statusLine = line;
-            size_t codeStart = statusLine.find_first_of("0123456789");
-            if (codeStart != std::string::npos) {
-                std::string codeStr = statusLine.substr(codeStart, 3);
-                int statusCode = std::atoi(codeStr.c_str());
-                if (statusCode >= 100 && statusCode < 600) {
-                    responseBuilder->set_status(statusCode);
-                    statusSet = true;
-                    logger.info("Setting status code: " + to_string(statusCode));
+            headerValue.erase(0, headerValue.find_first_not_of(" \t"));
+            
+            // Special handling for Content-Type and Status
+            if (headerName == "Content-Type") {
+                contentType = headerValue;
+            }
+            else if (headerName == "Status") {
+                // Process status as before
+                std::string statusLine = line;
+                size_t codeStart = statusLine.find_first_of("0123456789");
+                if (codeStart != std::string::npos) {
+                    std::string codeStr = statusLine.substr(codeStart, 3);
+                    int statusCode = std::atoi(codeStr.c_str());
+                    if (statusCode >= 100 && statusCode < 600) {
+                        responseBuilder->set_status(statusCode);
+                        statusSet = true;
+                        logger.info("Setting status code: " + to_string(statusCode));
+                    }
                 }
+            }
+            else {
+                // Add all other headers to the response
+                responseBuilder->set_headers(headerName, headerValue);
             }
         }
     }
