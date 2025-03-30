@@ -6,7 +6,13 @@ Server::Server(std::vector<ServerConfig> config) : IEvenetListeners(), _config(c
 	_listen_sock_ev.events = EPOLLIN;
 }
 
-Server::~Server() { terminate(); }
+Server::~Server() {
+	terminate();
+	std::vector<ClientServer *>::iterator it = _clients.begin();
+	for (; it != _clients.end(); ++it) {
+		delete *it;
+	}
+}
 
 Server &Server::getInstance(std::vector<ServerConfig> config)
 {
@@ -107,9 +113,8 @@ void Server::terminate()
 		std::vector<ClientServer *>::iterator i = _clients.begin();
 		for (; i != _clients.end(); i++)
 		{
-			delete *i;
+			(*i)->terminate();
 		}
-		_clients.clear();
 	}
 	LOG_SERVER("Our Webserver *Not Nginx* is Shuted down !");
 }

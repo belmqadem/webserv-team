@@ -22,6 +22,9 @@ private:
 	~IOMultiplexer();
 
 public:
+	void debugPrintListeners(const std::string& message) const;
+
+
 	void runEventLoop();
 	void terminate();
 	void addListener(IEvenetListeners *listener, epoll_event ev);
