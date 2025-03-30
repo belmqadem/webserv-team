@@ -311,6 +311,8 @@ void CGIHandler::finalizeCGI()
 
 void CGIHandler::terminate()
 {
+	if (clientServer->isStarted() == false)	
+		return;
 	if (output_fd != -1)
 	{
 		try
