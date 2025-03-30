@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Webserv Testing Page</title>
+  </head>
+  <body>
+    <section class="testing" id="testing">
+      <section class="test-section">
+        <h2>Redirections</h2>
+        <a href="/redirectone">Test 301 Redirect (Permanent)</a><br /><br />
+        <a href="/redirecttwo">Test 302 Redirect (Temporary)</a>
+      </section>
+
+      <!-- Static Content Test -->
+      <section class="test-section">
+        <h2>GET - Static Files</h2>
+        <a href="/about.html">About Page</a><br /><br />
+        <a href="/list/">Directory Listing</a><br /><br />
+        <a href="/team.txt">Team.txt</a><br /><br />
+        <a href="/notfound">404 Not Found</a>
+      </section>
+
+      <!-- POST - File Upload (Binary) -->
+      <section class="test-section">
+        <h2>POST - File Upload (Binary)</h2>
+        <form action="/upload" method="POST" enctype="application/octet-stream">
+          <label for="binary-file">Choose a binary file to upload:</label><br />
+          <input type="file" name="file" id="binary-file" required />
+          <br /><br />
+          <input type="submit" value="Upload Binary File" />
+        </form>
+      </section>
+
+      <!-- POST - File Upload (multipart/form-data) -->
+      <section class="test-section">
+        <h2>POST - File Upload (multipart/form-data)</h2>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+          <label for="file-upload">Choose a file to upload:</label><br />
+          <input type="file" name="file" id="file-upload" required />
+          <br /><br />
+          <input type="submit" value="Upload Multipart File" />
+        </form>
+      </section>
+
+      <!-- DELETE - File Deletion -->
+      <section class="test-section">
+        <h2>DELETE - File Deletion</h2>
+        <p>
+          <strong>Run these commands in terminal:</strong><br /><br />
+          <code>curl -X DELETE http://localhost:5050/file1.txt</code><br />
+          <code>curl -X DELETE http://localhost:5050/file2.txt</code><br />
+          <code>curl -X DELETE http://localhost:5050/file3.txt</code>
+        </p>
+      </section>
+
+      <!-- CGI Test -->
+      <section class="test-section">
+        <h2>CGI Script Execution</h2>
+        <a href="/test.py">Run Python CGI Script</a><br /><br />
+        <a href="/test.php">Run PHP CGI Script</a>
+      </section>
+    </section>
+  </body>
+</html>

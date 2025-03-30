@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="shortcut icon" href="images/server.png" type="image/x-icon" />
+    <style>
+      *,
+      *::after,
+      *::before {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Ubuntu", sans-serif;
+      }
+      body {
+        color: #1f1f1f;
+        text-align: center;
+        background-color: #1f1f1f;
+      }
+      main {
+        min-height: 100vh;
+        padding: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        background-image: url(images/background.jpg);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+      main header {
+        background-color: rgba(235, 235, 235, 0.8);
+        padding: 50px 140px;
+        margin: 0 auto;
+        border-radius: 28px;
+        margin-bottom: 30px;
+      }
+      main header h1 {
+        font-size: 112px;
+        text-transform: uppercase;
+        color: #1f1f1f;
+        display: inline;
+        position: relative;
+        font-weight: 400;
+      }
+      main header h1::before {
+        position: absolute;
+        content: "";
+        left: 0;
+        bottom: -7px;
+        width: 80%;
+        height: 12px;
+        border-radius: 8px;
+        background-color: #1f1f1f;
+      }
+      main header h1::after {
+        position: absolute;
+        content: "Not Nginx";
+        right: 0;
+        bottom: -10px;
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .about {
+        background-color: rgba(235, 235, 235, 0.8);
+        padding: 100px;
+        border-radius: 28px;
+        font-size: 28px;
+        line-height: 1.6;
+      }
+      @media (max-width: 1200px) {
+        main {
+          padding: 50px;
+        }
+        main header {
+          padding: 30px 80px;
+        }
+        main header h1 {
+          font-size: 64px;
+        }
+        main header h1::before {
+          width: 75%;
+          height: 8px;
+        }
+        main header h1::after {
+          font-size: 12px;
+        }
+        .about {
+          padding: 50px;
+          font-size: 20px;
+        }
+      }
+    </style>
+    <title>About</title>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>webserv</h1>
+      </header>
+      <div class="about">
+        <p>
+          WebServ is a high-performance, event-driven HTTP server built from
+          scratch in C++ to mimic the functionality of Nginx while following RFC
+          9110 (HTTP/1.1) standards. It is designed to handle multiple virtual
+          hosts, process HTTP requests efficiently, and support dynamic content
+          execution via CGI. <br />This project is an implementation of a
+          non-blocking, asynchronous web server that uses epoll for efficient
+          I/O multiplexing. It supports routing, redirections, static file
+          serving, directory listing, and request parsing with strict RFC
+          compliance.
+        </p>
+      </div>
+    </main>
+  </body>
+</html>
