@@ -92,7 +92,7 @@ void Parser::parseErrorPageDirective()
 }
 
 // Parse a size string (like "10M", "1G", etc.)
-size_t parseSize(const std::string &sizeStr)
+size_t parseSize(const std::string &sizeStr, char unit)
 {
 	std::string numPart = sizeStr;
 	size_t multiplier = 1;
@@ -100,18 +100,17 @@ size_t parseSize(const std::string &sizeStr)
 	// Check for size suffix
 	if (sizeStr.length() > 0)
 	{
-		char lastChar = sizeStr[sizeStr.length() - 1];
-		if (lastChar == 'K' || lastChar == 'k')
+		if (unit == 'k')
 		{
 			numPart = sizeStr.substr(0, sizeStr.length() - 1);
 			multiplier = SIZE_KB;
 		}
-		else if (lastChar == 'M' || lastChar == 'm')
+		else if (unit == 'm')
 		{
 			numPart = sizeStr.substr(0, sizeStr.length() - 1);
 			multiplier = SIZE_MB;
 		}
-		else if (lastChar == 'G' || lastChar == 'g')
+		else if (unit == 'g')
 		{
 			numPart = sizeStr.substr(0, sizeStr.length() - 1);
 			multiplier = SIZE_GB;
@@ -167,9 +166,10 @@ void Parser::parseClientMaxBodySizeDirective()
 {
 	consume(CLIENT_MAX_BODY_SIZE);
 	Token size = consume(NUMBER);
+	Token unit = consume(CLIENT_MAX_BODY_SIZE_MUL);
 	if (_currentServer)
 	{
-		_currentServer->clientMaxBodySize = parseSize(size.value);
+		_currentServer->clientMaxBodySize = parseSize(size.value, unit.value[0]);
 	}
 	consume(SEMICOLON);
 }

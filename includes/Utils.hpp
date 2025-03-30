@@ -10,5 +10,6 @@ namespace Utils
 	std::string get_timestamp_str();
 	void sigint_handle(int sig);
 	void signalhandler();
+	bool string_to_size_t(const std::string &str, int &result);
 	// void printServerConfig(const ServerConfig &server);
 }
