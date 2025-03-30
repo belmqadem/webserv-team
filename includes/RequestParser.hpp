@@ -36,16 +36,11 @@ private:
 	bool has_transfer_encoding;
 	const ServerConfig *server_config; // Pointer to the matched server block
 	const Location *location_config;   // Pointer to the matched location block
-
 	size_t current_chunk_size; // Size of the current chunk being processed
 	size_t current_chunk_read; // How much of the current chunk has been read
 	bool reading_chunk_data;   // Are we currently reading chunk data?
-	/* CURL tests */
-	public:
 	bool expects_continue;
-	bool get_expects_continue();
 
-	private:
 	// Private Helper Methods
 	const char *parse_request_line(const char *pos, const char *end);
 	const char *parse_headers(const char *pos, const char *end);
@@ -68,6 +63,7 @@ public:
 	void match_location(const std::vector<ServerConfig> &servers);
 	void print_request();
 	bool is_connection_close();
+	bool is_cgi_request();
 
 	// Setters
 	void set_request_line();
@@ -75,6 +71,7 @@ public:
 	bool set_request_uri(const std::string &request_uri);
 	void set_query_string(const std::string &query_string);
 	bool set_http_version(const std::string &http_version);
+	void set_expects_continue(bool expects_continue);
 
 	// Getters
 	std::string &get_request_line();
@@ -90,4 +87,5 @@ public:
 	ParseState &get_state();
 	const ServerConfig *get_server_config();
 	const Location *get_location_config();
+	bool get_expects_continue();
 };

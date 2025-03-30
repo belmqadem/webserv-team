@@ -8,3 +8,6 @@
 
 <!-- Some notices in config parsing -->
 - Expand the x to the correct number
+
+
+* If the script is not executable -> return a 403 Forbidden

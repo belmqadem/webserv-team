@@ -50,9 +50,7 @@ ResponseBuilder::ResponseBuilder(RequestParser &raw_request) : request(raw_reque
 {
 	init_config();
 
-	// Don't automatically build response for CGI requests
-	if (!(is_cgi_request(request.get_request_uri()) &&
-		  location_config && location_config->useCgi))
+	if (!request.is_cgi_request())
 	{
 		this->response = build_response();
 	}
@@ -96,15 +94,15 @@ void ResponseBuilder::init_routes()
 // Add to ResponseBuilder.cpp:
 std::string ResponseBuilder::generate_response_only()
 {
-    include_required_headers();
-    return generate_response_string();
+	include_required_headers();
+	return generate_response_string();
 }
 
 // Method to process the response
 std::string ResponseBuilder::build_response()
 {
 	short request_error_code = request.get_error_code();
-	if (request_error_code != 1) // If an error in request parsing
+	if (request_error_code) // If an error in request parsing (error code != 0)
 	{
 		set_status(request_error_code);
 		body = generate_error_page();
@@ -154,84 +152,14 @@ void ResponseBuilder::handle_session_cookies()
 // Method for creating the response
 std::string ResponseBuilder::generate_response_string()
 {
-    std::ostringstream response;
-    response << http_version << SP << status;
-    // Fix the logging to show the complete status line
-    LOG_RESPONSE(http_version + " " + status);
-    response << CRLF;
-    for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
-        response << it->first << ": " << it->second << CRLF;
-    response << CRLF << body;
-    return response.str();
-}
+	LOG_RESPONSE(http_version + SP + status);
 
-std::pair<std::string, std::string> parseCGIOutput(const std::string &cgiOutput)
-{
-	std::istringstream stream(cgiOutput);
-	std::string line;
-	std::string headers;
-	std::string body;
-	bool headerParsed = false;
-
-	// Read line by line
-	while (std::getline(stream, line))
-	{
-		// Trim any trailing carriage return
-		if (!line.empty() && line[line.size() - 1] == '\r')
-		{
-			line.erase(line.size() - 1);
-		}
-
-		// Check for the blank line separating headers from the body
-		if (line.empty())
-		{
-			headerParsed = true;
-			break;
-		}
-
-		// Append to headers
-		headers += line + "\n";
-	}
-
-	// If headers are parsed, the rest is the body
-	if (headerParsed)
-	{
-		char buffer[1024];
-		while (stream.read(buffer, sizeof(buffer)))
-		{
-			body.append(buffer, stream.gcount());
-		}
-		body.append(buffer, stream.gcount());
-	}
-	// else
-	// {
-	// 	throw std::runtime_error("Invalid CGI output: Missing headers");
-	// }
-
-	// Extract the Content-Type from headers
-	std::string contentType = "text/html"; // Default content type
-	std::istringstream headerStream(headers);
-	while (std::getline(headerStream, line))
-	{
-		if (line.find("Content-Type:") == 0)
-		{
-			contentType = line.substr(13); // Extract content type value
-			// Trim any whitespace
-			size_t start = contentType.find_first_not_of(" \t");
-			size_t end = contentType.find_last_not_of(" \t");
-			if (start != std::string::npos && end != std::string::npos)
-			{
-				contentType = contentType.substr(start, end - start + 1);
-			}
-			else
-			{
-				contentType = ""; // No valid content type found
-			}
-			break;
-		}
-	}
-
-	return std::make_pair(contentType, body);
+	std::ostringstream response;
+	response << http_version << SP << status << CRLF;
+	for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
+		response << it->first << ": " << it->second << CRLF;
+	response << CRLF << body;
+	return response.str();
 }
 
 // GET method implementation
@@ -258,13 +186,6 @@ void ResponseBuilder::doGET()
 	{
 		set_status(404);
 		body = generate_error_page();
-		return;
-	}
-
-	// If the requested path is a CGI script - this is now handled by ClientServer
-	if (is_cgi_request(uri) && location_config->useCgi)
-	{
-		// Just return, actual CGI processing happens in ClientServer
 		return;
 	}
 
@@ -296,7 +217,6 @@ void ResponseBuilder::doGET()
 				return;
 			}
 			set_status(200);
-			set_headers("Content-Type", "text/html");
 			return;
 		}
 		else
@@ -334,13 +254,6 @@ void ResponseBuilder::doPOST()
 		LOG_ERROR(HTTP_PARSE_PAYLOAD_TOO_LARGE);
 		set_status(413);
 		body = generate_error_page();
-		return;
-	}
-
-	if (is_cgi_request(uri))
-	{
-		// Just return, actual CGI processing happens in ClientServer
-		set_status(200);
 		return;
 	}
 
@@ -584,6 +497,7 @@ std::string ResponseBuilder::generate_error_page()
 	page << "</body></html>";
 
 	headers["Content-Type"] = "text/html";
+
 	return page.str();
 }
 
@@ -653,13 +567,10 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 	}
 
 	page << "</ul>\n</body></html>";
-	return page.str();
-}
 
-// Method to check if the requested uri is for cgi
-bool ResponseBuilder::is_cgi_request(const std::string &file_path)
-{
-	return file_path.size() >= 4 && file_path.compare(file_path.size() - 4, 4, ".php") == 0;
+	set_headers("Content-Type", "text/html");
+
+	return page.str();
 }
 
 // Method to add the required headers into response
@@ -762,11 +673,17 @@ void ResponseBuilder::set_status(short status_code)
 	this->status_code = status_code;
 	switch (status_code)
 	{
+	case 100:
+		this->status = STATUS_100;
+		break;
 	case 200:
 		this->status = STATUS_200;
 		break;
 	case 201:
 		this->status = STATUS_201;
+		break;
+	case 202:
+		this->status = STATUS_202;
 		break;
 	case 204:
 		this->status = STATUS_204;
@@ -810,6 +727,9 @@ void ResponseBuilder::set_status(short status_code)
 	case 415:
 		this->status = STATUS_415;
 		break;
+	case 417:
+		this->status = STATUS_417;
+		break;
 	case 431:
 		this->status = STATUS_431;
 		break;
@@ -819,23 +739,26 @@ void ResponseBuilder::set_status(short status_code)
 	case 501:
 		this->status = STATUS_501;
 		break;
+	case 504:
+		this->status = STATUS_504;
+		break;
 	case 505:
 		this->status = STATUS_505;
 		break;
 	default:
-		this->status = "UNDEFINED STATUS";
+		this->status = "UNDEFINED STATUS (To add)";
 		break;
 	}
 }
 void ResponseBuilder::set_headers(const std::string &key, const std::string &value) { this->headers[key] = value; }
 void ResponseBuilder::set_body(const std::string &body) { this->body = body; }
 /****************************
-		END SETTERS
-****************************/
+ END SETTERS
+ ****************************/
 
 /****************************
-		START GETTERS
-****************************/
+ START GETTERS
+ ****************************/
 std::string ResponseBuilder::get_response() { return response; }
 std::string ResponseBuilder::get_http_version() { return http_version; }
 std::string ResponseBuilder::get_status() { return status; }
@@ -843,6 +766,8 @@ std::map<std::string, std::string> ResponseBuilder::get_headers() { return heade
 std::string ResponseBuilder::get_header_value(std::string &key) { return headers[key]; }
 std::string ResponseBuilder::get_body() { return body; }
 short ResponseBuilder::get_status_code() { return status_code; }
+const ServerConfig *ResponseBuilder::get_server_config() { return server_config; }
+const Location *ResponseBuilder::get_location_config() { return location_config; }
 /****************************
 		END GETTERS
 ****************************/

@@ -18,6 +18,7 @@
 #define UNDERLINE "\033[4m"
 
 // STATUS CODES
+#define STATUS_100 "100 Continue"
 #define STATUS_200 "200 OK"
 #define STATUS_201 "201 Created"
 #define STATUS_202 "202 Accepted"
@@ -35,9 +36,11 @@
 #define STATUS_413 "413 Payload Too Large"
 #define STATUS_414 "414 URI Too Long"
 #define STATUS_415 "415 Unsupported Media Type"
+#define STATUS_417 "417 Expectation Failed"
 #define STATUS_431 "431 Request Header Fields Too Large"
 #define STATUS_500 "500 Internal Server Error"
 #define STATUS_501 "501 Not Implemented"
+#define STATUS_504 "504 Gateway Timeout"
 #define STATUS_505 "505 HTTP Version Not Supported"
 
 // SPECIAL CHARACTERS
@@ -50,7 +53,6 @@
 #define LOG_FILE "Webserv.log"
 #define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
 
-// ERROR MESSAGES (Response: 400 Bad Request)
 #define HTTP_PARSE_INVALID_REQUEST_LINE "Client sent a request with invalid request line"
 #define HTTP_PARSE_INVALID_METHOD "Client sent a request with invalid http method"
 #define HTTP_PARSE_INVALID_VERSION "Client sent a request with invalid http version"
@@ -72,6 +74,8 @@
 #define HTTP_PARSE_HEADER_FIELDS_TOO_LARGE "Client sent a request with too large header fields"
 #define HTTP_PARSE_METHOD_NOT_IMPLEMENTED "Client sent a request with unimplemented method"
 #define HTTP_PARSE_HTTP_VERSION_NOT_SUPPORTED "Client sent a request with unsupported http version"
+#define HTTP_PARSE_INVALID_EXPECT_VALUE "Client sent a request with invalid expect header value"
+#define HTTP_PARSE_NO_LOCATION_BLOCK "Server has no location block defined in config file"
 
 // HEADER FILES
 #include <ctime>
@@ -97,7 +101,6 @@
 #include <cstring>
 #include <sys/epoll.h>
 #include "Utils.hpp"
-struct ServerConfig;
 
 // Template Function
 template <class T>

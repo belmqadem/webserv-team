@@ -39,21 +39,19 @@ private:
 	bool validate_upload_path(const std::string &upload_path);
 	bool save_uploaded_file(const std::string &full_path, const std::vector<byte> &req_body);
 	void handle_session_cookies();
-	
+
 	static std::map<std::string, std::string> mime_types;
 	static std::map<std::string, std::string> init_mime_types();
-	
+
 	ResponseBuilder(const ResponseBuilder &);
 	ResponseBuilder &operator=(const ResponseBuilder &);
 
-	public:
-	std::string generate_response_only();
-	std::string generate_error_page();
-	static bool is_cgi_request(const std::string &file_path);
-ResponseBuilder(RequestParser &request);
+public:
+	ResponseBuilder(RequestParser &request);
 
-// Main Function that builds the response
 	std::string build_response();
+	std::string generate_error_page();
+	std::string generate_response_only();
 
 	// Setters
 	void set_status(short status_code);
@@ -68,4 +66,6 @@ ResponseBuilder(RequestParser &request);
 	std::string get_header_value(std::string &key);
 	std::string get_body();
 	short get_status_code();
+	const ServerConfig *get_server_config();
+	const Location *get_location_config();
 };
