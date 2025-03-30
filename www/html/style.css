@@ -3,7 +3,7 @@
   --main-bg-img: url(./images/background.jpg);
   --main-bg-color: rgba(235, 235, 235, 0.8);
   --main-font-familly: "Ubuntu", sans-serif;
-  --main-border-radius: 28px;
+  --main-border-radius: 22px;
 }
 *,
 *::after,
@@ -13,26 +13,16 @@
   box-sizing: border-box;
   font-family: var(--main-font-familly);
 }
-html {
-  scroll-behavior: smooth;
-}
 body {
   color: var(--main-color);
   text-align: center;
 }
-ul {
-  list-style: none;
-}
-a {
-  color: inherit;
-  font-weight: lighter;
-}
 main {
   min-height: 100vh;
-  padding: 40px;
+  padding: 40px 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: space-between;
   background-image: var(--main-bg-img);
   background-color: var(--main-color);
   background-size: cover;
@@ -41,7 +31,7 @@ main {
 }
 main header {
   background-color: var(--main-bg-color);
-  padding: 50px 100px;
+  padding: 30px 100px 50px;
   margin: 0 auto;
   border-radius: var(--main-border-radius);
 }
@@ -69,62 +59,93 @@ main header h1::after {
   content: "Not Nginx";
   right: 0;
   bottom: -10px;
+  color: var(--main-color);
   font-size: 16px;
   font-weight: 700;
 }
-.link {
-  background-color: var(--main-bg-color);
-  margin: 0 auto;
-  padding: 0;
-  border-radius: var(--main-border-radius);
-  transition-duration: 0.2s;
+@media (max-width: 1024px) {
+  main header h1 {
+    font-size: 98px;
+  }
+  main header h1::before {
+    width: 78%;
+  }
+  main header h1::after {
+    font-size: 15px;
+  }
 }
-.link a {
-	font-size: 18px;
-	display: block;
-	padding: 20px 40px;
+@media (max-width: 834px) {
+  main header h1 {
+    font-size: 86px;
+  }
+  main header h1::before {
+    width: 78%;
+    height: 9px;
+  }
+  main header h1::after {
+    font-size: 13px;
+  }
 }
-.link:hover {
-  background-color: var(--main-color);
-  color: var(--main-bg-color);
+@media (max-width: 768px) {
+  main header {
+    padding: 20px 50px 35px;
+    border-radius: 12px;
+  }
+  main header h1 {
+    font-size: 62px;
+  }
+  main header h1::before {
+    width: 78%;
+    height: 6px;
+  }
+  main header h1::after {
+    font-size: 10px;
+  }
 }
-@media (max-width: 1200px) {
-	main header {
-		padding: 30px 80px;
-	}
-	main header h1 {
-		font-size: 64px;
-	}
-	main header h1::before {
-		width: 75%;
-		height: 8px;
-	}
-	main header h1::after {
-		font-size: 12px;
-	}
+@media (max-width: 480px) {
+  main header {
+    padding: 15px 35px 25px;
+    border-radius: 8px;
+  }
+  main header h1 {
+    font-size: 32px;
+  }
+  main header h1::before {
+    width: 67%;
+    height: 5px;
+  }
+  main header h1::after {
+    font-size: 8px;
+  }
 }
+
 .profiles {
   display: flex;
-  justify-content: space-between;
-  padding-top: 30px;
-  padding-bottom: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 100px;
+  padding: 40px 20px;
 }
 .profile {
-  background-color: rgba(41, 41, 41, 0.6);
-  padding: 35px 50px;
-  border-radius: var(--main-border-radius);
+  background-color: rgba(41, 41, 41, 0.85);
+  width: fit-content;
+  padding: 25px 50px 130px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-bottom-left-radius: 50%;
+  border-bottom-right-radius: 50%;
   transition-duration: 0.2s;
 }
 .profile:hover {
   background-color: rgba(41, 41, 41, 0.8);
-  box-shadow: 0 1px 20px -2px var(--main-bg-color);
+  box-shadow: 0 0 12px 2px var(--main-bg-color);
 }
 .profiles img {
-  width: 260px;
-  height: 260px;
+  width: 250px;
+  height: 250px;
   border-radius: 50%;
-  margin-bottom: 30px;
-  box-shadow: 0 1px 20px -2px var(--main-bg-color);
+  margin-bottom: 22px;
+  box-shadow: 0 0 12px 2px var(--main-bg-color);
   transition-duration: 0.2s;
 }
 .profile:hover img {
@@ -132,40 +153,66 @@ main header h1::after {
 }
 .profiles h3 {
   font-size: 20px;
-  text-align: center;
   background-color: var(--main-bg-color);
-  padding: 15px 0;
-  border-radius: var(--main-border-radius);
+  color: var(--main-color);
+  padding: 10px 60px;
+  width: fit-content;
+  margin: 0 auto;
+  border-radius: 16px;
   transition-duration: 0.2s;
 }
 .profile:hover h3 {
-  letter-spacing: 0.5px;
   background-color: var(--main-color);
   color: var(--main-bg-color);
 }
-@media (max-width: 1200px) {
-	.profiles {
-		flex-direction: column;
-		gap: 15px;
-	}
-	.profile {
-		width: 70%;
-		margin: 0 auto;
-	}
-	.profiles img {
-		width: 200px;
-		height: 200px;
-		margin-bottom: 15px;
-	}
-	.profiles h3 {
-		padding: 10px 0;
-	}
+@media (max-width: 1024px) {
+  .profiles {
+    gap: 35px 60px;
+  }
 }
-.profile:hover h3 {
-  letter-spacing: 0.5px;
+@media (max-width: 834px) {
+  .profiles {
+    gap: 35px 10px;
+  }
+}
+@media (max-width: 768px) {
+  .profile img {
+    width: 200px;
+    height: 200px;
+  }
+  .profile h3 {
+    font-size: 15px;
+  }
+}
+
+.link {
+  background-color: var(--main-bg-color);
+  margin: 0 auto;
+  border-radius: var(--main-border-radius);
+  transition-duration: 0.2s;
+}
+.link a {
+  font-size: 22px;
+  display: block;
+  padding: 20px 40px;
+  color: var(--main-color);
+  /* font-weight: lighter; */
+  text-decoration: none;
+}
+.link:hover {
   background-color: var(--main-color);
+}
+.link:hover a {
   color: var(--main-bg-color);
 }
+@media (max-width: 768px) {
+  .link a {
+    font-size: 16px;
+  }
+}
+
+/* ----------------- */
+
 .testing {
   min-height: 100vh;
   padding: 40px;
