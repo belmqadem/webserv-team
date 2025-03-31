@@ -101,8 +101,3 @@
 #include <sys/epoll.h>
 #include <limits.h>
 #include "Utils.hpp"
-
-template <class T>
-std::string to_string(T t);
-
-#include "webserv.tpp"

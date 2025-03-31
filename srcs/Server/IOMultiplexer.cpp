@@ -5,13 +5,13 @@
 void IOMultiplexer::debugPrintListeners(const std::string& message) const
 {
     LOG_INFO(message + " - Listeners map contents:");
-    LOG_INFO("Map size: " + to_string(_listeners.size()));
+    LOG_INFO("Map size: " + Utils::to_string(_listeners.size()));
     
     for (std::map<int, IEvenetListeners *>::const_iterator it = _listeners.begin();
          it != _listeners.end(); ++it)
     {
-        LOG_INFO("  FD: " + to_string(it->first) + 
-                 ", Listener addr: " + to_string((void*)it->second) +
+        LOG_INFO("  FD: " + Utils::to_string(it->first) + 
+                 ", Listener addr: " + Utils::to_string((void*)it->second) +
                  ", Type: " + (dynamic_cast<Server*>(it->second) ? "Server" : 
                               (dynamic_cast<ClientServer*>(it->second) ? "ClientServer" : 
                                (dynamic_cast<CGIHandler*>(it->second) ? "CGIHandler" : "Unknown"))));
@@ -109,7 +109,7 @@ void IOMultiplexer::modifyListener(IEvenetListeners *listener, epoll_event ev)
 		throw IOMultiplexerExceptions("epoll_ctl() failed in modifyListener.");
 	}
 
-	// LOG_INFO("EventListener modified " + to_string(ev.data.fd));
+	// LOG_INFO("EventListener modified " + Utils::to_string(ev.data.fd));
 }
 
 void IOMultiplexer::addListener(IEvenetListeners *listener, epoll_event ev)
@@ -124,7 +124,7 @@ void IOMultiplexer::addListener(IEvenetListeners *listener, epoll_event ev)
 	{
 		throw IOMultiplexerExceptions("epoll_ctl() failed.");
 	}
-	// LOG_INFO("EventListner added " + to_string(ev.data.fd));
+	// LOG_INFO("EventListner added " + Utils::to_string(ev.data.fd));
 }
 
 void IOMultiplexer::removeListener(epoll_event ev, int fd)
@@ -139,7 +139,7 @@ void IOMultiplexer::removeListener(epoll_event ev, int fd)
 	{
 		throw IOMultiplexerExceptions("epoll_ctl() failed.");
 	}
-	// LOG_INFO("EventListner removed " + to_string(fd));
+	// LOG_INFO("EventListner removed " + Utils::to_string(fd));
 }
 
 void IOMultiplexer::terminate(void)

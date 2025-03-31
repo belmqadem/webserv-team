@@ -66,7 +66,7 @@ void Server::listenOnAddr(sockaddr_in addr)
 
 		std::string ip_address = inet_ntoa(addr.sin_addr);
 		int port = ntohs(addr.sin_port);
-		LOG_SERVER("Listening on " + ip_address + ":" + to_string(port));
+		LOG_SERVER("Listening on " + ip_address + ":" + Utils::to_string(port));
 	}
 	catch (std::exception &e)
 	{
@@ -91,7 +91,7 @@ void Server::StartServer(void)
 		}
 		catch (std::exception &e)
 		{
-			LOG_ERROR("Failed to listen on addr " + it->host + ":" + to_string(it->port) + " -- " + std::string(e.what()));
+			LOG_ERROR("Failed to listen on addr " + it->host + ":" + Utils::to_string(it->port) + " -- " + std::string(e.what()));
 		}
 	}
 }
