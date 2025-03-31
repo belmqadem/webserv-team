@@ -22,8 +22,7 @@ private:
 	~IOMultiplexer();
 
 public:
-	void debugPrintListeners(const std::string& message) const;
-
+	void debugPrintListeners(const std::string &message) const;
 
 	void runEventLoop();
 	void terminate();
@@ -33,7 +32,7 @@ public:
 
 public:
 	const int &getEpollFd() const;
-	size_t	getListenersCount() const ;
+	size_t getListenersCount() const;
 	void setStarted(bool);
 	static IOMultiplexer &getInstance();
 };

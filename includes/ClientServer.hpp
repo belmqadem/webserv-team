@@ -25,7 +25,7 @@ private:
 	time_t _last_activity;
 
 	// Add new members for CGI support
-	CGIHandler* _pendingCgi;
+	CGIHandler *_pendingCgi;
 	bool _waitingForCGI;
 
 private:
@@ -34,7 +34,7 @@ private:
 	void modifyEpollEvent(uint32_t events);
 
 	bool hasTimeOut() const;
-	
+
 public:
 	void updateActivity();
 	void checkCGIProgress();
@@ -53,5 +53,5 @@ public:
 
 	// Add new method for CGI completion callback
 	void processCGIRequest();
-	void onCGIComplete(CGIHandler* handler);
+	void onCGIComplete(CGIHandler *handler);
 };

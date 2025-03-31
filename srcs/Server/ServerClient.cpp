@@ -1,5 +1,6 @@
 #include "ClientServer.hpp"
 #include "CGIHandler.hpp"
+#include "Utils.hpp"
 
 bool ClientServer::isStarted() const
 {
@@ -25,7 +26,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 {
 	if (_is_started == true)
 	{
-		LOG_ERROR("WARNING: Attempting to registre an already started fd " + to_string(_peer_socket_fd));
+		LOG_ERROR("WARNING: Attempting to registre an already started fd " + Utils::to_string(_peer_socket_fd));
 		return;
 	}
 	_epoll_ev.data.fd = _peer_socket_fd;
@@ -36,11 +37,11 @@ void ClientServer::RegisterWithIOMultiplexer()
 		_is_started = true;
 
 		std::string addr = inet_ntoa(_client_addr.sin_addr);
-		LOG_CLIENT("Connected on " + addr + ":" + to_string(ntohs(_client_addr.sin_port)) + " Fd " + to_string(_peer_socket_fd));
+		LOG_CLIENT("Connected on " + addr + ":" + Utils::to_string(ntohs(_client_addr.sin_port)) + " Fd " + Utils::to_string(_peer_socket_fd));
 	}
 	catch (std::exception &e)
 	{
-		LOG_ERROR("Failed to register client fd " + to_string(_peer_socket_fd) + " with IO multiplexer. Connection terminated. -- " + std::string(e.what()));
+		LOG_ERROR("Failed to register client fd " + Utils::to_string(_peer_socket_fd) + " with IO multiplexer. Connection terminated. -- " + std::string(e.what()));
 		close(_peer_socket_fd);
 	}
 }
@@ -88,11 +89,11 @@ void ClientServer::terminate()
     {
         IOMultiplexer::getInstance().removeListener(_epoll_ev, _peer_socket_fd);
     } catch (std::exception &e) {
-		LOG_ERROR("Error while removing listener from IO multiplexer " + to_string(e.what()));
+		LOG_ERROR("Error while removing listener from IO multiplexer " + Utils::to_string(e.what()));
     }
 
 	std::string addr = inet_ntoa(_client_addr.sin_addr);
-	LOG_CLIENT(addr + " Fd " + to_string(_peer_socket_fd) + " Disconnected!");
+	LOG_CLIENT(addr + " Fd " + Utils::to_string(_peer_socket_fd) + " Disconnected!");
 	close(_peer_socket_fd);
 }
 
@@ -331,7 +332,7 @@ void ClientServer::handleResponse()
 	}
 	if (hasTimeOut())
 	{
-		LOG_INFO("Client: " + to_string(this->_peer_socket_fd) + "Reached Timeout after " + to_string(TIME_OUT_SECONDS) + " Seconds of inactivity");
+		LOG_INFO("Client: " + Utils::to_string(this->_peer_socket_fd) + "Reached Timeout after " + Utils::to_string(TIME_OUT_SECONDS) + " Seconds of inactivity");
 		terminate();
 		return;
 	}

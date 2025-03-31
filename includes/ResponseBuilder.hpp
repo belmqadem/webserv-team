@@ -35,7 +35,7 @@ private:
 	std::string get_http_date();
 	std::string read_file(const std::string &filename);
 	std::string generate_upload_success_page(const std::string &filename);
-	bool handleMultipartFormData();
+	bool handleMultipartFormData(std::string &content_type, std::vector<byte> &req_body);
 	bool validate_upload_path(const std::string &upload_path);
 	bool save_uploaded_file(const std::string &full_path, const std::vector<byte> &req_body);
 	void handle_session_cookies();

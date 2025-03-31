@@ -55,7 +55,6 @@ ResponseBuilder::ResponseBuilder(RequestParser &raw_request) : request(raw_reque
 
 	if (!request.is_cgi_request())
 	{
-		LOG_DEBUG("########## NORMAL REQUEST NOT CGI");
 		this->response = build_response();
 	}
 }
@@ -66,6 +65,13 @@ void ResponseBuilder::init_config()
 	this->server_config = request.get_server_config();
 	this->location_config = request.get_location_config();
 
+	if (!this->server_config)
+	{
+		LOG_ERROR("Server config not found");
+		set_status(404);
+		body = generate_error_page();
+		return;
+	}
 	if (!this->location_config)
 	{
 		LOG_ERROR("Location config not found");
@@ -269,22 +275,22 @@ void ResponseBuilder::doPOST()
 		return;
 	}
 
+	if (!validate_upload_path(upload_path))
+	{
+		set_status(500);
+		body = generate_error_page();
+		return;
+	}
+
 	if (content_type.find("multipart/form-data") != std::string::npos)
 	{
-		if (!handleMultipartFormData())
+		if (!handleMultipartFormData(content_type, req_body))
 		{
 			set_status(403);
 			body = generate_error_page();
 			return;
 		}
-		set_status(200);
-		return;
-	}
-
-	if (!validate_upload_path(upload_path))
-	{
-		set_status(500);
-		body = generate_error_page();
+		set_status(201);
 		return;
 	}
 
@@ -396,52 +402,83 @@ void ResponseBuilder::doDELETE()
 }
 
 // Method to handle multipart/form-data
-bool ResponseBuilder::handleMultipartFormData()
+bool ResponseBuilder::handleMultipartFormData(std::string &content_type, std::vector<byte> &req_body)
 {
-	std::string content_type = request.get_header_value("content-type");
-	std::vector<byte> req_body = request.get_body();
-
-	// Parse the boundary from the content-type header
 	size_t boundary_pos = content_type.find("boundary=");
 	if (boundary_pos == std::string::npos)
 	{
-		LOG_ERROR("Boundary not found in content-type");
+		LOG_ERROR("Boundary not found in content-type multipart/form-data.");
 		return false;
 	}
-	std::string boundary = "--" + content_type.substr(boundary_pos + 9);
 
-	// Convert request body to a string
+	std::string boundary = "--" + content_type.substr(boundary_pos + 9);
 	std::string body(req_body.begin(), req_body.end());
 
-	// Split the body into parts based on the boundary
+	// Split body into parts based on boundary
 	size_t pos = 0, next_pos;
 	while ((next_pos = body.find(boundary, pos)) != std::string::npos)
 	{
-		std::string part = body.substr(pos, next_pos - pos);
 		pos = next_pos + boundary.length();
 
-		// Parse headers and content
-		size_t header_end = part.find("\r\n\r\n");
-		if (header_end == std::string::npos)
-			continue;
-		std::string headers = part.substr(0, header_end);
-		std::string content = part.substr(header_end + 4);
+		if (pos < body.size() && body.substr(pos, 2) == "--")
+		{
+			break; // End of multipart data
+		}
 
-		// Parse filename from headers
+		// Skip initial CRLF after boundary
+		if (body.substr(pos, 2) == CRLF)
+			pos += 2;
+
+		// Locate where header and content separator
+		size_t header_end = body.find("\r\n\r\n", pos);
+		if (header_end == std::string::npos)
+		{
+			LOG_ERROR("Malformed multipart/form-data part - no header end.");
+			return false;
+		}
+
+		std::string headers = body.substr(pos, header_end - pos);
+		pos = header_end + 4; // Move past `\r\n\r\n`
+
+		// Locate the end of the part
+		size_t part_end = body.find("\r\n" + boundary, pos);
+		if (part_end == std::string::npos)
+		{
+			LOG_ERROR("Malformed multipart/form-data part - no part end.");
+			return false;
+		}
+
+		std::string content = body.substr(pos, part_end - pos);
+		pos = part_end + 2; // Skip `\r\n`
+
 		size_t filename_pos = headers.find("filename=\"");
 		if (filename_pos != std::string::npos)
 		{
 			size_t filename_end = headers.find("\"", filename_pos + 10);
+			if (filename_end == std::string::npos)
+			{
+				LOG_ERROR("Malformed filename in multipart part.");
+				continue;
+			}
+
 			std::string filename = headers.substr(filename_pos + 10, filename_end - (filename_pos + 10));
 
-			// Save the file
+			// avoid path traversal in filename
+			// Check if filename is empty or contains invalid characters
+			if (filename.empty() || filename.find("..") != std::string::npos || filename.find('/') != std::string::npos)
+			{
+				LOG_ERROR("Invalid filename: " + filename);
+				continue;
+			}
+
+			// Save the file to the upload directory
 			std::string full_path = location_config->uploadStore + "/" + filename;
 			if (!save_uploaded_file(full_path, std::vector<byte>(content.begin(), content.end())))
 			{
-				LOG_ERROR("Failed to save uploaded file: " + full_path);
 				return false;
 			}
-			LOG_INFO("File uploaded: " + full_path);
+
+			LOG_INFO("File uploaded successfully: " + full_path);
 			set_body(generate_upload_success_page(filename));
 		}
 	}
@@ -494,7 +531,7 @@ bool ResponseBuilder::handle_redirection()
 // Method to generate error pages
 std::string ResponseBuilder::generate_error_page()
 {
-	if (server_config && server_config->errorPages.find(status_code) != server_config->errorPages.end())
+	if (server_config->errorPages.find(status_code) != server_config->errorPages.end())
 	{
 		std::string error_page_name = server_config->errorPages.at(status_code);
 		std::string error_page_file = read_file(error_page_name);
@@ -607,7 +644,7 @@ void ResponseBuilder::include_required_headers()
 	}
 	else
 	{
-		headers["Content-Length"] = to_string(body.size());
+		headers["Content-Length"] = Utils::to_string(body.size());
 	}
 
 	// Determine connection behavior

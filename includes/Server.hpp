@@ -4,10 +4,9 @@
 #include "IOMultiplexer.hpp"
 #include "ClientServer.hpp"
 
-
 class Server : public IEvenetListeners
 {
-	private:
+private:
 	/* List of Server configs */
 	std::vector<ServerConfig> _config;
 	/* State of our Server */

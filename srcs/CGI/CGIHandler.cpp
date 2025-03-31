@@ -72,7 +72,7 @@ void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 }
 
 void CGIHandler::startCGI()
-{	
+{
 	startTime = time(NULL);
 	// Create a pipe for CGI output
 	int pipe_fd[2];
@@ -196,8 +196,8 @@ void CGIHandler::startCGI()
 		try
 		{
 			IOMultiplexer::getInstance().addListener(this, ev);
-			LOG_INFO("CGI process started with PID: " + to_string(pid) +
-						", registered for events on fd: " + to_string(output_fd));
+			LOG_INFO("CGI process started with PID: " + Utils::to_string(pid) +
+					 ", registered for events on fd: " + Utils::to_string(output_fd));
 		}
 		catch (const std::exception &e)
 		{
@@ -212,12 +212,12 @@ void CGIHandler::startCGI()
 
 void CGIHandler::onEvent(int fd, epoll_event ev)
 {
-	LOG_INFO("CGI onEvent called for fd: " + to_string(fd) +
-				", events: " + to_string(ev.events));
+	LOG_INFO("CGI onEvent called for fd: " + Utils::to_string(fd) +
+			 ", events: " + Utils::to_string(ev.events));
 
 	if (fd != output_fd)
 	{
-		LOG_ERROR("CGI onEvent called with unexpected fd: " + to_string(fd));
+		LOG_ERROR("CGI onEvent called with unexpected fd: " + Utils::to_string(fd));
 		return;
 	}
 
@@ -232,7 +232,7 @@ void CGIHandler::onEvent(int fd, epoll_event ev)
 			// Add the data to the output buffer
 			buffer[bytesRead] = '\0';
 			cgi_output.append(buffer, bytesRead);
-			LOG_INFO("Read " + to_string(bytesRead) + " bytes from CGI process");
+			LOG_INFO("Read " + Utils::to_string(bytesRead) + " bytes from CGI process");
 		}
 		else if (bytesRead == 0 || (bytesRead < 0 && errno != EAGAIN))
 		{
@@ -259,7 +259,7 @@ void CGIHandler::onEvent(int fd, epoll_event ev)
 		{
 			buffer[bytesRead] = '\0';
 			cgi_output.append(buffer, bytesRead);
-			LOG_INFO("Read " + to_string(bytesRead) + " final bytes from CGI process");
+			LOG_INFO("Read " + Utils::to_string(bytesRead) + " final bytes from CGI process");
 		}
 
 		// Process the output and finalize
@@ -311,7 +311,7 @@ void CGIHandler::finalizeCGI()
 
 void CGIHandler::terminate()
 {
-	if (clientServer->isStarted() == false)	
+	if (clientServer->isStarted() == false)
 		return;
 	if (output_fd != -1)
 	{
@@ -332,7 +332,7 @@ void CGIHandler::terminate()
 
 	if (pid > 0)
 	{
-		LOG_INFO("Killing CGI process: " + to_string(pid));
+		LOG_INFO("Killing CGI process: " + Utils::to_string(pid));
 		kill(pid, SIGKILL);
 
 		// Wait for the process to avoid zombies, but with a timeout
@@ -358,7 +358,7 @@ void CGIHandler::processCGIOutput()
 {
 	if (!responseBuilder)
 		return;
-	LOG_INFO("Processing CGI output: " + to_string(cgi_output.size()) + " bytes");
+	LOG_INFO("Processing CGI output: " + Utils::to_string(cgi_output.size()) + " bytes");
 
 	responseBuilder->set_status(200); // Start with 200 OK by default
 
@@ -418,7 +418,7 @@ void CGIHandler::processCGIOutput()
 					{
 						responseBuilder->set_status(statusCode);
 						statusSet = true;
-						LOG_INFO("Setting status code: " + to_string(statusCode));
+						LOG_INFO("Setting status code: " + Utils::to_string(statusCode));
 					}
 				}
 			}
@@ -442,5 +442,5 @@ void CGIHandler::processCGIOutput()
 	responseBuilder->set_body(body);
 
 	// After processing is done, dump debug info about final state
-	LOG_INFO("Final CGI status code: " + to_string(responseBuilder->get_status_code()));
+	LOG_INFO("Final CGI status code: " + Utils::to_string(responseBuilder->get_status_code()));
 }

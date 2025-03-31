@@ -14,17 +14,9 @@ std::string SessionCookieHandler::generate_session_id()
 
 	// Using manual string concatenation in C++98
 	std::string session_id(buffer);
-	session_id += "_" + int_to_string(random_number); // Convert integer to string
+	session_id += "_" + Utils::to_string(random_number); // Convert integer to string
 
 	return session_id;
-}
-
-// Convert integer to string (manual conversion)
-std::string SessionCookieHandler::int_to_string(int number)
-{
-	std::ostringstream oss;
-	oss << number;
-	return oss.str(); // Convert int to string using ostringstream (valid in C++98)
 }
 
 // Set a cookie
@@ -33,7 +25,7 @@ void SessionCookieHandler::set_cookie(ResponseBuilder &response, const std::stri
 	std::string cookie_header = name + "=" + value;
 	if (max_age_seconds > 0)
 	{
-		cookie_header += "; Max-Age=" + int_to_string(max_age_seconds);
+		cookie_header += "; Max-Age=" + Utils::to_string(max_age_seconds);
 	}
 	cookie_header += "; Path=/";
 	cookie_header += "; HttpOnly; SameSite=Strict";
