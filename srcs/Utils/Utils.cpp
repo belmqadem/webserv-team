@@ -55,14 +55,23 @@ namespace Utils
 		return oss.str();
 	}
 
+	bool string_to_size_t(const std::string &str, int &result)
+	{
+		std::stringstream ss(str);
+
+		ss >> result;
+
+		return !ss.fail() && ss.eof();
+	}
+
 	void sigint_handle(int sig)
 	{
 		(void)sig;
 		LOG_INFO("SIG_INT The Server will shut down");
-		
+
 		// Log active resources before shutdown
 		LOG_INFO("Active connections: " + to_string(IOMultiplexer::getInstance().getListenersCount()));
-		
+
 		// Then shut down
 		IOMultiplexer::getInstance().setStarted(false);
 		return;

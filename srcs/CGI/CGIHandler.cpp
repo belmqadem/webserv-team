@@ -15,7 +15,6 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &php_cgi_path,
 	: pid(-1), output_fd(-1), responseBuilder(response), clientServer(client), isCompleted(false)
 {
 	root_path = request.get_location_config()->root;
-	Logger &logger = Logger::getInstance();
 	scriptPath = root_path + request.get_request_uri();
 	method = request.get_http_method();
 	queryString = request.get_query_string();
@@ -34,10 +33,10 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &php_cgi_path,
 
 	if (interpreter.empty())
 	{
-		logger.error("No CGI interpreter found");
+		LOG_ERROR("No CGI interpreter found");
 		throw std::runtime_error("500 Internal Server Error: No CGI interpreter found");
 	}
-	logger.info("CGIHandler initialized with script: " + scriptPath);
+	LOG_INFO("CGIHandler initialized with script: " + scriptPath);
 }
 
 CGIHandler::~CGIHandler()
@@ -67,20 +66,19 @@ void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 	env.push_back("GATEWAY_INTERFACE=CGI/1.1");
 
 	// Log all environment variables for debugging
-	Logger::getInstance().info("CGI environment variables:");
+	LOG_INFO("CGI environment variables:");
 	for (size_t i = 0; i < env.size(); ++i)
-		Logger::getInstance().info("  " + env[i]);
+		LOG_INFO("  " + env[i]);
 }
 
 void CGIHandler::startCGI()
-{
-	Logger &logger = Logger::getInstance();
+{	
 	startTime = time(NULL);
 	// Create a pipe for CGI output
 	int pipe_fd[2];
 	if (pipe(pipe_fd) == -1)
 	{
-		logger.error("pipe() failed: " + std::string(strerror(errno)));
+		LOG_ERROR("pipe() failed: " + std::string(strerror(errno)));
 		throw std::runtime_error("500 Internal Server Error: Pipe creation failed");
 	}
 
@@ -92,7 +90,7 @@ void CGIHandler::startCGI()
 		{
 			close(pipe_fd[0]);
 			close(pipe_fd[1]);
-			logger.error("pipe() failed for input: " + std::string(strerror(errno)));
+			LOG_ERROR("pipe() failed for input: " + std::string(strerror(errno)));
 			throw std::runtime_error("500 Internal Server Error: Input pipe creation failed");
 		}
 	}
@@ -109,7 +107,7 @@ void CGIHandler::startCGI()
 		if (input_pipe[1] != -1)
 			close(input_pipe[1]);
 
-		logger.error("fork() failed: " + std::string(strerror(errno)));
+		LOG_ERROR("fork() failed: " + std::string(strerror(errno)));
 		throw std::runtime_error("500 Internal Server Error: Fork failed");
 	}
 
@@ -121,7 +119,7 @@ void CGIHandler::startCGI()
 		// Redirect stdout to the write end of the pipe
 		if (dup2(pipe_fd[1], STDOUT_FILENO) == -1)
 		{
-			logger.error("dup2() failed for stdout: " + std::string(strerror(errno)));
+			LOG_ERROR("dup2() failed for stdout: " + std::string(strerror(errno)));
 			exit(1);
 		}
 		close(pipe_fd[1]);
@@ -132,7 +130,7 @@ void CGIHandler::startCGI()
 			close(input_pipe[1]); // Close write end
 			if (dup2(input_pipe[0], STDIN_FILENO) == -1)
 			{
-				logger.error("dup2() failed for stdin: " + std::string(strerror(errno)));
+				LOG_ERROR("dup2() failed for stdin: " + std::string(strerror(errno)));
 				exit(1);
 			}
 			close(input_pipe[0]);
@@ -158,11 +156,11 @@ void CGIHandler::startCGI()
 		envp[env.size()] = NULL;
 
 		// Execute the CGI script
-		logger.info("Executing CGI: " + interpreter + " " + scriptPath);
+		LOG_INFO("Executing CGI: " + interpreter + " " + scriptPath);
 		execve(argv[0], argv, envp);
 
 		// If execve returns, there was an error
-		logger.error("execve() failed: " + std::string(strerror(errno)));
+		LOG_ERROR("execve() failed: " + std::string(strerror(errno)));
 		exit(1);
 	}
 	else // Parent process
@@ -178,7 +176,7 @@ void CGIHandler::startCGI()
 			// Write the body to the input pipe
 			ssize_t written = write(input_pipe[1], body.c_str(), body.length());
 			if (written < 0)
-				logger.error("Error writing to CGI input: " + std::string(strerror(errno)));
+				LOG_ERROR("Error writing to CGI input: " + std::string(strerror(errno)));
 
 			close(input_pipe[1]); // Close after writing
 		}
@@ -198,12 +196,12 @@ void CGIHandler::startCGI()
 		try
 		{
 			IOMultiplexer::getInstance().addListener(this, ev);
-			logger.info("CGI process started with PID: " + to_string(pid) +
+			LOG_INFO("CGI process started with PID: " + to_string(pid) +
 						", registered for events on fd: " + to_string(output_fd));
 		}
 		catch (const std::exception &e)
 		{
-			logger.error("Failed to register CGI with IOMultiplexer: " + std::string(e.what()));
+			LOG_ERROR("Failed to register CGI with IOMultiplexer: " + std::string(e.what()));
 			close(output_fd);
 			kill(pid, SIGKILL);
 			waitpid(pid, NULL, 0);
@@ -214,14 +212,12 @@ void CGIHandler::startCGI()
 
 void CGIHandler::onEvent(int fd, epoll_event ev)
 {
-	Logger &logger = Logger::getInstance();
-
-	logger.info("CGI onEvent called for fd: " + to_string(fd) +
+	LOG_INFO("CGI onEvent called for fd: " + to_string(fd) +
 				", events: " + to_string(ev.events));
 
 	if (fd != output_fd)
 	{
-		logger.error("CGI onEvent called with unexpected fd: " + to_string(fd));
+		LOG_ERROR("CGI onEvent called with unexpected fd: " + to_string(fd));
 		return;
 	}
 
@@ -236,15 +232,15 @@ void CGIHandler::onEvent(int fd, epoll_event ev)
 			// Add the data to the output buffer
 			buffer[bytesRead] = '\0';
 			cgi_output.append(buffer, bytesRead);
-			logger.info("Read " + to_string(bytesRead) + " bytes from CGI process");
+			LOG_INFO("Read " + to_string(bytesRead) + " bytes from CGI process");
 		}
 		else if (bytesRead == 0 || (bytesRead < 0 && errno != EAGAIN))
 		{
 			// End of data or error
 			if (bytesRead < 0)
-				logger.error("Read error from CGI: " + std::string(strerror(errno)));
+				LOG_ERROR("Read error from CGI: " + std::string(strerror(errno)));
 			else
-				logger.info("CGI process completed output");
+				LOG_INFO("CGI process completed output");
 
 			// Process the output and finalize
 			finalizeCGI();
@@ -254,7 +250,7 @@ void CGIHandler::onEvent(int fd, epoll_event ev)
 	// EPOLLHUP is normal when the CGI process finishes and closes its pipe
 	if (ev.events & EPOLLHUP)
 	{
-		logger.info("CGI pipe closed (EPOLLHUP)");
+		LOG_INFO("CGI pipe closed (EPOLLHUP)");
 
 		// Try to read any remaining data
 		char buffer[1024];
@@ -263,7 +259,7 @@ void CGIHandler::onEvent(int fd, epoll_event ev)
 		{
 			buffer[bytesRead] = '\0';
 			cgi_output.append(buffer, bytesRead);
-			logger.info("Read " + to_string(bytesRead) + " final bytes from CGI process");
+			LOG_INFO("Read " + to_string(bytesRead) + " final bytes from CGI process");
 		}
 
 		// Process the output and finalize
@@ -273,7 +269,7 @@ void CGIHandler::onEvent(int fd, epoll_event ev)
 	// Only treat EPOLLERR as an actual error
 	if (ev.events & EPOLLERR)
 	{
-		logger.error("Error on CGI pipe (EPOLLERR)");
+		LOG_ERROR("Error on CGI pipe (EPOLLERR)");
 		terminate();
 	}
 }
@@ -315,8 +311,8 @@ void CGIHandler::finalizeCGI()
 
 void CGIHandler::terminate()
 {
-	Logger &logger = Logger::getInstance();
-
+	if (clientServer->isStarted() == false)	
+		return;
 	if (output_fd != -1)
 	{
 		try
@@ -327,7 +323,7 @@ void CGIHandler::terminate()
 		}
 		catch (const std::exception &e)
 		{
-			logger.error("Error removing CGI listener: " + std::string(e.what()));
+			LOG_ERROR("Error removing CGI listener: " + std::string(e.what()));
 		}
 
 		close(output_fd);
@@ -336,7 +332,7 @@ void CGIHandler::terminate()
 
 	if (pid > 0)
 	{
-		logger.info("Killing CGI process: " + to_string(pid));
+		LOG_INFO("Killing CGI process: " + to_string(pid));
 		kill(pid, SIGKILL);
 
 		// Wait for the process to avoid zombies, but with a timeout
@@ -347,7 +343,7 @@ void CGIHandler::terminate()
 			// Timeout after 2 seconds
 			if (time(NULL) - start > 2)
 			{
-				logger.error("Timeout waiting for CGI process to terminate");
+				LOG_ERROR("Timeout waiting for CGI process to terminate");
 				break;
 			}
 			usleep(10000); // 10ms sleep
@@ -362,17 +358,14 @@ void CGIHandler::processCGIOutput()
 {
 	if (!responseBuilder)
 		return;
+	LOG_INFO("Processing CGI output: " + to_string(cgi_output.size()) + " bytes");
 
-	Logger &logger = Logger::getInstance();
-	logger.info("Processing CGI output: " + to_string(cgi_output.size()) + " bytes");
-
-	// First, reset the response builder's state
 	responseBuilder->set_status(200); // Start with 200 OK by default
 
 	// Identify headers and body
 	std::string headers;
 	std::string body;
-	size_t headerEnd = cgi_output.find("\r\n\r\n");
+	size_t headerEnd = cgi_output.find(CRLF CRLF);
 
 	if (headerEnd != std::string::npos)
 	{
@@ -425,7 +418,7 @@ void CGIHandler::processCGIOutput()
 					{
 						responseBuilder->set_status(statusCode);
 						statusSet = true;
-						logger.info("Setting status code: " + to_string(statusCode));
+						LOG_INFO("Setting status code: " + to_string(statusCode));
 					}
 				}
 			}
@@ -441,7 +434,7 @@ void CGIHandler::processCGIOutput()
 	if (!statusSet)
 	{
 		responseBuilder->set_status(200); // Default to 200 OK
-		logger.info("No status found, using default 200 OK");
+		LOG_INFO("No status found, using default 200 OK");
 	}
 
 	// Set content type and body
@@ -449,5 +442,5 @@ void CGIHandler::processCGIOutput()
 	responseBuilder->set_body(body);
 
 	// After processing is done, dump debug info about final state
-	logger.info("Final CGI status code: " + to_string(responseBuilder->get_status_code()));
+	LOG_INFO("Final CGI status code: " + to_string(responseBuilder->get_status_code()));
 }

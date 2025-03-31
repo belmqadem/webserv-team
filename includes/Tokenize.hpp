@@ -23,6 +23,7 @@ enum TokenType
 	AUTOINDEX,
 	INDEX,
 	CLIENT_MAX_BODY_SIZE,
+	CLIENT_MAX_BODY_SIZE_MUL,
 	ALLOWED_METHODS,
 	REDIRECT,
 	CGI,
@@ -37,6 +38,7 @@ struct Token
 {
 	TokenType type;
 	std::string value;
+	int		nums;
 };
 
 std::vector<Token> tokenize(std::string &input);

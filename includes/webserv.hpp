@@ -102,11 +102,7 @@
 #include <limits.h>
 #include "Utils.hpp"
 
-// Template Function
 template <class T>
-std::string to_string(T t)
-{
-	std::stringstream str;
-	str << t;
-	return str.str();
-}
+std::string to_string(T t);
+
+#include "webserv.tpp"

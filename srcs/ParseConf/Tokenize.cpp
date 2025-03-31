@@ -1,18 +1,29 @@
 #include "Tokenize.hpp"
 #include <algorithm>
+#include "webserv.hpp"
 
-bool find_del(char b)
+bool is_size_multiplier(char c)
 {
-	std::string delim = ";{}";
-	return (delim.find(b) != std::string::npos);
+	const std::string size_muls = "kmg";
+	return size_muls.find(std::tolower(c)) != std::string::npos;
 }
 
 void SanitizeInput(std::string &input)
 {
+	const std::string delim = ";{}";
 	for (size_t i = 0; i < input.length(); i++)
 	{
-		if (find_del(input[i]))
+		char c = input[i];
+		
+		if (delim.find(c) != std::string::npos)
 		{
+			input.insert(i, " ");
+			input.insert(i + 2, " ");
+			i += 2;
+		}
+		else if (is_size_multiplier(c) && i > 0 && std::isdigit(input[i - 1]))
+		{
+			input[i] = std::tolower(c);
 			input.insert(i, " ");
 			input.insert(i + 2, " ");
 			i += 2;
@@ -30,6 +41,7 @@ std::vector<Token> tokenize(std::string &input)
 
 	while (stream >> word)
 	{
+		// ignore comments
 		if (word == "#")
 		{
 			stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -156,8 +168,16 @@ std::vector<Token> tokenize(std::string &input)
 			token.value = word;
 			tokens.push_back(token);
 		}
-		else if (isdigit(word[0]))
+		else if (word.length() == 1 && is_size_multiplier(word[0]))
 		{
+			token.type = CLIENT_MAX_BODY_SIZE_MUL;
+			token.value = word;
+			tokens.push_back(token);
+		}
+		else if (Utils::string_to_size_t(word, token.nums))
+		{
+			if (token.nums < 0)
+				throw std::runtime_error("Negative values is forbiden");
 			token.type = NUMBER;
 			token.value = word;
 			tokens.push_back(token);
