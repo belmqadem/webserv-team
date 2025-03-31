@@ -2,6 +2,22 @@
 #include "Logger.hpp"
 #include "Server.hpp"
 
+void IOMultiplexer::debugPrintListeners(const std::string& message) const
+{
+    LOG_INFO(message + " - Listeners map contents:");
+    LOG_INFO("Map size: " + to_string(_listeners.size()));
+    
+    for (std::map<int, IEvenetListeners *>::const_iterator it = _listeners.begin();
+         it != _listeners.end(); ++it)
+    {
+        LOG_INFO("  FD: " + to_string(it->first) + 
+                 ", Listener addr: " + to_string((void*)it->second) +
+                 ", Type: " + (dynamic_cast<Server*>(it->second) ? "Server" : 
+                              (dynamic_cast<ClientServer*>(it->second) ? "ClientServer" : 
+                               (dynamic_cast<CGIHandler*>(it->second) ? "CGIHandler" : "Unknown"))));
+    }
+}
+
 IOMultiplexer::IOMultiplexer() : _epoll_fd(epoll_create(__INT32_MAX__)), _is_started(false)
 {
 	if (_epoll_fd == -1)
@@ -128,26 +144,22 @@ void IOMultiplexer::removeListener(epoll_event ev, int fd)
 
 void IOMultiplexer::terminate(void)
 {
-	// Copy the listeners to avoid iterator invalidation during termination
-	std::map<int, IEvenetListeners *> listeners_copy = _listeners;
-
-	// Iterate through and terminate each listener
-	for (std::map<int, IEvenetListeners *>::iterator it = listeners_copy.begin();
-		 it != listeners_copy.end(); ++it)
-	{
-		if (it->second)
-		{
-			try
-			{
-				it->second->terminate();
-			}
-			catch (const std::exception &e)
-			{
-				LOG_ERROR("Error terminating listener: " + std::string(e.what()));
-			}
-		}
-	}
-
-	// Clear the listeners map
-	_listeners.clear();
+    std::vector<std::pair<int, IEvenetListeners*> > listeners_to_terminate;
+    
+    for (std::map<int, IEvenetListeners*>::iterator it = _listeners.begin();
+         it != _listeners.end(); ++it)
+    {
+        listeners_to_terminate.push_back(std::make_pair(it->first, it->second));
+    }
+    for (size_t i = 0; i < listeners_to_terminate.size(); ++i)
+    {
+        try
+        {
+            listeners_to_terminate[i].second->terminate();
+        }
+        catch (const std::exception &e)
+        {
+			LOG_ERROR("Error terminating listener: " + std::string(e.what()));
+        }
+    }    
 }

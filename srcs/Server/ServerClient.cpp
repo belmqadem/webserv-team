@@ -84,7 +84,12 @@ void ClientServer::terminate()
 	_response_ready = false;
 	_waitingForCGI = false;
 
-	IOMultiplexer::getInstance().removeListener(_epoll_ev, _peer_socket_fd);
+    try 
+    {
+        IOMultiplexer::getInstance().removeListener(_epoll_ev, _peer_socket_fd);
+    } catch (std::exception &e) {
+		LOG_ERROR("Error while removing listener from IO multiplexer " + to_string(e.what()));
+    }
 
 	std::string addr = inet_ntoa(_client_addr.sin_addr);
 	LOG_CLIENT(addr + " Fd " + to_string(_peer_socket_fd) + " Disconnected!");
@@ -280,7 +285,6 @@ void ClientServer::onCGIComplete(CGIHandler *handler)
 		// Get the response builder
 		ResponseBuilder *respBuilder = handler->getResponseBuilder();
 
-		// CRITICAL FIX: Don't rebuild the entire response, just generate the string
 		_response_buffer = respBuilder->generate_response_only();
 
 		_response_ready = true;

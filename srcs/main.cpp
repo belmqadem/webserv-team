@@ -30,4 +30,5 @@ int main(int ac, char **av)
 	{
 		LOG_ERROR("Fatal error -- " + std::string(e.what()));
 	}
+	return (0);
 }
