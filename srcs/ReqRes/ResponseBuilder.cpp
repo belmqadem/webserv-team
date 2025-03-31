@@ -46,12 +46,16 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 }
 
 // Response Constructor Takes Request as parameter
-ResponseBuilder::ResponseBuilder(RequestParser &raw_request) : request(raw_request), http_version("HTTP/1.1")
+ResponseBuilder::ResponseBuilder(RequestParser &raw_request) : request(raw_request), http_version("HTTP/1.1"), status("200 OK"), status_code(200)
 {
+	this->headers.clear();
+	this->routes.clear();
+
 	init_config();
 
 	if (!request.is_cgi_request())
 	{
+		LOG_DEBUG("########## NORMAL REQUEST NOT CGI");
 		this->response = build_response();
 	}
 }
@@ -61,6 +65,14 @@ void ResponseBuilder::init_config()
 {
 	this->server_config = request.get_server_config();
 	this->location_config = request.get_location_config();
+
+	if (!this->location_config)
+	{
+		LOG_ERROR("Location config not found");
+		set_status(404);
+		body = generate_error_page();
+		return;
+	}
 }
 
 // Method to initialize the routes (GET | POST | DELETE)
@@ -235,7 +247,7 @@ void ResponseBuilder::doGET()
 		return;
 	}
 
-	body = read_html_file(path);
+	body = read_file(path);
 	set_status(200);
 }
 
@@ -457,6 +469,7 @@ bool ResponseBuilder::save_uploaded_file(const std::string &full_path, const std
 		LOG_ERROR("Error: Cannot open file: " + full_path);
 		return false;
 	}
+
 	file.write(reinterpret_cast<const char *>(&req_body[0]), req_body.size());
 	file.close();
 	return true;
@@ -465,15 +478,14 @@ bool ResponseBuilder::save_uploaded_file(const std::string &full_path, const std
 // Method to handle redirection
 bool ResponseBuilder::handle_redirection()
 {
-	if (location_config && location_config->isRedirect)
+	if (location_config->isRedirect)
 	{
-		std::string redirect_url = location_config->redirectUrl;
 		if (location_config->isRedirectPermanent)
 			set_status(301);
 		else
 			set_status(302);
 		body = generate_error_page();
-		this->headers["Location"] = redirect_url;
+		this->headers["Location"] = location_config->redirectUrl;
 		return true;
 	}
 	return false;
@@ -485,7 +497,7 @@ std::string ResponseBuilder::generate_error_page()
 	if (server_config && server_config->errorPages.find(status_code) != server_config->errorPages.end())
 	{
 		std::string error_page_name = server_config->errorPages.at(status_code);
-		std::string error_page_file = read_html_file(error_page_name);
+		std::string error_page_file = read_file(error_page_name);
 		if (error_page_file != "")
 			return error_page_file;
 	}
@@ -568,7 +580,7 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 
 	page << "</ul>\n</body></html>";
 
-	set_headers("Content-Type", "text/html");
+	headers["Content-Type"] = "text/html";
 
 	return page.str();
 }
@@ -586,14 +598,16 @@ void ResponseBuilder::include_required_headers()
 		headers["Content-Type"] = detect_mime_type(request.get_request_uri());
 	}
 
-	// Only `Content-Length` if no `Transfer-Encoding`
-	if (!headers.count("Transfer-Encoding"))
+	// `Content-Length` and `Transfer-Encoding`
+	if (headers.find("Transfer-Encoding") != headers.end())
+	{
+		std::string transfer_encoding = headers["Transfer-Encoding"];
+		if (transfer_encoding == "chunked")
+			headers.erase("Content-Length");
+	}
+	else
 	{
 		headers["Content-Length"] = to_string(body.size());
-	}
-	else if (headers["Transfer-Encoding"] == "chunked")
-	{
-		headers.erase("Content-Length"); // Chunked encoding should NOT have Content-Length
 	}
 
 	// Determine connection behavior
@@ -603,18 +617,16 @@ void ResponseBuilder::include_required_headers()
 	}
 
 	// `Allow` header for 405 Method Not Allowed
-	if (this->status_code == 405 && !headers.count("Allow"))
+	if (this->status_code == 405 && !headers.count("Allow") && location_config)
 	{
-		std::string allowed;
-		std::vector<std::string>::const_iterator it = location_config->allowedMethods.begin();
-		for (; it != location_config->allowedMethods.end(); ++it)
+		std::string allowed_methods;
+		for (size_t i = 0; i < location_config->allowedMethods.size(); ++i)
 		{
-			if (it != location_config->allowedMethods.end() - 1)
-				allowed += (*it) + ", ";
-			else
-				allowed += (*it);
+			allowed_methods += location_config->allowedMethods[i];
+			if (i != location_config->allowedMethods.size() - 1)
+				allowed_methods += ", ";
 		}
-		headers["Allow"] = allowed;
+		headers["Allow"] = allowed_methods;
 	}
 }
 
@@ -629,7 +641,7 @@ std::string ResponseBuilder::get_http_date()
 }
 
 // Method to read the html file
-std::string ResponseBuilder::read_html_file(const std::string &filename)
+std::string ResponseBuilder::read_file(const std::string &filename)
 {
 	std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
 	if (!file)
@@ -638,11 +650,12 @@ std::string ResponseBuilder::read_html_file(const std::string &filename)
 		return "";
 	}
 
-	headers["Content-Type"] = detect_mime_type(filename);
-
 	std::ostringstream content;
 	content << file.rdbuf();
 	file.close();
+
+	headers["Content-Type"] = detect_mime_type(filename);
+
 	return content.str();
 }
 
@@ -654,10 +667,9 @@ std::string ResponseBuilder::generate_upload_success_page(const std::string &fil
 		 << "<html>\n"
 		 << "<head><title>Upload Successful</title></head>\n"
 		 << "<body>\n"
-		 << "<h1>File Upload Successful</h1>\n"
+		 << "<h1 style=\"color:blue;\">File Upload Successful</h1>\n"
 		 << "<p>Your file has been uploaded successfully.</p>\n"
 		 << "<p><strong>Saved as:</strong> " << filename << "</p>\n"
-		 << "<a href=\"/\">Return to Home</a>\n"
 		 << "</body>\n"
 		 << "</html>";
 
@@ -673,9 +685,6 @@ void ResponseBuilder::set_status(short status_code)
 	this->status_code = status_code;
 	switch (status_code)
 	{
-	case 100:
-		this->status = STATUS_100;
-		break;
 	case 200:
 		this->status = STATUS_200;
 		break;

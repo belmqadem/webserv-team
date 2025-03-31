@@ -18,7 +18,6 @@
 #define UNDERLINE "\033[4m"
 
 // STATUS CODES
-#define STATUS_100 "100 Continue"
 #define STATUS_200 "200 OK"
 #define STATUS_201 "201 Created"
 #define STATUS_202 "202 Accepted"
@@ -100,6 +99,7 @@
 #include <signal.h>
 #include <cstring>
 #include <sys/epoll.h>
+#include <limits.h>
 #include "Utils.hpp"
 
 // Template Function
