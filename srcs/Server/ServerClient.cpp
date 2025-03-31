@@ -121,11 +121,13 @@ void ClientServer::handleIncomingData()
 	_request_buffer.append(buffer, rd_count);
 
 	// for curl tests
-	if (_parser && _parser->get_expects_continue())
+	if (_parser && _parser->get_header_value("expect") == "100-continue")
 	{
+		LOG_INFO("Received Expect: 100-continue header");
+
 		std::string continue_response = "HTTP/1.1 100 Continue\r\n\r\n";
 		send(_peer_socket_fd, continue_response.c_str(), continue_response.length(), 0);
-		_parser->set_expects_continue(false);
+		// _parser->set_expects_continue(false);
 		LOG_INFO("Sent 100 Continue response");
 	}
 
@@ -353,7 +355,7 @@ void ClientServer::handleResponse()
 			this->terminate();
 		}
 		// Reset parser state for the next request if keeping alive
-		else if (_parser && _parser->get_error_code() != 1)
+		else if (_parser && _parser->get_error_code())
 		{
 			delete _parser;
 			_parser = NULL;
@@ -363,12 +365,7 @@ void ClientServer::handleResponse()
 
 bool ClientServer::shouldKeepAlive() const
 {
-	// If we don't have a parser object stored, we can't check
-	if (!_parser)
-	{
-		return false;
-	}
-	return (!_parser->is_connection_close());
+	return (_parser && !_parser->is_connection_close());
 }
 
 void ClientServer::modifyEpollEvent(uint32_t events)

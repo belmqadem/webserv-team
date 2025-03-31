@@ -5,6 +5,9 @@
 RequestParser::RequestParser()
 {
 	this->state = REQUEST_LINE;
+	this->headers.clear();
+	this->body.clear();
+	this->port = 80;
 	this->error_code = 0;
 	this->has_content_length = false;
 	this->has_transfer_encoding = false;
@@ -13,7 +16,6 @@ RequestParser::RequestParser()
 	this->current_chunk_size = 0;
 	this->current_chunk_read = 0;
 	this->reading_chunk_data = false;
-	this->expects_continue = false;
 }
 
 // Copy Constructor
@@ -33,8 +35,7 @@ RequestParser::RequestParser(const RequestParser &other) : state(other.state),
 														   location_config(other.location_config),
 														   current_chunk_size(other.current_chunk_size),
 														   current_chunk_read(other.current_chunk_read),
-														   reading_chunk_data(other.reading_chunk_data),
-														   expects_continue(other.expects_continue) {}
+														   reading_chunk_data(other.reading_chunk_data) {}
 
 // Copy Assignement
 RequestParser &RequestParser::operator=(const RequestParser &other)
@@ -58,7 +59,6 @@ RequestParser &RequestParser::operator=(const RequestParser &other)
 		this->current_chunk_size = other.current_chunk_size;
 		this->current_chunk_read = other.current_chunk_read;
 		this->reading_chunk_data = other.reading_chunk_data;
-		this->expects_continue = other.expects_continue;
 	}
 	return *this;
 }
@@ -107,9 +107,11 @@ size_t RequestParser::parse_request(const std::string &request)
 // Method to extract the request line
 const char *RequestParser::parse_request_line(const char *pos, const char *end)
 {
+	LOG_DEBUG("PARSING REQUEST LINE ...");
 	const char *line_end = find_line_end(pos, end); // Points to the end of the line (after CRLF)
 	if (line_end == end)
 	{
+		LOG_DEBUG("PARSING REQUEST LINE [WAITING MORE DATA] ...");
 		return pos; // Wait for more data
 	}
 
@@ -139,6 +141,8 @@ const char *RequestParser::parse_request_line(const char *pos, const char *end)
 // Method to extract headers
 const char *RequestParser::parse_headers(const char *pos, const char *end)
 {
+	LOG_DEBUG("PARSING HEADERS ...");
+
 	bool has_host = false;
 	std::string content_length_value;
 
@@ -164,9 +168,11 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 					log_error(HTTP_PARSE_MISSING_CONTENT_LENGTH, 411);
 					return pos;
 				}
+				LOG_DEBUG("###### PARSING DONE AFTER HEADERS (NO BODY PROCESSING)");
 				state = DONE; // Ignore the Body by marking the request as DONE
 				return header_end;
 			}
+			LOG_DEBUG("####### PARSING GOING TO BODY PROCESSING");
 			state = BODY;
 			return header_end;
 		}
@@ -242,9 +248,8 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 
 			has_host = true;
 			std::string host_value = value;
-			uint16_t port = 80;
-
 			size_t colon_pos = host_value.find(':');
+			port = 80;
 			if (colon_pos != std::string::npos)
 			{
 				std::string port_str = host_value.substr(colon_pos + 1);
@@ -262,15 +267,10 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 		}
 
 		// Special Handling for `Expect`
-		if (headers.find("expect") != headers.end())
+		if (key == "expect")
 		{
-			std::string expect_value = headers["expect"];
-			std::transform(expect_value.begin(), expect_value.end(), expect_value.begin(), ::tolower);
-			if (expect_value == "100-continue")
-			{
-				expects_continue = true;
-			}
-			else
+			std::transform(value.begin(), value.end(), value.begin(), ::tolower);
+			if (value != "100-continue")
 			{
 				log_error(HTTP_PARSE_INVALID_EXPECT_VALUE, 417);
 				return pos;
@@ -292,6 +292,8 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 // Method to extract body
 const char *RequestParser::parse_body(const char *pos, const char *end)
 {
+	LOG_DEBUG("######## PARSING BODY ...");
+
 	// Case 1: Transfer-Encoding: chunked
 	if (has_transfer_encoding)
 	{
@@ -311,7 +313,7 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 		size_t bytes_in_body = static_cast<size_t>(end - pos);
 
 		// Check for invalid content length value
-		if (*endptr != '\0' || content_length > bytes_in_body)
+		if (*endptr != '\0' || content_length == 0)
 		{
 			log_error(HTTP_PARSE_INVALID_CONTENT_LENGTH, 400);
 			return pos;
@@ -319,12 +321,18 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 
 		size_t remaining_bytes = content_length - body.size();
 		size_t bytes_to_read = std::min(remaining_bytes, bytes_in_body);
-		body.insert(body.end(), pos, pos + bytes_to_read);
-		pos += bytes_to_read;
+
+		// Partial body reading
+		if (bytes_to_read > 0)
+		{
+			body.insert(body.end(), pos, pos + bytes_to_read);
+			pos += bytes_to_read;
+		}
 
 		// If body is fully received -> Parse is done
 		if (body.size() == content_length)
 		{
+			LOG_DEBUG("######## BODY PARSING DONE");
 			state = DONE;
 		}
 
@@ -337,13 +345,18 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 {
 	if (pos >= end)
+	{
+		LOG_DEBUG("######## PARSING CHUNKED BODY -- NO DATA");
 		return pos; // No data to process
+	}
 
 	while (pos < end)
 	{
 		// If we're in the middle of reading a chunk's data
 		if (reading_chunk_data)
 		{
+			LOG_DEBUG("######## READING CHUNK DATA ...");
+
 			// Calculate how much we can read in this pass
 			size_t remaining_in_chunk = current_chunk_size - current_chunk_read;
 			size_t available_bytes = static_cast<size_t>(end - pos);
@@ -361,10 +374,7 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 				current_chunk_read = 0;
 
 				// Check for CRLF after chunk data
-				if (pos + 2 > end)
-					return pos; // Need more data for CRLF
-
-				if (pos[0] != '\r' || pos[1] != '\n')
+				if (pos + 2 > end || pos[0] != '\r' || pos[1] != '\n')
 				{
 					log_error(HTTP_PARSE_INVALID_CHUNKED_TRANSFER, 400);
 					return pos;
@@ -374,6 +384,7 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 			else
 			{
 				// Chunk not complete, need more data
+				LOG_DEBUG("######## READING CHUNK DATA -- WAITING FOR MORE DATA");
 				return pos;
 			}
 		}
@@ -381,21 +392,16 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 		{
 			const char *chunk_size_end = find_line_end(pos, end);
 			if (chunk_size_end == end)
+			{
+				LOG_DEBUG("######## PARSING CHUNK SIZE -- WAITING FOR MORE DATA");
 				return pos; // Wait for more data
+			}
 
 			// Parse chunk size
 			std::string chunk_size_str = Utils::trim(std::string(pos, chunk_size_end - pos), "\r\n \t");
-			if (chunk_size_str.empty())
-			{
-				// Skip empty lines and try again
-				pos = chunk_size_end;
-				return pos;
-			}
-			LOG_DEBUG("Parsing chunk size: '" + chunk_size_str + "'");
 			char *endptr = NULL;
 			current_chunk_size = std::strtoul(chunk_size_str.c_str(), &endptr, 16);
-
-			if (*endptr != '\0')
+			if (*endptr != '\0' || current_chunk_size == ULONG_MAX)
 			{
 				log_error(HTTP_PARSE_INVALID_CHUNKED_TRANSFER, 400);
 				return pos;
@@ -405,17 +411,14 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 
 			if (current_chunk_size == 0) // Final chunk
 			{
-				// Ensure there's a final CRLF
-				if (pos + 2 > end)
-					return pos; // Need more data
-
-				if (pos[0] != '\r' || pos[1] != '\n')
+				if (pos + 2 > end || pos[0] != '\r' || pos[1] != '\n')
 				{
 					log_error(HTTP_PARSE_INVALID_CHUNKED_TRANSFER, 400);
 					return pos;
 				}
+				pos += 2; // Skip final CRLF
 
-				pos += 2; // Skip CRLF
+				LOG_DEBUG("####### CHUNKED BODY PARSING DONE");
 				state = DONE;
 				this->headers["connection"] = "close";
 				return pos;
@@ -616,9 +619,6 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 // Method to check if the request is for cgi
 bool RequestParser::is_cgi_request()
 {
-	if (!location_config || location_config->cgiPath.empty())
-		return false;
-
 	size_t pos = request_uri.find_last_of('.');
 	if (pos == std::string::npos || request_uri.find_last_of('/') > pos)
 		return false;
@@ -728,10 +728,6 @@ void RequestParser::set_query_string(const std::string &query_string)
 {
 	this->query_string = query_string;
 }
-void RequestParser::set_expects_continue(bool expects_continue)
-{
-	this->expects_continue = expects_continue;
-}
 /****************************
 		END SETTERS
 ****************************/
@@ -752,7 +748,6 @@ uint16_t &RequestParser::get_port_number() { return port; }
 ParseState &RequestParser::get_state() { return state; }
 const ServerConfig *RequestParser::get_server_config() { return server_config; }
 const Location *RequestParser::get_location_config() { return location_config; }
-bool RequestParser::get_expects_continue() { return expects_continue; }
 /****************************
 		END GETTERS
 ****************************/
