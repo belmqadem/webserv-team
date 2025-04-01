@@ -1,0 +1,44 @@
+# Find processes using a specific port
+sudo lsof -i :{PORT}
+sudo netstat -tuln | grep :{PORT}
+
+# Kill processes using a specific port
+sudo kill -9 $(lsof -t -i:{PORT})
+
+# Test if a port is open/reachable
+nc -zv localhost {PORT}
+
+# Monitor all network connections in real-time
+watch -n 1 'netstat -tuln'
+
+
+# Basic GET request
+curl -v http://localhost:{PORT}/path
+
+# POST request with data
+curl -v -X POST -d "param1=value1&param2=value2" http://localhost:{PORT}/path
+
+# POST with file upload
+curl -v -X POST -F "file=@/path/to/file.txt" http://localhost:{PORT}/upload
+
+# Test chunked transfer encoding
+curl -v -H "Transfer-Encoding: chunked" --data-binary @file.txt http://localhost:{PORT}/path
+
+# Benchmark server performance
+ab -n 1000 -c 10 http://localhost:{PORT}/path
+
+# Monitor process resource usage
+top -p $(pgrep webserv)
+
+
+# Monitor log in real-time
+tail -f webserv.log
+
+# Count occurrences of error types
+grep -c "ERROR" webserv.log
+grep "ERROR" webserv.log | sort | uniq -c | sort -nr
+
+# Extract response codes
+grep "RESPONSE" webserv.log | cut -d' ' -f4-5 | sort | uniq -c
+
+
