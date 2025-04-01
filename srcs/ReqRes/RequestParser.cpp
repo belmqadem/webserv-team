@@ -34,7 +34,7 @@ RequestParser::RequestParser(const RequestParser &other) : state(other.state),
 														   location_config(other.location_config),
 														   current_chunk_size(other.current_chunk_size),
 														   current_chunk_read(other.current_chunk_read),
-														   reading_chunk_data(other.reading_chunk_data) {}
+														   reading_chunk_data(other.reading_chunk_data) { }
 
 // Copy Assignement
 RequestParser &RequestParser::operator=(const RequestParser &other)
