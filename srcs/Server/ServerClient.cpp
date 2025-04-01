@@ -268,8 +268,7 @@ void ClientServer::processCGIRequest()
 		// Create an error response
 		respBuilder->set_status(500);
 		respBuilder->set_body(respBuilder->generate_error_page());
-		respBuilder->generate_response_only();
-		_response_buffer = respBuilder->get_response();
+		_response_buffer = respBuilder->generate_response_only(); //  CONSTRUCTING RESPONSE
 		_response_ready = true;
 		delete respBuilder;
 	}
@@ -316,8 +315,7 @@ void ClientServer::checkCGIProgress()
 			ResponseBuilder response(*_parser);
 			response.set_status(504); // Gateway Timeout
 			response.set_body(response.generate_error_page());
-			response.generate_response_only();
-			_response_buffer = response.get_response();
+			_response_buffer = response.generate_response_only(); //  CONSTRUCTING RESPONSE
 			_response_ready = true;
 		}
 	}
