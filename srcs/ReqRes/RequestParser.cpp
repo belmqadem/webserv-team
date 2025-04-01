@@ -601,6 +601,11 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 // Method to check if the request is for cgi
 bool RequestParser::is_cgi_request()
 {
+	if (request_uri[request_uri.size() - 1] == '/' && location_config)
+	{
+		request_uri += location_config->index;
+	}
+
 	size_t pos = request_uri.find_last_of('.');
 	if (pos == std::string::npos || request_uri.find_last_of('/') > pos)
 		return false;

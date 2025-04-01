@@ -39,7 +39,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 	}
 	catch (std::exception &e)
 	{
-		LOG_ERROR("Failed to register client fd " + Utils::to_string(_peer_socket_fd) + " with IO multiplexer. Connection terminated. -- " + std::string(e.what()));
+		LOG_ERROR("Failed to register client fd " + Utils::to_string(_peer_socket_fd) + " with IO multiplexer. Connection terminated. > " + std::string(e.what()));
 		close(_peer_socket_fd);
 	}
 }
@@ -167,7 +167,7 @@ void ClientServer::handleIncomingData()
 		}
 		catch (std::exception &e)
 		{
-			LOG_ERROR("Exception in chunked body processing -- " + std::string(e.what()));
+			LOG_ERROR("Exception in chunked body processing > " + std::string(e.what()));
 		}
 	}
 
@@ -222,7 +222,7 @@ void ClientServer::handleIncomingData()
 		}
 		catch (std::exception &e)
 		{
-			LOG_ERROR("Exception in request processing -- " + std::string(e.what()));
+			LOG_ERROR("Exception in request processing > " + std::string(e.what()));
 
 			// Make sure to clean up on error too
 			if (_parser)
@@ -380,7 +380,7 @@ void ClientServer::modifyEpollEvent(uint32_t events)
 	}
 	catch (std::exception &e)
 	{
-		LOG_ERROR("Failed to modify epoll event -- " + std::string(e.what()));
+		LOG_ERROR("Failed to modify epoll event > " + std::string(e.what()));
 	}
 }
 

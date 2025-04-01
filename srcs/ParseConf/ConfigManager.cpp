@@ -49,7 +49,7 @@ bool ConfigManager::loadConfig(const std::string &configFile)
 	}
 	catch (const std::exception &e)
 	{
-		LOG_ERROR("Error parsing config -- " + std::string(e.what()));
+		LOG_ERROR("Error parsing config > " + std::string(e.what()));
 		return false;
 	}
 }
