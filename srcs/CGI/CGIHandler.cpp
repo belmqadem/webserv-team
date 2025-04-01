@@ -395,8 +395,22 @@ void CGIHandler::processCGIOutput()
 		{
 			std::string headerName = line.substr(0, colonPos);
 			std::string headerValue = line.substr(colonPos + 1);
+			
+			bool ValidHeader = true;
+			for (size_t i = 0; i < headerName.length(); i++) {
+				char c = headerName[i];
+				if (!isalnum(c) && c != '-' && c != '_') {
+					ValidHeader = false;
+					LOG_ERROR("Invalid character in header name: " + headerName);
+					break;
+				}
+			}
+
+			if (!ValidHeader)
+				continue;
 			// Trim spaces
 			headerValue.erase(0, headerValue.find_first_not_of(" \t"));
+			headerValue.erase(headerValue.find_last_not_of(" \t") + 1);
 
 			// Special handling for Content-Type and Status
 			if (headerName == "Content-Type")

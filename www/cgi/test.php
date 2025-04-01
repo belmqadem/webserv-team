@@ -10,8 +10,5 @@ if (isset($_GET['client'])) {
 }
 echo "<p>No name provided in POST request.</p>";
 echo "</body></html>";
-// Sleep for testing
-sleep(5);
-
 echo "<!-- Response after sleep -->";
 ?>
