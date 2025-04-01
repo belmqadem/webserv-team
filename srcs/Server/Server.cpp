@@ -90,7 +90,7 @@ void Server::StartServer(void)
 		}
 		catch (std::exception &e)
 		{
-			LOG_ERROR("Failed to listen on addr " + it->host + ":" + Utils::to_string(it->port) + " -- " + std::string(e.what()));
+			LOG_ERROR("Failed to listen on addr " + it->host + ":" + Utils::to_string(it->port) + " > " + std::string(e.what()));
 		}
 	}
 }
