@@ -112,7 +112,7 @@ void Logger::log(LogLevel level, const std::string &message)
 		else if (level == RESPONSE)
 			std::cout << BOLD_BLUE << logMessage << RESET << std::endl;
 		else if (level == INFO)
-			std::cout << BOLD_MAGENTA << logMessage << RESET << std::endl;
+			std::cout << MAGENTA << logMessage << RESET << std::endl;
 		else
 			std::cout << logMessage << std::endl;
 	}

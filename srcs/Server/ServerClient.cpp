@@ -85,12 +85,14 @@ void ClientServer::terminate()
 	_response_ready = false;
 	_waitingForCGI = false;
 
-    try 
-    {
-        IOMultiplexer::getInstance().removeListener(_epoll_ev, _peer_socket_fd);
-    } catch (std::exception &e) {
+	try
+	{
+		IOMultiplexer::getInstance().removeListener(_epoll_ev, _peer_socket_fd);
+	}
+	catch (std::exception &e)
+	{
 		LOG_ERROR("Error while removing listener from IO multiplexer " + Utils::to_string(e.what()));
-    }
+	}
 
 	std::string addr = inet_ntoa(_client_addr.sin_addr);
 	LOG_CLIENT(addr + " Fd " + Utils::to_string(_peer_socket_fd) + " Disconnected!");
@@ -122,19 +124,16 @@ void ClientServer::handleIncomingData()
 	{
 		this->terminate();
 		return;
-	}
+	}	
 	updateActivity();
 	_request_buffer.append(buffer, rd_count);
 
 	// for curl tests
-	if (_parser && _parser->get_header_value("expect") == "100-continue")
+	if (_parser && _parser->get_headers().count("expect"))
 	{
 		LOG_INFO("Received Expect: 100-continue header");
-
 		std::string continue_response = "HTTP/1.1 100 Continue\r\n\r\n";
 		send(_peer_socket_fd, continue_response.c_str(), continue_response.length(), 0);
-		// _parser->set_expects_continue(false);
-		LOG_INFO("Sent 100 Continue response");
 	}
 
 	// If we already have a parser and it's already parsing the body
@@ -175,7 +174,7 @@ void ClientServer::handleIncomingData()
 	}
 
 	// Regular request header processing
-	size_t header_end = _request_buffer.find(CRLF CRLF);
+	size_t header_end = _request_buffer.find(DOUBLE_CRLF);
 	if (header_end != std::string::npos)
 	{
 		try
@@ -271,6 +270,7 @@ void ClientServer::processCGIRequest()
 		// Create an error response
 		respBuilder->set_status(500);
 		respBuilder->set_body(respBuilder->generate_error_page());
+		respBuilder->generate_response_only();
 		_response_buffer = respBuilder->get_response();
 		_response_ready = true;
 		delete respBuilder;
@@ -318,6 +318,7 @@ void ClientServer::checkCGIProgress()
 			ResponseBuilder response(*_parser);
 			response.set_status(504); // Gateway Timeout
 			response.set_body(response.generate_error_page());
+			response.generate_response_only();
 			_response_buffer = response.get_response();
 			_response_ready = true;
 		}
