@@ -1,4 +1,3 @@
-#include "webserv.hpp"
 #include "Server.hpp"
 
 namespace Utils

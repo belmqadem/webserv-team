@@ -1,12 +1,10 @@
 #pragma once
 
-#include "Logger.hpp"
-#include "Parser.hpp"
 #include "IEvenetListeners.hpp"
 #include "ClientServer.hpp"
+#include "ResponseBuilder.hpp"
 
 class RequestParser;
-class ResponseBuilder;
 class ClientServer;
 
 class CGIHandler : public IEvenetListeners

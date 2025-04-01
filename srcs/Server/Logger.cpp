@@ -1,4 +1,3 @@
-#include "Logger.hpp"
 #include "webserv.hpp"
 
 Logger *Logger::_instance = NULL;

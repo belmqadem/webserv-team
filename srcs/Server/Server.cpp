@@ -1,5 +1,4 @@
 #include "Server.hpp"
-#include "Exceptions.hpp"
 
 Server::Server(std::vector<ServerConfig> config) : IEvenetListeners(), _config(config), _is_started(false)
 {

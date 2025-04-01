@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RequestParser.hpp"
-#include "CGIHandler.hpp"
 #include "SessionCookieHandler.hpp"
 
 class ResponseBuilder

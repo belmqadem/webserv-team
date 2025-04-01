@@ -1,6 +1,4 @@
 #include "ConfigManager.hpp"
-#include "Tokenize.hpp"
-#include "Logger.hpp"
 
 // Initialize static instance to NULL
 ConfigManager *ConfigManager::_instance = NULL;
