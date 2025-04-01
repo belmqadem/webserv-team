@@ -62,11 +62,6 @@ void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 	env.push_back("SERVER_SOFTWARE=webserv/1.0");
 	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	env.push_back("GATEWAY_INTERFACE=CGI/1.1");
-
-	// Log all environment variables for debugging
-	LOG_INFO("CGI environment variables:");
-	for (size_t i = 0; i < env.size(); ++i)
-		LOG_INFO("  " + env[i]);
 }
 
 void CGIHandler::startCGI()
@@ -154,7 +149,6 @@ void CGIHandler::startCGI()
 		envp[env.size()] = NULL;
 
 		// Execute the CGI script
-		LOG_INFO("Executing CGI: " + interpreter + " " + scriptPath);
 		execve(argv[0], argv, envp);
 
 		// If execve returns, there was an error
@@ -395,19 +389,6 @@ void CGIHandler::processCGIOutput()
 		{
 			std::string headerName = line.substr(0, colonPos);
 			std::string headerValue = line.substr(colonPos + 1);
-			
-			bool ValidHeader = true;
-			for (size_t i = 0; i < headerName.length(); i++) {
-				char c = headerName[i];
-				if (!isalnum(c) && c != '-' && c != '_') {
-					ValidHeader = false;
-					LOG_ERROR("Invalid character in header name: " + headerName);
-					break;
-				}
-			}
-
-			if (!ValidHeader)
-				continue;
 			// Trim spaces
 			headerValue.erase(0, headerValue.find_first_not_of(" \t"));
 			headerValue.erase(headerValue.find_last_not_of(" \t") + 1);

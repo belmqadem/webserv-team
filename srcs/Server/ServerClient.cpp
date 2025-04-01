@@ -180,7 +180,6 @@ void ClientServer::handleIncomingData()
 			// Reset the request buffer and state for a new request
 			RequestParser parser;
 			size_t bytes_read = parser.parse_request(_request_buffer);
-
 			// Only remove the bytes we've successfully processed
 			if (bytes_read > 0)
 				_request_buffer.erase(0, bytes_read);
