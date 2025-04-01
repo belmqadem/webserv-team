@@ -1,6 +1,4 @@
 #include "ClientServer.hpp"
-#include "CGIHandler.hpp"
-#include "Utils.hpp"
 
 bool ClientServer::isStarted() const
 {
@@ -124,7 +122,7 @@ void ClientServer::handleIncomingData()
 	{
 		this->terminate();
 		return;
-	}	
+	}
 	updateActivity();
 	_request_buffer.append(buffer, rd_count);
 

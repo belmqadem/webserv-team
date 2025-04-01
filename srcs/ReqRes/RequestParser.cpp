@@ -1,5 +1,4 @@
 #include "RequestParser.hpp"
-#include "Logger.hpp"
 
 // Constructor
 RequestParser::RequestParser()

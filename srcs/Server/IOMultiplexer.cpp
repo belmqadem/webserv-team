@@ -1,21 +1,17 @@
 #include "IOMultiplexer.hpp"
-#include "Logger.hpp"
-#include "Server.hpp"
 
-void IOMultiplexer::debugPrintListeners(const std::string& message) const
+void IOMultiplexer::debugPrintListeners(const std::string &message) const
 {
-    LOG_INFO(message + " - Listeners map contents:");
-    LOG_INFO("Map size: " + Utils::to_string(_listeners.size()));
-    
-    for (std::map<int, IEvenetListeners *>::const_iterator it = _listeners.begin();
-         it != _listeners.end(); ++it)
-    {
-        LOG_INFO("  FD: " + Utils::to_string(it->first) + 
-                 ", Listener addr: " + Utils::to_string((void*)it->second) +
-                 ", Type: " + (dynamic_cast<Server*>(it->second) ? "Server" : 
-                              (dynamic_cast<ClientServer*>(it->second) ? "ClientServer" : 
-                               (dynamic_cast<CGIHandler*>(it->second) ? "CGIHandler" : "Unknown"))));
-    }
+	LOG_INFO(message + " - Listeners map contents:");
+	LOG_INFO("Map size: " + Utils::to_string(_listeners.size()));
+
+	for (std::map<int, IEvenetListeners *>::const_iterator it = _listeners.begin();
+		 it != _listeners.end(); ++it)
+	{
+		LOG_INFO("  FD: " + Utils::to_string(it->first) +
+				 ", Listener addr: " + Utils::to_string((void *)it->second) +
+				 ", Type: " + (dynamic_cast<Server *>(it->second) ? "Server" : (dynamic_cast<ClientServer *>(it->second) ? "ClientServer" : (dynamic_cast<CGIHandler *>(it->second) ? "CGIHandler" : "Unknown"))));
+	}
 }
 
 IOMultiplexer::IOMultiplexer() : _epoll_fd(epoll_create(__INT32_MAX__)), _is_started(false)
@@ -26,7 +22,8 @@ IOMultiplexer::IOMultiplexer() : _epoll_fd(epoll_create(__INT32_MAX__)), _is_sta
 	}
 }
 
-size_t IOMultiplexer::getListenersCount() const {
+size_t IOMultiplexer::getListenersCount() const
+{
 	return _listeners.size();
 }
 
@@ -52,7 +49,8 @@ IOMultiplexer &IOMultiplexer::getInstance()
 	return inst;
 }
 #define DEBUG_MODE true
-bool debug_mode() {
+bool debug_mode()
+{
 	return DEBUG_MODE;
 }
 
@@ -144,22 +142,22 @@ void IOMultiplexer::removeListener(epoll_event ev, int fd)
 
 void IOMultiplexer::terminate(void)
 {
-    std::vector<std::pair<int, IEvenetListeners*> > listeners_to_terminate;
-    
-    for (std::map<int, IEvenetListeners*>::iterator it = _listeners.begin();
-         it != _listeners.end(); ++it)
-    {
-        listeners_to_terminate.push_back(std::make_pair(it->first, it->second));
-    }
-    for (size_t i = 0; i < listeners_to_terminate.size(); ++i)
-    {
-        try
-        {
-            listeners_to_terminate[i].second->terminate();
-        }
-        catch (const std::exception &e)
-        {
+	std::vector<std::pair<int, IEvenetListeners *> > listeners_to_terminate;
+
+	for (std::map<int, IEvenetListeners *>::iterator it = _listeners.begin();
+		 it != _listeners.end(); ++it)
+	{
+		listeners_to_terminate.push_back(std::make_pair(it->first, it->second));
+	}
+	for (size_t i = 0; i < listeners_to_terminate.size(); ++i)
+	{
+		try
+		{
+			listeners_to_terminate[i].second->terminate();
+		}
+		catch (const std::exception &e)
+		{
 			LOG_ERROR("Error terminating listener: " + std::string(e.what()));
-        }
-    }    
+		}
+	}
 }

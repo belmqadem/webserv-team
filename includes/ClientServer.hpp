@@ -2,13 +2,13 @@
 
 #include "ConfigManager.hpp"
 #include "IOMultiplexer.hpp"
-#include "ResponseBuilder.hpp"
-
-#define RD_SIZE 1024
-
-#define TIME_OUT_SECONDS 15
+#include "CGIHandler.hpp"
 
 class CGIHandler;
+class RequestParser;
+
+#define RD_SIZE 1024
+#define TIME_OUT_SECONDS 15
 
 class ClientServer : public IEvenetListeners
 {

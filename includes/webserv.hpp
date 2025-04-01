@@ -53,6 +53,7 @@
 #define LOG_FILE "Webserv.log"
 #define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
 
+// PARSE ERRORS
 #define HTTP_PARSE_INVALID_REQUEST_LINE "Client sent a request with invalid request line"
 #define HTTP_PARSE_INVALID_METHOD "Client sent a request with invalid http method"
 #define HTTP_PARSE_INVALID_VERSION "Client sent a request with invalid http version"
@@ -101,4 +102,5 @@
 #include <cstring>
 #include <sys/epoll.h>
 #include <limits.h>
-#include "Utils.hpp"
+#include "Logger.hpp"
+#include "Exceptions.hpp"

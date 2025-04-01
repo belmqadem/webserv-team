@@ -5,6 +5,8 @@
 #include <sstream>
 #include <iostream>
 #include <limits>
+#include <algorithm>
+#include "Utils.hpp"
 
 enum TokenType
 {

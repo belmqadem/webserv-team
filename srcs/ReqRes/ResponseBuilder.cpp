@@ -1,5 +1,4 @@
 #include "ResponseBuilder.hpp"
-#include "Logger.hpp"
 
 std::map<std::string, std::string> ResponseBuilder::mime_types = init_mime_types();
 std::map<std::string, std::string> ResponseBuilder::init_mime_types()

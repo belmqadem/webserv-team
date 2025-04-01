@@ -1,6 +1,4 @@
 #include "CGIHandler.hpp"
-#include "ResponseBuilder.hpp"
-#include "ClientServer.hpp"
 
 void CGIHandler::keepClientAlive()
 {

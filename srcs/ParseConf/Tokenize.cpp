@@ -1,5 +1,4 @@
 #include "Tokenize.hpp"
-#include <algorithm>
 #include "webserv.hpp"
 
 bool is_size_multiplier(char c)
@@ -14,7 +13,7 @@ void SanitizeInput(std::string &input)
 	for (size_t i = 0; i < input.length(); i++)
 	{
 		char c = input[i];
-		
+
 		if (delim.find(c) != std::string::npos)
 		{
 			input.insert(i, " ");

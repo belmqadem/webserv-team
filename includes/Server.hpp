@@ -4,6 +4,8 @@
 #include "IOMultiplexer.hpp"
 #include "ClientServer.hpp"
 
+class ClientServer;
+
 class Server : public IEvenetListeners
 {
 private:

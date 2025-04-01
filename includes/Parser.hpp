@@ -3,6 +3,7 @@
 #include "Tokenize.hpp"
 #include "webserv.hpp"
 #include "ConfigManager.hpp"
+#include "Utils.hpp"
 
 struct ServerConfig;
 struct Location;
