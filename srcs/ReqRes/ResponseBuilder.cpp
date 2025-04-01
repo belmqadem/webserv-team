@@ -46,11 +46,8 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 }
 
 // Response Constructor Takes Request as parameter
-ResponseBuilder::ResponseBuilder(RequestParser &raw_request) : request(raw_request), http_version("HTTP/1.1"), status("200 OK"), status_code(200)
+ResponseBuilder::ResponseBuilder(RequestParser &raw_request) : request(raw_request), http_version("HTTP/1.1")
 {
-	this->headers.clear();
-	this->routes.clear();
-
 	init_config();
 
 	if (!request.is_cgi_request())
@@ -65,16 +62,8 @@ void ResponseBuilder::init_config()
 	this->server_config = request.get_server_config();
 	this->location_config = request.get_location_config();
 
-	if (!this->server_config)
+	if (!this->server_config || !this->location_config)
 	{
-		LOG_ERROR("Server config not found");
-		set_status(404);
-		body = generate_error_page();
-		return;
-	}
-	if (!this->location_config)
-	{
-		LOG_ERROR("Location config not found");
 		set_status(404);
 		body = generate_error_page();
 		return;
@@ -430,7 +419,7 @@ bool ResponseBuilder::handleMultipartFormData(std::string &content_type, std::ve
 			pos += 2;
 
 		// Locate where header and content separator
-		size_t header_end = body.find("\r\n\r\n", pos);
+		size_t header_end = body.find(DOUBLE_CRLF, pos);
 		if (header_end == std::string::npos)
 		{
 			LOG_ERROR("Malformed multipart/form-data part - no header end.");
@@ -515,7 +504,7 @@ bool ResponseBuilder::save_uploaded_file(const std::string &full_path, const std
 // Method to handle redirection
 bool ResponseBuilder::handle_redirection()
 {
-	if (location_config->isRedirect)
+	if (location_config && location_config->isRedirect)
 	{
 		if (location_config->isRedirectPermanent)
 			set_status(301);
@@ -531,7 +520,7 @@ bool ResponseBuilder::handle_redirection()
 // Method to generate error pages
 std::string ResponseBuilder::generate_error_page()
 {
-	if (server_config->errorPages.find(status_code) != server_config->errorPages.end())
+	if (server_config && server_config->errorPages.find(status_code) != server_config->errorPages.end())
 	{
 		std::string error_page_name = server_config->errorPages.at(status_code);
 		std::string error_page_file = read_file(error_page_name);
@@ -540,10 +529,10 @@ std::string ResponseBuilder::generate_error_page()
 	}
 
 	std::ostringstream page;
-	page << "<html>\n<head><title>" << status << "</title></head>\n";
+	page << "<html>\n<head>\n<title>" << status << "</title>\n</head>\n";
 	page << "<body>\n<center><h1>" << status << "</h1></center><hr />\n";
 	page << "<center>" << WEBSERV_NAME << "</center>\n";
-	page << "</body></html>";
+	page << "</body>\n</html>\n";
 
 	headers["Content-Type"] = "text/html";
 
@@ -554,10 +543,10 @@ std::string ResponseBuilder::generate_error_page()
 std::string ResponseBuilder::generate_default_root()
 {
 	std::ostringstream page;
-	page << "<html>\n<head><title>Welcome to Webserv!" << "</title></head>\n";
+	page << "<html>\n<head>\n<title>Welcome to Webserv!</title>\n</head>\n";
 	page << "<body>\n<center><h1>Welcome to Webserv!</h1></center>\n";
 	page << "<center><p>If you see this page, the web server is successfully compiled and working. Further configuration is required.<br />Thank you for testing our web server.</p></center>\n";
-	page << "</body></html>";
+	page << "</body>\n</html>\n";
 
 	headers["Content-Type"] = "text/html";
 	return page.str();
@@ -580,7 +569,7 @@ std::string ResponseBuilder::detect_mime_type(const std::string &path)
 std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 {
 	std::ostringstream page;
-	page << "<html>\n<head><title>Directory Listing</title></head>\n";
+	page << "<html>\n<head>\n<title>Directory Listing</title>\n</head>\n";
 	page << "<body>\n<h1 style=\"color:blue;\">Directory Listing for " << path << "</h1><hr>\n";
 	page << "<ul>\n";
 
@@ -615,7 +604,7 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 		return "";
 	}
 
-	page << "</ul>\n</body></html>";
+	page << "</ul>\n</body>\n</html>";
 
 	headers["Content-Type"] = "text/html";
 
@@ -638,8 +627,7 @@ void ResponseBuilder::include_required_headers()
 	// `Content-Length` and `Transfer-Encoding`
 	if (headers.find("Transfer-Encoding") != headers.end())
 	{
-		std::string transfer_encoding = headers["Transfer-Encoding"];
-		if (transfer_encoding == "chunked")
+		if (headers["Transfer-Encoding"] == "chunked")
 			headers.erase("Content-Length");
 	}
 	else
@@ -699,19 +687,19 @@ std::string ResponseBuilder::read_file(const std::string &filename)
 // // Method to generate upload success page
 std::string ResponseBuilder::generate_upload_success_page(const std::string &filename)
 {
-	std::ostringstream html;
-	html << "<!DOCTYPE html>\n"
-		 << "<html>\n"
-		 << "<head><title>Upload Successful</title></head>\n"
+	std::ostringstream page;
+	page << "<html>\n"
+		 << "<head>\n<title>Upload Successful</title>\n</head>\n"
 		 << "<body>\n"
 		 << "<h1 style=\"color:blue;\">File Upload Successful</h1>\n"
 		 << "<p>Your file has been uploaded successfully.</p>\n"
 		 << "<p><strong>Saved as:</strong> " << filename << "</p>\n"
 		 << "</body>\n"
-		 << "</html>";
+		 << "</html>\n";
 
-	set_headers("Content-Type", "text/html");
-	return html.str();
+	headers["Content-Type"] = "text/html";
+
+	return page.str();
 }
 
 /****************************

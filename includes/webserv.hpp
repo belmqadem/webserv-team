@@ -45,6 +45,7 @@
 // SPECIAL CHARACTERS
 #define SP " "
 #define CRLF "\r\n"
+#define DOUBLE_CRLF "\r\n\r\n"
 
 // PROGRAM MACROS
 #define WEBSERV_NAME "Not Nginx/4.2"
