@@ -150,7 +150,7 @@ void ClientServer::handleIncomingData()
 			// If the request is now complete
 			if (_parser->get_state() == DONE)
 			{
-				LOG_INFO("Chunked request body fully received");
+				LOG_INFO("Request body fully received");
 
 				// Process the completed request (similar to below)
 				if (_parser->is_cgi_request())
