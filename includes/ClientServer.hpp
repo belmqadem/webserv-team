@@ -23,6 +23,7 @@ private:
 	std::string _response_buffer;
 	bool _response_ready;
 	time_t _last_activity;
+	bool _continue_sent;
 
 	// Add new members for CGI support
 	CGIHandler *_pendingCgi;
