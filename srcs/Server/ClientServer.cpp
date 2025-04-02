@@ -45,7 +45,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 }
 
 ClientServer::ClientServer(const int &server_socket_fd, const int &peer_socket_fd) : _is_started(false),
-																					 _server_socket_fd(server_socket_fd), _peer_socket_fd(peer_socket_fd), _parser(NULL), _last_activity(time(NULL)), _pendingCgi(NULL), _waitingForCGI(false) {}
+																					 _server_socket_fd(server_socket_fd), _peer_socket_fd(peer_socket_fd), _parser(NULL), _last_activity(time(NULL)), _continue_sent(false), _pendingCgi(NULL), _waitingForCGI(false) {}
 
 ClientServer::~ClientServer()
 {
@@ -117,21 +117,23 @@ void ClientServer::handleIncomingData()
 {
 	char buffer[RD_SIZE];
 	ssize_t rd_count = recv(this->_peer_socket_fd, buffer, RD_SIZE, MSG_DONTWAIT);
-
 	if (rd_count <= 0)
 	{
 		this->terminate();
 		return;
 	}
+
 	updateActivity();
+
 	_request_buffer.append(buffer, rd_count);
 
 	// for curl tests
-	if (_parser && _parser->get_headers().count("expect"))
+	if (_parser && _parser->get_headers().count("expect") && !_continue_sent)
 	{
 		LOG_INFO("Received Expect: 100-continue header");
 		std::string continue_response = "HTTP/1.1 100 Continue\r\n\r\n";
 		send(_peer_socket_fd, continue_response.c_str(), continue_response.length(), 0);
+		_continue_sent = true; // To send it just once
 	}
 
 	// If we already have a parser and it's already parsing the body
@@ -153,11 +155,12 @@ void ClientServer::handleIncomingData()
 				// Process the completed request (similar to below)
 				if (_parser->is_cgi_request())
 				{
+					LOG_DEBUG("Continue Processing CGI Request ...");
 					processCGIRequest();
 				}
 				else
 				{
-					// Normal request processing
+					LOG_DEBUG("Continue Processing Normal Request ...");
 					ResponseBuilder response(*_parser);
 					_response_buffer = response.get_response();
 					_response_ready = true;
@@ -180,6 +183,7 @@ void ClientServer::handleIncomingData()
 			// Reset the request buffer and state for a new request
 			RequestParser parser;
 			size_t bytes_read = parser.parse_request(_request_buffer);
+
 			// Only remove the bytes we've successfully processed
 			if (bytes_read > 0)
 				_request_buffer.erase(0, bytes_read);
@@ -209,11 +213,12 @@ void ClientServer::handleIncomingData()
 			// Check if this is a CGI request
 			if (_parser->is_cgi_request())
 			{
+				LOG_DEBUG("Start Processing CGI Request ...");
 				processCGIRequest();
 			}
 			else
 			{
-				// Normal (non-CGI) request processing
+				LOG_DEBUG("Start Processing Normal Request ...");
 				ResponseBuilder response(*_parser);
 				_response_buffer = response.get_response();
 				_response_ready = true;

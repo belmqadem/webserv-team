@@ -11,7 +11,6 @@ nc -zv localhost {PORT}
 # Monitor all network connections in real-time
 watch -n 1 'netstat -tuln'
 
-
 # Basic GET request
 curl -v http://localhost:{PORT}/path
 
@@ -30,15 +29,12 @@ ab -n 1000 -c 10 http://localhost:{PORT}/path
 # Monitor process resource usage
 top -p $(pgrep webserv)
 
-
 # Monitor log in real-time
-tail -f webserv.log
+tail -f Webserv.log
 
 # Count occurrences of error types
-grep -c "ERROR" webserv.log
-grep "ERROR" webserv.log | sort | uniq -c | sort -nr
+grep -c "ERROR" Webserv.log
+grep "ERROR" Webserv.log | sort | uniq -c | sort -nr
 
 # Extract response codes
-grep "RESPONSE" webserv.log | cut -d' ' -f4-5 | sort | uniq -c
-
-
+grep "RESPONSE" Webserv.log | cut -d' ' -f4-5 | sort | uniq -c
