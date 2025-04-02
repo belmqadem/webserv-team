@@ -34,7 +34,7 @@ RequestParser::RequestParser(const RequestParser &other) : state(other.state),
 														   location_config(other.location_config),
 														   current_chunk_size(other.current_chunk_size),
 														   current_chunk_read(other.current_chunk_read),
-														   reading_chunk_data(other.reading_chunk_data) { }
+														   reading_chunk_data(other.reading_chunk_data) {}
 
 // Copy Assignement
 RequestParser &RequestParser::operator=(const RequestParser &other)
@@ -601,16 +601,19 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 // Method to check if the request is for cgi
 bool RequestParser::is_cgi_request()
 {
-	if (request_uri[request_uri.size() - 1] == '/' && location_config)
+	std::string path = request_uri;
+
+	if (!path.empty() && path[path.size() - 1] == '/' && location_config)
 	{
-		request_uri += location_config->index;
+		if (!location_config->index.empty())
+			path += location_config->index;
 	}
 
-	size_t pos = request_uri.find_last_of('.');
-	if (pos == std::string::npos || request_uri.find_last_of('/') > pos)
+	size_t dot_pos = path.find_last_of('.');
+	if (dot_pos == std::string::npos || path.find_last_of('/') > dot_pos)
 		return false;
 
-	std::string extension = request_uri.substr(pos);
+	std::string extension = path.substr(dot_pos);
 	if (extension == ".php" || extension == ".py")
 		return true;
 

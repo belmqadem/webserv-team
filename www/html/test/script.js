@@ -19,7 +19,14 @@ async function showDeleteOptions() {
 // Function to send DELETE request
 async function deleteFile() {
   const selectedFile = document.getElementById("delete").value;
-  const response = await fetch("http://localhost:5050/" + selectedFile, {
+  if (!selectedFile) {
+    alert("Please select a file to delete.");
+    return;
+  }
+  const confirmation = confirm(
+	`Are you sure you want to delete ${selectedFile}?`
+  );
+  const response = await fetch("/delete/" + selectedFile, {
     method: "DELETE",
   });
   if (response.ok) {
