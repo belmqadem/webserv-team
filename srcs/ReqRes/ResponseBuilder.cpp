@@ -129,7 +129,7 @@ std::string ResponseBuilder::build_response()
 		}
 	}
 
-	// handle_session_cookies();
+	handle_session_cookies();
 
 	if (handle_redirection())
 	{
@@ -152,7 +152,10 @@ void ResponseBuilder::handle_session_cookies()
 		session_id = SessionCookieHandler::generate_session_id();
 		SessionCookieHandler::set_cookie(*this, "session_id", session_id, 3600); // 1-hour expiration
 		LOG_INFO("New session created: " + session_id);
+		return;
 	}
+	LOG_INFO("this already session created: " + session_id);
+
 }
 
 // Method for creating the response

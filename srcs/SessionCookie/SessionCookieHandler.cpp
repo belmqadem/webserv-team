@@ -6,7 +6,7 @@ std::string SessionCookieHandler::generate_session_id()
 	time_t now = time(NULL);
 	struct tm *timeinfo = localtime(&now);
 
-	char buffer[14];
+	char buffer[1024];
 	strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S", timeinfo);
 
 	srand(time(NULL)); // Seed for random number generation
