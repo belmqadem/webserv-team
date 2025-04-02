@@ -142,8 +142,6 @@ void ClientServer::handleIncomingData()
 		try
 		{
 			size_t bytes_read = _parser->parse_request(_request_buffer);
-
-			// Only remove the bytes we've successfully processed
 			if (bytes_read > 0)
 				_request_buffer.erase(0, bytes_read);
 

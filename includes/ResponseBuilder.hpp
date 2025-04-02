@@ -48,7 +48,7 @@ private:
 public:
 	ResponseBuilder(RequestParser &request);
 
-	// 
+	//
 	std::string build_response();
 	std::string generate_error_page();
 	std::string generate_response_only();

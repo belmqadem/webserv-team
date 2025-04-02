@@ -12,9 +12,9 @@ RequestParser::RequestParser()
 	this->has_transfer_encoding = false;
 	this->server_config = NULL;
 	this->location_config = NULL;
+	this->reading_chunk_data = false;
 	this->current_chunk_size = 0;
 	this->current_chunk_read = 0;
-	this->reading_chunk_data = false;
 }
 
 // Copy Constructor
@@ -32,9 +32,9 @@ RequestParser::RequestParser(const RequestParser &other) : state(other.state),
 														   has_transfer_encoding(other.has_transfer_encoding),
 														   server_config(other.server_config),
 														   location_config(other.location_config),
+														   reading_chunk_data(other.reading_chunk_data),
 														   current_chunk_size(other.current_chunk_size),
-														   current_chunk_read(other.current_chunk_read),
-														   reading_chunk_data(other.reading_chunk_data) {}
+														   current_chunk_read(other.current_chunk_read) {}
 
 // Copy Assignement
 RequestParser &RequestParser::operator=(const RequestParser &other)
@@ -55,9 +55,9 @@ RequestParser &RequestParser::operator=(const RequestParser &other)
 		this->has_transfer_encoding = other.has_transfer_encoding;
 		this->server_config = other.server_config;
 		this->location_config = other.location_config;
+		this->reading_chunk_data = other.reading_chunk_data;
 		this->current_chunk_size = other.current_chunk_size;
 		this->current_chunk_read = other.current_chunk_read;
-		this->reading_chunk_data = other.reading_chunk_data;
 	}
 	return *this;
 }
@@ -333,82 +333,81 @@ const char *RequestParser::parse_body(const char *pos, const char *end)
 // Method to extract chunked body
 const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 {
-	if (pos >= end)
-	{
-		return pos; // No data to process
-	}
-
 	while (pos < end)
 	{
-		// If we're in the middle of reading a chunk's data
+		// If we're currently reading chunk data
 		if (reading_chunk_data)
 		{
-			// Calculate how much we can read in this pass
-			size_t remaining_in_chunk = current_chunk_size - current_chunk_read;
-			size_t available_bytes = static_cast<size_t>(end - pos);
-			size_t bytes_to_read = std::min(remaining_in_chunk, available_bytes);
+			size_t remaining = current_chunk_size - current_chunk_read;
+			size_t available = static_cast<size_t>(end - pos);
+			size_t to_read = std::min(remaining, available);
 
-			// Read what we can
-			body.insert(body.end(), pos, pos + bytes_to_read);
-			pos += bytes_to_read;
-			current_chunk_read += bytes_to_read;
+			body.insert(body.end(), pos, pos + to_read);
+			pos += to_read;
+			current_chunk_read += to_read;
 
-			// If we've read the complete chunk
-			if (current_chunk_read >= current_chunk_size)
+			// Finish to read this chunk
+			if (current_chunk_read == current_chunk_size)
 			{
-				reading_chunk_data = false;
-				current_chunk_read = 0;
+				if (end - pos < 2)
+					return pos; // Wait for more data
 
-				// Check for CRLF after chunk data
-				if (pos + 2 > end || pos[0] != '\r' || pos[1] != '\n')
+				if (pos[0] != '\r' || pos[1] != '\n')
 				{
 					log_error(HTTP_PARSE_INVALID_CHUNKED_TRANSFER, 400);
 					return pos;
 				}
-				pos += 2; // Skip CRLF
+				pos += 2;
+
+				current_chunk_read = 0;
+				current_chunk_size = 0;
+				reading_chunk_data = false;
 			}
 			else
 			{
-				return pos; // Chunk not complete, need more data
+				return pos; // More data needed for current chunk
 			}
 		}
-		else // We're reading a chunk size line
+		else
 		{
-			const char *chunk_size_end = find_line_end(pos, end);
-			if (chunk_size_end == end)
-			{
-				return pos; // Wait for more data
-			}
+			const char *line_end = find_line_end(pos, end);
+			if (line_end == end)
+				return pos; // Incomplete size line
 
-			// Parse chunk size
-			std::string chunk_size_str = Utils::trim(std::string(pos, chunk_size_end - pos), "\r\n \t");
+			std::string size_str = Utils::trim(std::string(pos, line_end - pos), "\r\n \t");
 			char *endptr = NULL;
-			current_chunk_size = std::strtoul(chunk_size_str.c_str(), &endptr, 16);
-			if (*endptr != '\0' || current_chunk_size == ULONG_MAX)
+			unsigned long parsed = std::strtoul(size_str.c_str(), &endptr, 16);
+			if (*endptr != '\0')
 			{
 				log_error(HTTP_PARSE_INVALID_CHUNKED_TRANSFER, 400);
 				return pos;
 			}
 
-			pos = chunk_size_end;
+			current_chunk_size = static_cast<size_t>(parsed);
+			pos = line_end;
 
-			if (current_chunk_size == 0) // Final chunk
+			if (current_chunk_size == 0)
 			{
-				if (pos + 2 > end || pos[0] != '\r' || pos[1] != '\n')
+				// Final chunk ==> expect CRLF
+				if (end - pos < 2)
+					return pos;
+
+				if (pos[0] != '\r' || pos[1] != '\n')
 				{
 					log_error(HTTP_PARSE_INVALID_CHUNKED_TRANSFER, 400);
 					return pos;
 				}
-				pos += 2; // Skip final CRLF
+				pos += 2;
 
+				// Done reading chunked body
 				state = DONE;
-				this->headers["connection"] = "close";
+				headers["connection"] = "close";
 				return pos;
 			}
 
-			// Prepare to read chunk data
-			reading_chunk_data = true;
+			// Prepare to read the next chunk data
 			current_chunk_read = 0;
+			reading_chunk_data = true;
 		}
 	}
 	return pos;
