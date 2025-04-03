@@ -24,6 +24,7 @@ private:
 	bool _response_ready;
 	time_t _last_activity;
 	bool _continue_sent;
+	std::map<std::string, std::string> _tempHeaders; // Temp headers for CGI response
 
 	// Add new members for CGI support
 	CGIHandler *_pendingCgi;

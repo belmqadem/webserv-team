@@ -9,7 +9,7 @@ std::string SessionCookieHandler::generate_session_id()
 	char buffer[1024];
 	strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S", timeinfo);
 
-	srand(time(NULL)); // Seed for random number generation
+	srand(time(NULL)); //	 Seed for random number generation
 	int random_number = rand() % 10000;
 
 	// Using manual string concatenation in C++98

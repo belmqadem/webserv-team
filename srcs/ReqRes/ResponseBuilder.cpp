@@ -129,8 +129,6 @@ std::string ResponseBuilder::build_response()
 		}
 	}
 
-	handle_session_cookies();
-
 	if (handle_redirection())
 	{
 		include_required_headers();
@@ -141,21 +139,6 @@ std::string ResponseBuilder::build_response()
 	include_required_headers();
 	response = generate_response_string();
 	return response;
-}
-
-// Method for managing session cookies
-void ResponseBuilder::handle_session_cookies()
-{
-	std::string session_id = SessionCookieHandler::get_cookie(request, "session_id");
-	if (session_id.empty())
-	{
-		session_id = SessionCookieHandler::generate_session_id();
-		SessionCookieHandler::set_cookie(*this, "session_id", session_id, 3600); // 1-hour expiration
-		LOG_INFO("New session created: " + session_id);
-		return;
-	}
-	LOG_INFO("this already session created: " + session_id);
-
 }
 
 // Method for creating the response
@@ -787,6 +770,12 @@ void ResponseBuilder::set_status(short status_code)
 	}
 }
 void ResponseBuilder::set_headers(const std::string &key, const std::string &value) { this->headers[key] = value; }
+void ResponseBuilder::set_all_headers(const std::map<std::string, std::string> &headers)
+{
+	this->headers.clear();
+	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
+		this->headers[it->first] = it->second;
+}
 void ResponseBuilder::set_body(const std::string &body) { this->body = body; }
 /****************************
  END SETTERS

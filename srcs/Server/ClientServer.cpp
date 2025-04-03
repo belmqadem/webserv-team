@@ -208,6 +208,23 @@ void ClientServer::handleIncomingData()
 				return;
 			}
 
+			// set session cookies
+			std::string session_id = SessionCookieHandler::get_cookie(*_parser, "session_id");
+			if (session_id.empty())
+			{
+				session_id = SessionCookieHandler::generate_session_id();
+
+				ResponseBuilder *cookie = new ResponseBuilder(*_parser);
+				SessionCookieHandler::set_cookie(*cookie, "session_id", session_id, 3600);
+				_tempHeaders = cookie->get_headers(); // Store headers for CGI response
+				delete cookie;
+				LOG_INFO("New session created: " + session_id);
+			}
+			else
+			{
+				LOG_INFO("Existing session: " + session_id);
+			}
+
 			// Check if this is a CGI request
 			if (_parser->is_cgi_request())
 			{
@@ -285,8 +302,10 @@ void ClientServer::onCGIComplete(CGIHandler *handler)
 		// Get the response builder
 		ResponseBuilder *respBuilder = handler->getResponseBuilder();
 
-		_response_buffer = respBuilder->generate_response_only();
+		// Restore headers like Set-Cookie
+		respBuilder->set_all_headers(_tempHeaders);
 
+		_response_buffer = respBuilder->generate_response_only();
 		_response_ready = true;
 		_waitingForCGI = false;
 

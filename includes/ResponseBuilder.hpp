@@ -23,6 +23,7 @@ private:
 	void doDELETE();
 
 	// Helper Methods
+	std::string build_response();
 	void init_config();
 	void init_routes();
 	bool handle_redirection();
@@ -37,7 +38,6 @@ private:
 	bool handleMultipartFormData(std::string &content_type, std::vector<byte> &req_body);
 	bool validate_upload_path(const std::string &upload_path);
 	bool save_uploaded_file(const std::string &full_path, const std::vector<byte> &req_body);
-	void handle_session_cookies();
 
 	static std::map<std::string, std::string> mime_types;
 	static std::map<std::string, std::string> init_mime_types();
@@ -48,14 +48,14 @@ private:
 public:
 	ResponseBuilder(RequestParser &request);
 
-	//
-	std::string build_response();
+	// Helper Methods
 	std::string generate_error_page();
 	std::string generate_response_only();
 
 	// Setters
 	void set_status(short status_code);
 	void set_headers(const std::string &key, const std::string &value);
+	void set_all_headers(const std::map<std::string, std::string> &headers);
 	void set_body(const std::string &body);
 
 	// Getters
