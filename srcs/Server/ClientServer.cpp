@@ -201,13 +201,6 @@ void ClientServer::handleIncomingData()
 			if (!_parser->get_error_code()) // If no error in parsing
 				LOG_REQUEST(_parser->get_request_line());
 
-			// Check if this is a chunked request that needs more data
-			if (_parser->get_state() == BODY)
-			{
-				LOG_INFO("Headers processed, waiting for more body data");
-				return;
-			}
-
 			// set session cookies
 			std::string session_id = SessionCookieHandler::get_cookie(*_parser, "session_id");
 			if (session_id.empty())
@@ -223,6 +216,13 @@ void ClientServer::handleIncomingData()
 			else
 			{
 				LOG_INFO("Existing session: " + session_id);
+			}
+
+			// Check if this is a chunked request that needs more data
+			if (_parser->get_state() == BODY)
+			{
+				LOG_INFO("Headers processed, waiting for more body data");
+				return;
 			}
 
 			// Check if this is a CGI request
