@@ -151,7 +151,7 @@ void ClientServer::handleIncomingData()
 				LOG_INFO("Request body fully received");
 
 				// Process the completed request (similar to below)
-				if (_parser->is_cgi_request())
+				if (_parser->is_cgi_request() && _parser->get_http_method() != "DELETE")
 				{
 					LOG_DEBUG("Continue Processing CGI Request ...");
 					processCGIRequest();
@@ -198,8 +198,7 @@ void ClientServer::handleIncomingData()
 			// Create a clean parser instance
 			_parser = new RequestParser(parser);
 
-			if (!_parser->get_error_code()) // If no error in parsing
-				LOG_REQUEST(_parser->get_request_line());
+			LOG_REQUEST(_parser->get_request_line());
 
 			// set session cookies
 			std::string session_id = SessionCookieHandler::get_cookie(*_parser, "session_id");
@@ -226,7 +225,7 @@ void ClientServer::handleIncomingData()
 			}
 
 			// Check if this is a CGI request
-			if (_parser->is_cgi_request())
+			if (_parser->is_cgi_request() && _parser->get_http_method() != "DELETE")
 			{
 				LOG_DEBUG("Start Processing CGI Request ...");
 				processCGIRequest();
