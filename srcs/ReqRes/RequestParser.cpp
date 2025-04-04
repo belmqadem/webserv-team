@@ -4,8 +4,6 @@
 RequestParser::RequestParser()
 {
 	this->state = REQUEST_LINE;
-	this->headers.clear();
-	this->body.clear();
 	this->port = 80;
 	this->error_code = 0;
 	this->has_content_length = false;
@@ -69,10 +67,9 @@ size_t RequestParser::parse_request(const std::string &request)
 	const char *end = start + request.size();
 	const char *pos = start;
 
-	// Check if we already have headers
+	// We already have headers, continue from body
 	if (state == BODY)
 	{
-		// We're already processing the body, continue from there
 		pos = parse_body(pos, end);
 		return pos - start;
 	}
@@ -253,9 +250,8 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 					log_error(HTTP_PARSE_INVALID_PORT, 400);
 					return pos;
 				}
-				port = static_cast<uint16_t>(parsed_port);
+				this->port = static_cast<uint16_t>(parsed_port);
 			}
-			this->port = port;
 		}
 
 		// Special Handling for `Expect`

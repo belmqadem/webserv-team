@@ -13,6 +13,7 @@ private:
 	std::string scriptPath;
 	std::string interpreter;
 	std::string method;
+	std::string uri;
 	std::string queryString;
 	std::string body;
 	std::map<std::string, std::string> headers;

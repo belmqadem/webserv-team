@@ -7,9 +7,8 @@
 #define MAX_HEADER_LENGTH 8192
 #define MAX_HEADER_COUNT 100
 
-typedef uint8_t byte; // 8 bit unsigned integers
+typedef uint8_t byte;
 
-// This is an enum to save the parsing state of the request
 enum ParseState
 {
 	REQUEST_LINE,
@@ -34,13 +33,13 @@ private:
 	short error_code;
 	bool has_content_length;
 	bool has_transfer_encoding;
-	const ServerConfig *server_config; // Pointer to the matched server block
-	const Location *location_config;   // Pointer to the matched location block
+	const ServerConfig *server_config;
+	const Location *location_config;
 	bool reading_chunk_data;
 	size_t current_chunk_size;
 	size_t current_chunk_read;
 
-	// Private Helper Methods
+	// Helper Methods
 	const char *parse_request_line(const char *pos, const char *end);
 	const char *parse_headers(const char *pos, const char *end);
 	const char *parse_body(const char *pos, const char *end);
@@ -57,12 +56,12 @@ public:
 	RequestParser(const RequestParser &other);
 	RequestParser &operator=(const RequestParser &other);
 
-	// Public Helper methods
+	// Helper methods
 	size_t parse_request(const std::string &request);
 	void match_location(const std::vector<ServerConfig> &servers);
-	void print_request();
 	bool is_connection_close();
 	bool is_cgi_request();
+	void print_request();
 
 	// Setters
 	void set_request_line();

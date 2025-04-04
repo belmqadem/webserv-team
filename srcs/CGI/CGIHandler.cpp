@@ -13,7 +13,8 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &php_cgi_path,
 	: pid(-1), output_fd(-1), responseBuilder(response), clientServer(client), isCompleted(false)
 {
 	root_path = request.get_location_config()->root;
-	scriptPath = root_path + request.get_request_uri();
+	uri = request.get_request_uri();
+	scriptPath = root_path + uri;
 	method = request.get_http_method();
 	queryString = request.get_query_string();
 
@@ -46,12 +47,9 @@ CGIHandler::~CGIHandler()
 
 void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 {
-	std::ostringstream oss;
-	oss << body.length();
-
 	env.push_back("REQUEST_METHOD=" + method);
 	env.push_back("QUERY_STRING=" + queryString);
-	env.push_back("CONTENT_LENGTH=" + oss.str());
+	env.push_back("CONTENT_LENGTH=" + Utils::to_string(body.length()));
 
 	// Pass the full Content-Type header with boundary for multipart/form-data
 	std::string contentType = headers.count("content-type") ? headers["content-type"] : "application/x-www-form-urlencoded";
@@ -62,21 +60,33 @@ void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 	{
 		env.push_back("UPLOAD_TMPDIR=/tmp");
 		env.push_back("HTTP_CONTENT_TYPE=" + contentType);
-		env.push_back("HTTP_CONTENT_LENGTH=" + oss.str());
+		env.push_back("HTTP_CONTENT_LENGTH=" + Utils::to_string(body.length()));
 	}
 
 	// Rest of your environment setup
+	env.push_back("CONTENT_TYPE=" + (headers.count("Content-Type") ? headers["Content-Type"] : "application/x-www-form-urlencoded"));
 	env.push_back("REDIRECT_STATUS=200");
 	env.push_back("SCRIPT_FILENAME=" + scriptPath);
 	env.push_back("SCRIPT_NAME=" + scriptPath);
 	env.push_back("DOCUMENT_ROOT=" + root_path);
 	env.push_back("PHP_SELF=" + scriptPath);
 	env.push_back("PATH_TRANSLATED=" + scriptPath);
+	env.push_back("REQUEST_URI=" + uri);
 
 	// Add server-specific variables
-	env.push_back("SERVER_SOFTWARE=webserv/1.0");
+	env.push_back("SERVER_SOFTWARE=" + std::string(WEBSERV_NAME));
 	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	env.push_back("GATEWAY_INTERFACE=CGI/1.1");
+
+	// Add HTTP_ headers
+	for (std::map<std::string, std::string>::const_iterator it = headers.begin();
+		 it != headers.end(); ++it)
+	{
+		std::string key = it->first;
+		std::transform(key.begin(), key.end(), key.begin(), ::toupper);
+		std::replace(key.begin(), key.end(), '-', '_');
+		env.push_back("HTTP_" + key + "=" + it->second);
+	}
 }
 
 void CGIHandler::startCGI()
