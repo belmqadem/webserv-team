@@ -1,0 +1,7 @@
+[16:22:30] Starting security tests against http://localhost:5050
+[16:22:30] ----------------------------------------
+[16:22:30] \n=== Resource Tests ===
+[16:22:30] Testing POST body size limit (this may take a moment)...
+[16:22:30] ❌ FAIL: Reject oversized POST body - Expected one of: 413|400, Got: 
+[16:22:30] \n=== Security Test Completed ===
+[16:22:30] Total failures: 1

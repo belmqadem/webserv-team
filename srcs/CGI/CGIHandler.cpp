@@ -16,7 +16,9 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &php_cgi_path,
 	scriptPath = root_path + request.get_request_uri();
 	method = request.get_http_method();
 	queryString = request.get_query_string();
-	body = std::string(request.get_body().begin(), request.get_body().end());
+
+	const std::vector<byte> &rawBody = request.get_body();
+	body.assign(rawBody.begin(), rawBody.end());
 	headers = request.get_headers();
 
 	size_t dotPos = scriptPath.find_last_of('.');
@@ -50,7 +52,20 @@ void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 	env.push_back("REQUEST_METHOD=" + method);
 	env.push_back("QUERY_STRING=" + queryString);
 	env.push_back("CONTENT_LENGTH=" + oss.str());
-	env.push_back("CONTENT_TYPE=" + (headers.count("Content-Type") ? headers["Content-Type"] : "application/x-www-form-urlencoded"));
+
+	// Pass the full Content-Type header with boundary for multipart/form-data
+	std::string contentType = headers.count("content-type") ? headers["content-type"] : "application/x-www-form-urlencoded";
+	env.push_back("CONTENT_TYPE=" + contentType);
+
+	// These are important for PHP file uploads
+	if (contentType.find("multipart/form-data") != std::string::npos)
+	{
+		env.push_back("UPLOAD_TMPDIR=/tmp");
+		env.push_back("HTTP_CONTENT_TYPE=" + contentType);
+		env.push_back("HTTP_CONTENT_LENGTH=" + oss.str());
+	}
+
+	// Rest of your environment setup
 	env.push_back("REDIRECT_STATUS=200");
 	env.push_back("SCRIPT_FILENAME=" + scriptPath);
 	env.push_back("SCRIPT_NAME=" + scriptPath);
@@ -148,7 +163,6 @@ void CGIHandler::startCGI()
 			envp[i] = const_cast<char *>(env[i].c_str());
 		envp[env.size()] = NULL;
 
-		// Execute the CGI script
 		execve(argv[0], argv, envp);
 
 		// If execve returns, there was an error
@@ -166,7 +180,7 @@ void CGIHandler::startCGI()
 			close(input_pipe[0]); // Close read end
 
 			// Write the body to the input pipe
-			ssize_t written = write(input_pipe[1], body.c_str(), body.length());
+			ssize_t written = write(input_pipe[1], body.data(), body.length());
 			if (written < 0)
 				LOG_ERROR("Error writing to CGI input: " + std::string(strerror(errno)));
 

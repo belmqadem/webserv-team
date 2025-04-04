@@ -97,17 +97,17 @@ size_t parseSize(const std::string &sizeStr, char unit)
 	{
 		if (unit == 'k')
 		{
-			numPart = sizeStr.substr(0, sizeStr.length() - 1);
+			numPart = sizeStr.substr(0, sizeStr.length());
 			multiplier = SIZE_KB;
 		}
 		else if (unit == 'm')
 		{
-			numPart = sizeStr.substr(0, sizeStr.length() - 1);
+			numPart = sizeStr.substr(0, sizeStr.length());
 			multiplier = SIZE_MB;
 		}
 		else if (unit == 'g')
 		{
-			numPart = sizeStr.substr(0, sizeStr.length() - 1);
+			numPart = sizeStr.substr(0, sizeStr.length());
 			multiplier = SIZE_GB;
 		}
 	}
