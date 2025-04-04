@@ -483,6 +483,13 @@ std::string RequestParser::decode_percent_encoding(const std::string &str)
 			if (std::isxdigit(hex1) && std::isxdigit(hex2))
 			{
 				int value = (std::isdigit(hex1) ? hex1 - '0' : std::toupper(hex1) - 'A' + 10) * 16 + (std::isdigit(hex2) ? hex2 - '0' : std::toupper(hex2) - 'A' + 10);
+				
+				if (value == '\0')
+				{
+					log_error("Null byte injection attempt via %00", 400);
+					return "";
+				}
+
 				decoded << static_cast<char>(value);
 				i += 2;
 			}
