@@ -48,11 +48,7 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 ResponseBuilder::ResponseBuilder(RequestParser &raw_request) : request(raw_request), http_version("HTTP/1.1")
 {
 	init_config();
-
-	if (!request.is_cgi_request())
-	{
-		this->response = build_response();
-	}
+	this->response = build_response();
 }
 
 // Method for initializing the Request Matching configuration for server and location
@@ -97,13 +93,6 @@ void ResponseBuilder::init_routes()
 	}
 }
 
-// Add to ResponseBuilder.cpp:
-std::string ResponseBuilder::generate_response_only()
-{
-	include_required_headers();
-	return generate_response_string();
-}
-
 // Method to process the response
 std::string ResponseBuilder::build_response()
 {
@@ -131,14 +120,17 @@ std::string ResponseBuilder::build_response()
 
 	if (handle_redirection())
 	{
-		include_required_headers();
-		response = generate_response_string();
-		return response;
+		return generate_response_only();
 	}
 
+	return generate_response_only();
+}
+
+// Generate response structure with including headers
+std::string ResponseBuilder::generate_response_only()
+{
 	include_required_headers();
-	response = generate_response_string();
-	return response;
+	return generate_response_string();
 }
 
 // Method for creating the response
