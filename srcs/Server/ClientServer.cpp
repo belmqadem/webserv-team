@@ -264,6 +264,10 @@ void ClientServer::processCGIRequest()
 	if (!respBuilder->get_location_config()->useCgi)
 	{
 		LOG_ERROR("CGI NOT ALLOWED IN CONFIG FILE");
+		respBuilder->set_status(405);
+		respBuilder->set_body(respBuilder->generate_error_page());
+		_response_buffer = respBuilder->generate_response_only();
+		_response_ready = true;
 		delete respBuilder;
 		return;
 	}

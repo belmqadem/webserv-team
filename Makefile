@@ -17,6 +17,7 @@ all : $(NAME)
 $(NAME) : $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $(NAME) 
 	@echo "$(GREEN)$(NAME) compiled.$(RESET)"
+	@echo "" > Webserv.log
 
 clean :
 	@echo -n "$(RED)"
