@@ -225,6 +225,7 @@ void CGIHandler::onEvent(int fd, epoll_event ev)
 			buffer[bytesRead] = '\0';
 			cgi_output.append(buffer, bytesRead);
 			LOG_INFO("Read " + Utils::to_string(bytesRead) + " bytes from CGI process");
+			LOG_INFO("Readed Data : " + std::string(buffer));
 		}
 		else if (bytesRead == 0 || (bytesRead < 0 && errno != EAGAIN))
 		{
