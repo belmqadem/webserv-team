@@ -613,7 +613,7 @@ bool RequestParser::is_cgi_request()
 		return false;
 
 	std::string extension = path.substr(dot_pos);
-	if (extension == ".php" || extension == ".py")
+	if ((extension == ".php" || extension == ".py") && http_method != "DELETE")
 		return true;
 
 	return false;
