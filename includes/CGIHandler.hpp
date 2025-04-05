@@ -11,14 +11,13 @@ class CGIHandler : public IEvenetListeners
 {
 private:
 	std::string scriptPath;
-	std::string interpreter;
 	std::string method;
 	std::string uri;
 	std::string queryString;
 	std::string body;
 	std::map<std::string, std::string> headers;
 	std::string root_path;
-
+	
 	// New fields for async operation
 	pid_t pid;
 	int output_fd;
@@ -27,12 +26,13 @@ private:
 	ClientServer *clientServer;
 	bool isCompleted;
 	time_t startTime;
+	std::string interpreter;
 
 	// Helper method to set up environment variables
 	void setupEnvironment(std::vector<std::string> &env);
 	void finalizeCGI(); // Helper method to finalize CGI processing
 public:
-	CGIHandler(RequestParser &request, const std::string &php_cgi_path,
+	CGIHandler(RequestParser &request, const std::string &cgi_path,
 			   ResponseBuilder *response, ClientServer *client);
 	~CGIHandler();
 
