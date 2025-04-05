@@ -84,7 +84,9 @@ namespace Utils
 			throw std::runtime_error(RED "signal() faild." RESET);
 		if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
 			throw std::runtime_error(RED "signal() failed for SIGPIPE." RESET);
-	}
+		if (signal(SIGCHLD, SIG_IGN) == SIG_ERR)
+			throw std::runtime_error(RED "signal() failed for SIGPIPE." RESET);
+		}
 
 	void printServerConfig(const ServerConfig &server)
 	{

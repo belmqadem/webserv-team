@@ -8,7 +8,7 @@ class CGIHandler;
 class RequestParser;
 
 #define RD_SIZE 1024
-#define TIME_OUT_SECONDS 15
+#define TIME_OUT_SECONDS 60
 #define DOUBLE_CRLF "\r\n\r\n"
 
 class ClientServer : public IEvenetListeners
