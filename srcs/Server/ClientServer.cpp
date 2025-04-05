@@ -267,7 +267,7 @@ void ClientServer::processCompletedRequest()
 void ClientServer::processNormalRequest()
 {
 	ResponseBuilder response(*_parser);
-	_response_buffer = response.get_response();
+	_response_buffer = response.build_response();
 	_response_ready = true;
 }
 

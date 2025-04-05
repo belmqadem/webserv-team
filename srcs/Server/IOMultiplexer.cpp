@@ -142,22 +142,16 @@ void IOMultiplexer::removeListener(epoll_event ev, int fd)
 
 void IOMultiplexer::terminate(void)
 {
-	std::vector<std::pair<int, IEvenetListeners *> > listeners_to_terminate;
 
 	for (std::map<int, IEvenetListeners *>::iterator it = _listeners.begin();
-		 it != _listeners.end(); ++it)
-	{
-		listeners_to_terminate.push_back(std::make_pair(it->first, it->second));
-	}
-	for (size_t i = 0; i < listeners_to_terminate.size(); ++i)
-	{
-		try
-		{
-			listeners_to_terminate[i].second->terminate();
+		it != _listeners.end() && _listeners.size() ; ++it) {
+			try
+			{
+				(it)->second->terminate();
+			}
+			catch (const std::exception &e)
+			{
+				LOG_ERROR("Error terminating listener: " + std::string(e.what()));
+			}
 		}
-		catch (const std::exception &e)
-		{
-			LOG_ERROR("Error terminating listener: " + std::string(e.what()));
-		}
-	}
 }

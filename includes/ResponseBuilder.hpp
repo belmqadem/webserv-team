@@ -23,7 +23,6 @@ private:
 	void doDELETE();
 
 	// Helper Methods
-	std::string build_response();
 	void init_config();
 	void init_routes();
 	bool handle_redirection();
@@ -45,9 +44,10 @@ private:
 	ResponseBuilder(const ResponseBuilder &);
 	ResponseBuilder &operator=(const ResponseBuilder &);
 
-public:
+	public:
 	ResponseBuilder(RequestParser &request);
-
+	std::string build_response();
+	
 	// Helper Methods
 	std::string generate_error_page();
 	std::string generate_response_only();

@@ -48,7 +48,7 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 ResponseBuilder::ResponseBuilder(RequestParser &raw_request) : request(raw_request), http_version("HTTP/1.1")
 {
 	init_config();
-	this->response = build_response();
+	// this->response = build_response();
 }
 
 // Method for initializing the Request Matching configuration for server and location
