@@ -339,8 +339,9 @@ void ClientServer::onCGIComplete(CGIHandler *handler)
 		ResponseBuilder *respBuilder = handler->getResponseBuilder();
 
 		// Restore headers like Set-Cookie
-		respBuilder->set_all_headers(_tempHeaders);
+		// respBuilder->set_all_headers(_tempHeaders);
 
+		respBuilder->set_headers("Content-Type", "text/html");
 		_response_buffer = respBuilder->generate_response_only();
 		_response_ready = true;
 		_waitingForCGI = false;
