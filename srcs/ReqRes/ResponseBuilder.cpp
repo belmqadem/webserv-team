@@ -48,9 +48,11 @@ std::map<std::string, std::string> ResponseBuilder::init_mime_types()
 ResponseBuilder::ResponseBuilder(RequestParser &raw_request) : request(raw_request), http_version("HTTP/1.1")
 {
 	init_config();
-	this->response = build_response();
+	processSessionCookie();
+}
 
-	// set session cookies
+void ResponseBuilder::processSessionCookie()
+{
 	std::string session_id = SessionCookieHandler::get_cookie(request, "session_id");
 	if (session_id.empty())
 	{
@@ -263,11 +265,14 @@ void ResponseBuilder::doPOST()
 
 	if (content_type.find("multipart/form-data") != std::string::npos)
 	{
-		if (!handleMultipartFormData(content_type, req_body))
+		if (!request.is_cgi_request())
 		{
-			set_status(403);
-			body = generate_error_page();
-			return;
+			if (!handleMultipartFormData(content_type, req_body))
+			{
+				set_status(403);
+				body = generate_error_page();
+				return;
+			}
 		}
 		set_status(201);
 		return;
@@ -417,16 +422,21 @@ bool ResponseBuilder::handleMultipartFormData(std::string &content_type, std::ve
 		std::string headers = body.substr(pos, header_end - pos);
 		pos = header_end + 4; // Move past `\r\n\r\n`
 
-		// Locate the end of the part
-		size_t part_end = body.find(CRLF + boundary, pos);
+		// Find the next boundary - this is the part that needs fixing
+		size_t part_end = body.find(boundary, pos);
 		if (part_end == std::string::npos)
 		{
 			LOG_ERROR("Malformed part: missing boundary end.");
 			break;
 		}
 
-		std::string content = body.substr(pos, part_end - pos);
-		pos = part_end + 2; // Skip `\r\n`
+		// Calculate content length - adjust for possible CRLF before boundary
+		size_t content_length = part_end;
+		if (part_end > 2 && body.substr(part_end - 2, 2) == "\r\n")
+		{
+			content_length -= 2;
+		}
+		std::string content = body.substr(pos, content_length - pos);
 
 		size_t filename_pos = headers.find("filename=\"");
 		if (filename_pos != std::string::npos)
@@ -790,6 +800,7 @@ void ResponseBuilder::set_body(const std::string &body) { this->body = body; }
 /****************************
  START GETTERS
  ****************************/
+RequestParser ResponseBuilder::getRequest() const { return request; }
 std::string ResponseBuilder::get_response() { return response; }
 std::string ResponseBuilder::get_http_version() { return http_version; }
 std::string ResponseBuilder::get_status() { return status; }
