@@ -42,14 +42,7 @@ namespace Utils
 		std::tm *tm_info = std::localtime(&now);
 
 		std::ostringstream oss;
-		oss << std::setfill('0')
-			<< (tm_info->tm_year + 1900)
-			<< std::setw(2) << (tm_info->tm_mon + 1)
-			<< std::setw(2) << tm_info->tm_mday
-			<< "_"
-			<< std::setw(2) << tm_info->tm_hour
-			<< std::setw(2) << tm_info->tm_min
-			<< std::setw(2) << tm_info->tm_sec;
+		oss << std::setfill('0') << std::setw(2) << tm_info->tm_sec;
 
 		return oss.str();
 	}
