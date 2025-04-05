@@ -250,11 +250,14 @@ void ResponseBuilder::doPOST()
 
 	if (content_type.find("multipart/form-data") != std::string::npos)
 	{
-		if (!handleMultipartFormData(content_type, req_body))
+		if (!request.is_cgi_request()) 
 		{
-			set_status(403);
-			body = generate_error_page();
-			return;
+			if (!handleMultipartFormData(content_type, req_body))
+			{
+				set_status(403);
+				body = generate_error_page();
+				return;
+			}
 		}
 		set_status(201);
 		return;
@@ -406,16 +409,20 @@ bool ResponseBuilder::handleMultipartFormData(std::string &content_type, std::ve
 		std::string headers = body.substr(pos, header_end - pos);
 		pos = header_end + 4; // Move past `\r\n\r\n`
 
-		// Locate the end of the part
-		size_t part_end = body.find("\r\n" + boundary, pos);
+		 // Find the next boundary - this is the part that needs fixing
+		size_t part_end = body.find(boundary, pos);
 		if (part_end == std::string::npos)
 		{
 			LOG_ERROR("Malformed multipart/form-data part - no part end.");
 			return false;
 		}
-
-		std::string content = body.substr(pos, part_end - pos);
-		pos = part_end + 2; // Skip `\r\n`
+		
+		// Calculate content length - adjust for possible CRLF before boundary
+		size_t content_length = part_end;
+		if (part_end > 2 && body.substr(part_end - 2, 2) == "\r\n") {
+			content_length -= 2;
+		}
+		std::string content = body.substr(pos, content_length - pos);
 
 		size_t filename_pos = headers.find("filename=\"");
 		if (filename_pos != std::string::npos)
