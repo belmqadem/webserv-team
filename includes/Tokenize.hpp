@@ -40,7 +40,7 @@ struct Token
 {
 	TokenType type;
 	std::string value;
-	int		nums;
+	int nums;
 };
 
 std::vector<Token> tokenize(std::string &input);

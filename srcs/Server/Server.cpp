@@ -5,10 +5,12 @@ Server::Server(std::vector<ServerConfig> config) : IEvenetListeners(), _config(c
 	_listen_sock_ev.events = EPOLLIN;
 }
 
-Server::~Server() {
+Server::~Server()
+{
 	terminate();
 	std::vector<ClientServer *>::iterator it = _clients.begin();
-	for (; it != _clients.end(); ++it) {
+	for (; it != _clients.end(); ++it)
+	{
 		delete *it;
 	}
 }

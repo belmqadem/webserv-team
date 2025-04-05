@@ -191,7 +191,6 @@ void ClientServer::processRequestHeaders()
 	try
 	{
 		parseHeaders();
-		// processSessionCookie();
 
 		if (_parser->get_state() == BODY)
 		{
@@ -231,12 +230,10 @@ void ClientServer::processCompletedRequest()
 {
 	if (_parser->is_cgi_request() && _parser->get_http_method() != "DELETE")
 	{
-		LOG_DEBUG(_parser->get_state() == DONE ? "Continue Processing CGI Request ..." : "Start Processing CGI Request ...");
 		processCGIRequest();
 	}
 	else
 	{
-		LOG_DEBUG(_parser->get_state() == DONE ? "Continue Processing Normal Request ..." : "Start Processing Normal Request ...");
 		processNormalRequest();
 	}
 }
@@ -265,8 +262,6 @@ void ClientServer::cleanupParser()
 
 void ClientServer::processCGIRequest()
 {
-	LOG_INFO("Processing CGI request");
-
 	// Create a response builder but don't execute it yet
 	ResponseBuilder *respBuilder = new ResponseBuilder(*_parser);
 
@@ -314,7 +309,6 @@ void ClientServer::onCGIComplete(CGIHandler *handler)
 
 		// Get the response builder
 		ResponseBuilder *respBuilder = handler->getResponseBuilder();
-		respBuilder->set_headers("Content-Type", "text/html");
 		_response_buffer = respBuilder->generate_response_only();
 		_response_ready = true;
 		_waitingForCGI = false;

@@ -25,7 +25,7 @@ private:
 	// Helper Methods
 	void init_config();
 	void init_routes();
-	bool handle_redirection();
+	void handle_redirection();
 	std::string generate_default_root();
 	std::string generate_directory_listing(const std::string &path);
 	std::string generate_response_string();

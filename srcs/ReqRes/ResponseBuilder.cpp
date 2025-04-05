@@ -51,6 +51,7 @@ ResponseBuilder::ResponseBuilder(RequestParser &raw_request) : request(raw_reque
 	processSessionCookie();
 }
 
+// Method to initialize session cookies
 void ResponseBuilder::processSessionCookie()
 {
 	std::string session_id = SessionCookieHandler::get_cookie(request, "session_id");
@@ -133,10 +134,7 @@ std::string ResponseBuilder::build_response()
 		}
 	}
 
-	if (handle_redirection())
-	{
-		return generate_response_only();
-	}
+	handle_redirection();
 
 	return generate_response_only();
 }
@@ -398,20 +396,17 @@ bool ResponseBuilder::handleMultipartFormData(std::string &content_type, std::ve
 	std::string boundary = "--" + content_type.substr(boundary_pos + 9);
 	std::string body(req_body.begin(), req_body.end());
 
-	// Split body into parts based on boundary
 	size_t pos = 0, next_pos;
 	while ((next_pos = body.find(boundary, pos)) != std::string::npos)
 	{
 		pos = next_pos + boundary.length();
 
 		if (pos < body.size() && body.substr(pos, 2) == "--")
-			break; // End of multipart data
+			break; // End of multipart
 
-		// Skip initial CRLF after boundary
 		if (body.substr(pos, 2) == CRLF)
 			pos += 2;
 
-		// Locate where header and content separator
 		size_t header_end = body.find(DOUBLE_CRLF, pos);
 		if (header_end == std::string::npos)
 		{
@@ -420,9 +415,8 @@ bool ResponseBuilder::handleMultipartFormData(std::string &content_type, std::ve
 		}
 
 		std::string headers = body.substr(pos, header_end - pos);
-		pos = header_end + 4; // Move past `\r\n\r\n`
+		pos = header_end + 4; // Move past '\r\n\r\n'
 
-		// Find the next boundary - this is the part that needs fixing
 		size_t part_end = body.find(boundary, pos);
 		if (part_end == std::string::npos)
 		{
@@ -430,48 +424,46 @@ bool ResponseBuilder::handleMultipartFormData(std::string &content_type, std::ve
 			break;
 		}
 
-		// Calculate content length - adjust for possible CRLF before boundary
 		size_t content_length = part_end;
-		if (part_end > 2 && body.substr(part_end - 2, 2) == "\r\n")
+		if (part_end > 2 && body.substr(part_end - 2, 2) == CRLF)
 		{
 			content_length -= 2;
 		}
-		std::string content = body.substr(pos, content_length - pos);
+
+		std::string content = body.substr(pos, part_end - pos);
 
 		size_t filename_pos = headers.find("filename=\"");
-		if (filename_pos != std::string::npos)
+		if (filename_pos == std::string::npos)
+			continue;
+
+		size_t filename_end = headers.find("\"", filename_pos + 10);
+		if (filename_end == std::string::npos)
 		{
-			size_t filename_end = headers.find("\"", filename_pos + 10);
-			if (filename_end == std::string::npos)
-			{
-				LOG_ERROR("Malformed filename in part.");
-				continue;
-			}
-
-			std::string filename = headers.substr(filename_pos + 10, filename_end - (filename_pos + 10));
-
-			// avoid path traversal in filename
-			// Check if filename is empty or contains invalid characters
-			if (filename.empty() || filename.find("..") != std::string::npos || filename.find('/') != std::string::npos)
-			{
-				LOG_ERROR("Invalid filename: " + filename);
-				continue;
-			}
-
-			// Save the file to the upload directory
-			std::string safe_name = "upload_" + Utils::get_timestamp_str() + "_" + filename;
-			std::string full_path = location_config->uploadStore + "/" + safe_name;
-
-			if (!save_uploaded_file(full_path, std::vector<byte>(content.begin(), content.end())))
-			{
-				LOG_ERROR("Failed to save: " + full_path);
-				continue;
-			}
-
-			LOG_INFO("Saved file: " + full_path);
-			set_body(generate_upload_success_page(safe_name));
+			LOG_ERROR("Malformed filename in multipart.");
+			continue;
 		}
+
+		std::string filename = headers.substr(filename_pos + 10, filename_end - (filename_pos + 10));
+
+		if (filename.empty() || filename.find("..") != std::string::npos || filename.find('/') != std::string::npos)
+		{
+			LOG_ERROR("Invalid filename: " + filename);
+			continue;
+		}
+
+		std::string safe_name = "upload_" + Utils::get_timestamp_str() + "_" + filename;
+		std::string full_path = location_config->uploadStore + "/" + safe_name;
+
+		if (!save_uploaded_file(full_path, std::vector<byte>(content.begin(), content.end())))
+		{
+			LOG_ERROR("Failed to save: " + full_path);
+			continue;
+		}
+
+		LOG_INFO("Saved file: " + full_path);
+		set_body(generate_upload_success_page(safe_name));
 	}
+
 	return true;
 }
 
@@ -503,7 +495,7 @@ bool ResponseBuilder::save_uploaded_file(const std::string &full_path, const std
 }
 
 // Method to handle redirection
-bool ResponseBuilder::handle_redirection()
+void ResponseBuilder::handle_redirection()
 {
 	if (location_config && location_config->isRedirect)
 	{
@@ -513,9 +505,7 @@ bool ResponseBuilder::handle_redirection()
 			set_status(302);
 		body = generate_error_page();
 		this->headers["Location"] = location_config->redirectUrl;
-		return true;
 	}
-	return false;
 }
 
 // Method to generate error pages
@@ -531,7 +521,7 @@ std::string ResponseBuilder::generate_error_page()
 
 	std::ostringstream page;
 	page << "<html>\n<head>\n<title>" << status << "</title>\n</head>\n";
-	page << "<body>\n<center><h1>" << status << "</h1></center><hr />\n";
+	page << "<body style=\"font-family:sans-serif;\">\n<center><h1>" << status << "</h1></center><hr />\n";
 	page << "<center>" << WEBSERV_NAME << "</center>\n";
 	page << "</body>\n</html>\n";
 
@@ -545,8 +535,8 @@ std::string ResponseBuilder::generate_default_root()
 {
 	std::ostringstream page;
 	page << "<html>\n<head>\n<title>Welcome to Webserv!</title>\n</head>\n";
-	page << "<body>\n<center><h1>Welcome to Webserv!</h1></center>\n";
-	page << "<center><p>If you see this page, the web server is successfully compiled and working. Further configuration is required.<br />Thank you for testing our web server.</p></center>\n";
+	page << "<body style=\"font-family:sans-serif;\">\n<center><h1>Welcome to Webserv!</h1></center>\n";
+	page << "<center><p style=\"font-size:20px;\">If you see this page, the web server is successfully compiled and working. Further configuration is required.<br />Thank you for testing our web server.</p></center>\n";
 	page << "</body>\n</html>\n";
 
 	headers["Content-Type"] = "text/html";
@@ -571,7 +561,7 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 {
 	std::ostringstream page;
 	page << "<html>\n<head>\n<title>Directory Listing</title>\n</head>\n";
-	page << "<body>\n<h1 style=\"color:blue;\">Directory Listing for " << path << "</h1><hr>\n";
+	page << "<body>\n<h1 style=\"color:#4b4b4b;font-family:sans-serif;\">Directory Listing for " << path << "</h1><hr>\n";
 	page << "<ul>\n";
 
 	DIR *dir;
@@ -590,11 +580,11 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 			struct stat path_stat;
 			if (stat(full_path.c_str(), &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
 			{
-				page << "<li style=\"letter-spacing: 1.5\"><a href=\"" << entry_name << "/\">" << entry_name << "/</a>&emsp;&emsp;&emsp;" << get_http_date() << "&emsp;&emsp;&emsp;-</li><br>\n";
+				page << "<li style=\"letter-spacing:1.5;font-size:18px;\"><a href=\"" << entry_name << "/\">" << entry_name << "/</a>&emsp;&emsp;&emsp;" << get_http_date() << "&emsp;&emsp;&emsp;-</li><br>\n";
 			}
 			else
 			{
-				page << "<li style=\"letter-spacing: 1.5\"><a href=\"" << entry_name << "\">" << entry_name << "</a>&emsp;&emsp;&emsp;" << get_http_date() << "&emsp;&emsp;&emsp;-</li><br>\n";
+				page << "<li style=\"letter-spacing:1.5;font-size:18px;\"><a href=\"" << entry_name << "\">" << entry_name << "</a>&emsp;&emsp;&emsp;" << get_http_date() << "&emsp;&emsp;&emsp;-</li><br>\n";
 			}
 		}
 		closedir(dir);
@@ -620,7 +610,7 @@ void ResponseBuilder::include_required_headers()
 	headers["Date"] = get_http_date();
 
 	// `Content-Type` header should always be present
-	if (headers.find("Content-Type") == headers.end())
+	if (headers.find("Content-Type") == headers.end() && !request.is_cgi_request())
 	{
 		headers["Content-Type"] = detect_mime_type(request.get_request_uri());
 	}
@@ -692,7 +682,7 @@ std::string ResponseBuilder::generate_upload_success_page(const std::string &fil
 	page << "<html>\n"
 		 << "<head>\n<title>Upload Successful</title>\n</head>\n"
 		 << "<body>\n"
-		 << "<h1 style=\"color:blue;\">File Upload Successful</h1>\n"
+		 << "<h1 style=\"color:#4b4b4b;font-family:sans-serif;\">File Upload Successful</h1>\n"
 		 << "<p>Your file has been uploaded successfully.</p>\n"
 		 << "<p><strong>Saved as:</strong> " << filename << "</p>\n"
 		 << "</body>\n"
