@@ -49,6 +49,19 @@ ResponseBuilder::ResponseBuilder(RequestParser &raw_request) : request(raw_reque
 {
 	init_config();
 	this->response = build_response();
+
+	// set session cookies
+	std::string session_id = SessionCookieHandler::get_cookie(request, "session_id");
+	if (session_id.empty())
+	{
+		session_id = SessionCookieHandler::generate_session_id();
+		SessionCookieHandler::set_cookie(*this, "session_id", session_id, 3600);
+		LOG_INFO("New session created: " + session_id);
+	}
+	else
+	{
+		LOG_INFO("Existing session: " + session_id);
+	}
 }
 
 // Method for initializing the Request Matching configuration for server and location
@@ -260,7 +273,7 @@ void ResponseBuilder::doPOST()
 		return;
 	}
 
-	std::string filename = "uploaded" + Utils::get_timestamp_str() + ".bin";
+	std::string filename = "upload_" + Utils::get_timestamp_str() + ".bin";
 	std::string full_path = upload_path + "/" + filename;
 
 	// Write the data to the file
@@ -387,9 +400,7 @@ bool ResponseBuilder::handleMultipartFormData(std::string &content_type, std::ve
 		pos = next_pos + boundary.length();
 
 		if (pos < body.size() && body.substr(pos, 2) == "--")
-		{
 			break; // End of multipart data
-		}
 
 		// Skip initial CRLF after boundary
 		if (body.substr(pos, 2) == CRLF)
@@ -399,19 +410,19 @@ bool ResponseBuilder::handleMultipartFormData(std::string &content_type, std::ve
 		size_t header_end = body.find(DOUBLE_CRLF, pos);
 		if (header_end == std::string::npos)
 		{
-			LOG_ERROR("Malformed multipart/form-data part - no header end.");
-			return false;
+			LOG_ERROR("Malformed part: missing headers.");
+			break;
 		}
 
 		std::string headers = body.substr(pos, header_end - pos);
 		pos = header_end + 4; // Move past `\r\n\r\n`
 
 		// Locate the end of the part
-		size_t part_end = body.find("\r\n" + boundary, pos);
+		size_t part_end = body.find(CRLF + boundary, pos);
 		if (part_end == std::string::npos)
 		{
-			LOG_ERROR("Malformed multipart/form-data part - no part end.");
-			return false;
+			LOG_ERROR("Malformed part: missing boundary end.");
+			break;
 		}
 
 		std::string content = body.substr(pos, part_end - pos);
@@ -423,7 +434,7 @@ bool ResponseBuilder::handleMultipartFormData(std::string &content_type, std::ve
 			size_t filename_end = headers.find("\"", filename_pos + 10);
 			if (filename_end == std::string::npos)
 			{
-				LOG_ERROR("Malformed filename in multipart part.");
+				LOG_ERROR("Malformed filename in part.");
 				continue;
 			}
 
@@ -438,14 +449,17 @@ bool ResponseBuilder::handleMultipartFormData(std::string &content_type, std::ve
 			}
 
 			// Save the file to the upload directory
-			std::string full_path = location_config->uploadStore + "/" + filename;
+			std::string safe_name = "upload_" + Utils::get_timestamp_str() + "_" + filename;
+			std::string full_path = location_config->uploadStore + "/" + safe_name;
+
 			if (!save_uploaded_file(full_path, std::vector<byte>(content.begin(), content.end())))
 			{
-				return false;
+				LOG_ERROR("Failed to save: " + full_path);
+				continue;
 			}
 
-			LOG_INFO("File uploaded successfully: " + full_path);
-			set_body(generate_upload_success_page(filename));
+			LOG_INFO("Saved file: " + full_path);
+			set_body(generate_upload_success_page(safe_name));
 		}
 	}
 	return true;

@@ -572,8 +572,6 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 	{
 		this->server_config = ConfigManager::getInstance().getServerByPort(port);
 	}
-
-	// If no exact match -> point to the first configured server
 	if (!server_config && !servers.empty())
 	{
 		this->server_config = &servers[0];

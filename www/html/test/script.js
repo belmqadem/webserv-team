@@ -23,9 +23,6 @@ async function deleteFile() {
     alert("Please select a file to delete.");
     return;
   }
-  const confirmation = confirm(
-	`Are you sure you want to delete ${selectedFile}?`
-  );
   const response = await fetch("/delete/" + selectedFile, {
     method: "DELETE",
   });
