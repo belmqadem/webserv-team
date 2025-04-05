@@ -783,6 +783,7 @@ void ResponseBuilder::set_body(const std::string &body) { this->body = body; }
 /****************************
  START GETTERS
  ****************************/
+RequestParser ResponseBuilder::getRequest() const { return request; }
 std::string ResponseBuilder::get_response() { return response; }
 std::string ResponseBuilder::get_http_version() { return http_version; }
 std::string ResponseBuilder::get_status() { return status; }

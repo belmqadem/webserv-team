@@ -59,6 +59,7 @@ public:
 	void set_body(const std::string &body);
 
 	// Getters
+	RequestParser getRequest() const;
 	std::string get_response();
 	std::string get_http_version();
 	std::string get_status();

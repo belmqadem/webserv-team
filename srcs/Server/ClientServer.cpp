@@ -191,7 +191,7 @@ void ClientServer::processRequestHeaders()
 	try
 	{
 		parseHeaders();
-		processSessionCookie();
+		// processSessionCookie();
 
 		if (_parser->get_state() == BODY)
 		{
@@ -219,7 +219,6 @@ void ClientServer::parseHeaders()
 
 	parser.match_location(ConfigManager::getInstance().getServers());
 
-	// Make sure to fully clean up the previous parser
 	cleanupParser();
 
 	// Create a clean parser instance
@@ -296,7 +295,7 @@ void ClientServer::processCGIRequest()
 
 	if (!respBuilder->get_location_config()->useCgi)
 	{
-		LOG_ERROR("CGI NOT ALLOWED IN CONFIG FILE");
+		LOG_ERROR("CGI NOT ALLOWED IN CONFIG FILE (" + respBuilder->getRequest().get_request_uri() + ")");
 		respBuilder->set_status(405);
 		respBuilder->set_body(respBuilder->generate_error_page());
 		_response_buffer = respBuilder->generate_response_only();
