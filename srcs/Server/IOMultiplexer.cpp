@@ -144,14 +144,15 @@ void IOMultiplexer::terminate(void)
 {
 
 	for (std::map<int, IEvenetListeners *>::iterator it = _listeners.begin();
-		it != _listeners.end() && _listeners.size() ; ++it) {
-			try
-			{
-				(it)->second->terminate();
-			}
-			catch (const std::exception &e)
-			{
-				LOG_ERROR("Error terminating listener: " + std::string(e.what()));
-			}
+		 it != _listeners.end() && _listeners.size(); ++it)
+	{
+		try
+		{
+			(it)->second->terminate();
 		}
+		catch (const std::exception &e)
+		{
+			LOG_ERROR("Error terminating listener: " + std::string(e.what()));
+		}
+	}
 }

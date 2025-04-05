@@ -17,7 +17,7 @@ private:
 	std::string body;
 	std::map<std::string, std::string> headers;
 	std::string root_path;
-	
+
 	// New fields for async operation
 	pid_t pid;
 	int output_fd;

@@ -1,6 +1,6 @@
 // Function to fetch and display files for deletion
 async function showDeleteOptions() {
-  const response = await fetch("/list_files.php");
+  const response = await fetch("/phpcgi/list_files.php");
   if (response.ok) {
     const files = await response.json();
     const select = document.getElementById("delete");
@@ -23,10 +23,10 @@ async function deleteFile() {
     alert("Please select a file to delete.");
     return;
   }
-  const response = await fetch("/delete/" + selectedFile, {
+  const response = await fetch("/uploads/" + selectedFile, {
     method: "DELETE",
   });
-  if (response.ok) {
+  if (response.ok) {	
     alert(`File ${selectedFile} deleted successfully.`);
     showDeleteOptions();
   } else {
