@@ -115,127 +115,154 @@ void ClientServer::onEvent(int fd, epoll_event ev)
 
 void ClientServer::handleIncomingData()
 {
+	// Read incoming data into buffer
+	if (!readIncomingData())
+		return;
+
+	// Handle 100-continue expectations
+	handleExpectContinue();
+
+	// Process ongoing body parsing
+	if (isParsingRequestBody())
+		return;
+
+	// Process new request headers
+	processRequestHeaders();
+}
+
+bool ClientServer::readIncomingData()
+{
 	char buffer[RD_SIZE];
 	ssize_t rd_count = recv(this->_peer_socket_fd, buffer, RD_SIZE, MSG_DONTWAIT);
+
 	if (rd_count <= 0)
 	{
 		this->terminate();
-		return;
+		return false;
 	}
 
 	updateActivity();
-
 	_request_buffer.append(buffer, rd_count);
+	return true;
+}
 
-	// for curl tests
+void ClientServer::handleExpectContinue()
+{
 	if (_parser && _parser->get_headers().count("expect") && !_continue_sent)
 	{
 		LOG_INFO("Received Expect: 100-continue header");
 		std::string continue_response = "HTTP/1.1 100 Continue\r\n\r\n";
 		send(_peer_socket_fd, continue_response.c_str(), continue_response.length(), 0);
-		_continue_sent = true; // To send it just once
-	}
-
-	// If we already have a parser and it's already parsing the body
-	if (_parser && _parser->get_state() == BODY && !_waitingForCGI)
-	{
-		try
-		{
-			size_t bytes_read = _parser->parse_request(_request_buffer);
-			if (bytes_read > 0)
-				_request_buffer.erase(0, bytes_read);
-
-			// If the request is now complete
-			if (_parser->get_state() == DONE)
-			{
-				LOG_INFO("Request body fully received");
-
-				// Process the completed request (similar to below)
-				if (_parser->is_cgi_request() && _parser->get_http_method() != "DELETE")
-				{
-					LOG_DEBUG("Continue Processing CGI Request ...");
-					processCGIRequest();
-				}
-				else
-				{
-					LOG_DEBUG("Continue Processing Normal Request ...");
-					ResponseBuilder response(*_parser);
-					_response_buffer = response.get_response();
-					_response_ready = true;
-				}
-			}
-			return;
-		}
-		catch (std::exception &e)
-		{
-			LOG_ERROR("Exception in chunked body processing > " + std::string(e.what()));
-		}
-	}
-
-	// Regular request header processing
-	size_t header_end = _request_buffer.find(DOUBLE_CRLF);
-	if (header_end != std::string::npos)
-	{
-		try
-		{
-			// Reset the request buffer and state for a new request
-			RequestParser parser;
-			size_t bytes_read = parser.parse_request(_request_buffer);
-
-			// Only remove the bytes we've successfully processed
-			if (bytes_read > 0)
-				_request_buffer.erase(0, bytes_read);
-
-			parser.match_location(ConfigManager::getInstance().getServers());
-
-			// Make sure to fully clean up the previous parser
-			if (_parser)
-			{
-				delete _parser;
-				_parser = NULL;
-			}
-
-			// Create a clean parser instance
-			_parser = new RequestParser(parser);
-
-			LOG_REQUEST(_parser->get_request_line());
-
-			// Check if this is a chunked request that needs more data
-			if (_parser->get_state() == BODY)
-			{
-				LOG_INFO("Headers processed, waiting for more body data");
-				return;
-			}
-
-			// Check if this is a CGI request
-			if (_parser->is_cgi_request() && _parser->get_http_method() != "DELETE")
-			{
-				LOG_DEBUG("Start Processing CGI Request ...");
-				processCGIRequest();
-			}
-			else
-			{
-				LOG_DEBUG("Start Processing Normal Request ...");
-				ResponseBuilder response(*_parser);
-				_response_buffer = response.get_response();
-				_response_ready = true;
-			}
-		}
-		catch (std::exception &e)
-		{
-			LOG_ERROR("Exception in request processing > " + std::string(e.what()));
-
-			// Make sure to clean up on error too
-			if (_parser)
-			{
-				delete _parser;
-				_parser = NULL;
-			}
-		}
+		_continue_sent = true;
 	}
 }
 
-// Extract CGI request processing to a separate method
+bool ClientServer::isParsingRequestBody()
+{
+	if (!_parser || _parser->get_state() != BODY || _waitingForCGI)
+		return false;
+
+	try
+	{
+		size_t bytes_read = _parser->parse_request(_request_buffer);
+		if (bytes_read > 0)
+			_request_buffer.erase(0, bytes_read);
+
+		if (_parser->get_state() == DONE)
+		{
+			LOG_INFO("Request body fully received");
+			processCompletedRequest();
+		}
+		return true;
+	}
+	catch (std::exception &e)
+	{
+		LOG_ERROR("Exception in chunked body processing > " + std::string(e.what()));
+		return false;
+	}
+}
+
+void ClientServer::processRequestHeaders()
+{
+	size_t header_end = _request_buffer.find(DOUBLE_CRLF);
+	if (header_end == std::string::npos)
+		return;
+
+	try
+	{
+		parseHeaders();
+		// processSessionCookie();
+
+		if (_parser->get_state() == BODY)
+		{
+			LOG_INFO("Headers processed, waiting for more body data");
+			return;
+		}
+
+		processCompletedRequest();
+	}
+	catch (std::exception &e)
+	{
+		handleRequestException(e);
+	}
+}
+
+void ClientServer::parseHeaders()
+{
+	// Reset the request buffer and state for a new request
+	RequestParser parser;
+	size_t bytes_read = parser.parse_request(_request_buffer);
+
+	// Only remove the bytes we've successfully processed
+	if (bytes_read > 0)
+		_request_buffer.erase(0, bytes_read);
+
+	parser.match_location(ConfigManager::getInstance().getServers());
+
+	cleanupParser();
+
+	// Create a clean parser instance
+	_parser = new RequestParser(parser);
+
+	LOG_REQUEST(_parser->get_request_line());
+}
+
+void ClientServer::processCompletedRequest()
+{
+	if (_parser->is_cgi_request() && _parser->get_http_method() != "DELETE")
+	{
+		LOG_DEBUG(_parser->get_state() == DONE ? "Continue Processing CGI Request ..." : "Start Processing CGI Request ...");
+		processCGIRequest();
+	}
+	else
+	{
+		LOG_DEBUG(_parser->get_state() == DONE ? "Continue Processing Normal Request ..." : "Start Processing Normal Request ...");
+		processNormalRequest();
+	}
+}
+
+void ClientServer::processNormalRequest()
+{
+	ResponseBuilder response(*_parser);
+	_response_buffer = response.build_response();
+	_response_ready = true;
+}
+
+void ClientServer::handleRequestException(const std::exception &e)
+{
+	LOG_ERROR("Exception in request processing > " + std::string(e.what()));
+	cleanupParser();
+}
+
+void ClientServer::cleanupParser()
+{
+	if (_parser)
+	{
+		delete _parser;
+		_parser = NULL;
+	}
+}
+
 void ClientServer::processCGIRequest()
 {
 	LOG_INFO("Processing CGI request");
@@ -245,7 +272,7 @@ void ClientServer::processCGIRequest()
 
 	if (!respBuilder->get_location_config()->useCgi)
 	{
-		LOG_ERROR("CGI NOT ALLOWED IN CONFIG FILE");
+		LOG_ERROR("CGI NOT ALLOWED IN CONFIG FILE (" + respBuilder->getRequest().get_request_uri() + ")");
 		respBuilder->set_status(405);
 		respBuilder->set_body(respBuilder->generate_error_page());
 		_response_buffer = respBuilder->generate_response_only();
@@ -287,7 +314,7 @@ void ClientServer::onCGIComplete(CGIHandler *handler)
 
 		// Get the response builder
 		ResponseBuilder *respBuilder = handler->getResponseBuilder();
-
+		respBuilder->set_headers("Content-Type", "text/html");
 		_response_buffer = respBuilder->generate_response_only();
 		_response_ready = true;
 		_waitingForCGI = false;
@@ -327,24 +354,46 @@ void ClientServer::checkCGIProgress()
 
 void ClientServer::handleResponse()
 {
-	if (!_response_ready || _response_buffer.empty())
-	{
+	if (!isResponseReady())
 		return;
-	}
+
 	if (hasTimeOut())
 	{
-		LOG_INFO("Client: " + Utils::to_string(this->_peer_socket_fd) + "Reached Timeout after " + Utils::to_string(TIME_OUT_SECONDS) + " Seconds of inactivity");
-		terminate();
+		handleTimeout();
 		return;
 	}
+
+	if (!sendResponseChunk())
+		return;
+
+	if (_response_buffer.empty())
+		finalizeResponse();
+}
+
+bool ClientServer::isResponseReady()
+{
+	return _response_ready && !_response_buffer.empty();
+}
+
+void ClientServer::handleTimeout()
+{
+	LOG_INFO("Client: " + Utils::to_string(this->_peer_socket_fd) +
+			 " reached timeout after " + Utils::to_string(TIME_OUT_SECONDS) +
+			 " seconds of inactivity");
+	terminate();
+}
+
+bool ClientServer::sendResponseChunk()
+{
 	ssize_t bytes_sent = send(_peer_socket_fd, _response_buffer.c_str(),
 							  _response_buffer.size(), MSG_DONTWAIT);
 	if (bytes_sent <= 0)
 	{
 		LOG_ERROR("Error sending response to client");
 		this->terminate();
-		return;
+		return false;
 	}
+
 	updateActivity();
 
 	if (static_cast<size_t>(bytes_sent) < _response_buffer.size())
@@ -354,18 +403,22 @@ void ClientServer::handleResponse()
 	else
 	{
 		_response_buffer.clear();
-		_response_ready = false;
+	}
 
-		if (!shouldKeepAlive())
-		{
-			this->terminate();
-		}
-		// Reset parser state for the next request if keeping alive
-		else if (_parser && _parser->get_error_code())
-		{
-			delete _parser;
-			_parser = NULL;
-		}
+	return true;
+}
+
+void ClientServer::finalizeResponse()
+{
+	_response_ready = false;
+
+	if (!shouldKeepAlive())
+	{
+		this->terminate();
+	}
+	else if (_parser && _parser->get_error_code())
+	{
+		cleanupParser();
 	}
 }
 

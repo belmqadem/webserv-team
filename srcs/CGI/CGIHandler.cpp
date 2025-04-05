@@ -8,9 +8,9 @@ void CGIHandler::keepClientAlive()
 	}
 }
 
-CGIHandler::CGIHandler(RequestParser &request, const std::string &php_cgi_path,
+CGIHandler::CGIHandler(RequestParser &request, const std::string &cgi_path,
 					   ResponseBuilder *response, ClientServer *client)
-	: pid(-1), output_fd(-1), responseBuilder(response), clientServer(client), isCompleted(false)
+	: pid(-1), output_fd(-1), responseBuilder(response), clientServer(client), isCompleted(false), interpreter(cgi_path)
 {
 	root_path = request.get_location_config()->root;
 	uri = request.get_request_uri();
@@ -22,22 +22,11 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &php_cgi_path,
 	body.assign(rawBody.begin(), rawBody.end());
 	headers = request.get_headers();
 
-	size_t dotPos = scriptPath.find_last_of('.');
-	if (dotPos != std::string::npos)
-	{
-		std::string extension = scriptPath.substr(dotPos);
-		if (extension == ".php")
-		{
-			interpreter = php_cgi_path;
-		}
-	}
-
 	if (interpreter.empty())
 	{
 		LOG_ERROR("No CGI interpreter found");
 		throw std::runtime_error("500 Internal Server Error: No CGI interpreter found");
 	}
-	LOG_INFO("CGIHandler initialized with script: " + scriptPath);
 }
 
 CGIHandler::~CGIHandler()
@@ -65,6 +54,9 @@ void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 
 	// Rest of your environment setup
 	env.push_back("CONTENT_TYPE=" + (headers.count("Content-Type") ? headers["Content-Type"] : "application/x-www-form-urlencoded"));
+	
+	env.push_back("PYTHONIOENCODING=UTF-8");  // Python specific
+	
 	env.push_back("REDIRECT_STATUS=200");
 	env.push_back("SCRIPT_FILENAME=" + scriptPath);
 	env.push_back("SCRIPT_NAME=" + scriptPath);
@@ -212,8 +204,6 @@ void CGIHandler::startCGI()
 		try
 		{
 			IOMultiplexer::getInstance().addListener(this, ev);
-			LOG_INFO("CGI process started with PID: " + Utils::to_string(pid) +
-					 ", registered for events on fd: " + Utils::to_string(output_fd));
 		}
 		catch (const std::exception &e)
 		{
@@ -249,7 +239,6 @@ void CGIHandler::onEvent(int fd, epoll_event ev)
 			buffer[bytesRead] = '\0';
 			cgi_output.append(buffer, bytesRead);
 			LOG_INFO("Read " + Utils::to_string(bytesRead) + " bytes from CGI process");
-			LOG_INFO("Readed Data : " + std::string(buffer));
 		}
 		else if (bytesRead == 0 || (bytesRead < 0 && errno != EAGAIN))
 		{
