@@ -39,6 +39,10 @@ private:
 	size_t current_chunk_size;
 	size_t current_chunk_read;
 
+	// New attributes for CGI handling
+	std::string cgi_script;
+	bool is_cgi_request_flag;
+
 	// Helper Methods
 	const char *parse_request_line(const char *pos, const char *end);
 	const char *parse_headers(const char *pos, const char *end);
@@ -64,11 +68,18 @@ public:
 	void print_request();
 
 	// Setters
+	
 	void set_request_line();
 	bool set_http_method(const std::string &http_method);
 	bool set_request_uri(const std::string &request_uri);
 	void set_query_string(const std::string &query_string);
 	bool set_http_version(const std::string &http_version);
+
+	// New CGI-related methods
+	void set_uri(const std::string& uri);
+	void set_cgi_script(const std::string& script);
+	void set_is_cgi_request(bool is_cgi);
+	std::string get_cgi_script() const;
 
 	// Getters
 	std::string &get_request_line();

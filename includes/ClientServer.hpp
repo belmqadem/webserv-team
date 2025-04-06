@@ -6,6 +6,7 @@
 
 class CGIHandler;
 class RequestParser;
+class ResponseBuilder;
 
 #define RD_SIZE 1024
 #define TIME_OUT_SECONDS 60
@@ -29,6 +30,8 @@ private:
 	CGIHandler *_pendingCgi;
 	bool _waitingForCGI;
 
+	ResponseBuilder* _responseBuilder; // Member variable to hold response builder
+
 private:
 	// Main processing methods
 	void handleIncomingData();
@@ -51,6 +54,7 @@ private:
 	void handleTimeout();
 	bool sendResponseChunk();
 	void finalizeResponse();
+	void sendErrorResponse(int status_code, const std::string& message);
 
 	// Timeout check
 	bool hasTimeOut() const;

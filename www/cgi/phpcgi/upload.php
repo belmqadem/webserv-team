@@ -1,28 +1,38 @@
 <?php
+// www/cgi/upload.php
 header("Content-Type: text/html");
 
-if (isset($_FILES['file'])) {
-    echo "Processing file: " . $_FILES['file']['name'] . "<br>";
-    
-    $allowed_types = array('image/jpeg', 'image/png', 'application/pdf', "text/plain");
-    if (!in_array($_FILES['file']['type'], $allowed_types)) {
-        echo "File type not allowed!";
-        http_response_code(415); // Unsupported Media Type
-        exit;
-    }
+$upload_dir = "../uploads/";
 
-    $uploaddir = '../uploads/';
-    $uploadfile = $uploaddir . basename($_FILES['file']['name']);
+// Create directory if it doesn't exist
+if (!file_exists($upload_dir)) {
+    mkdir($upload_dir, 0755, true);
+}
+
+if ($_FILES && isset($_FILES['file'])) {
+    $file = $_FILES['file'];
     
-    if (move_uploaded_file($_FILES['file']['tmp_name'], $uploadfile)) {
-        echo "File uploaded successfully!";
-        http_response_code(200);
+    if ($file['error'] === UPLOAD_ERR_OK) {
+        $tmp_name = $file['tmp_name'];
+        $name = "upload_" . time() . "_" . basename($file['name']);
+        $upload_path = $upload_dir . $name;
+        
+        // Move the temporary file PHP created
+        if (move_uploaded_file($tmp_name, $upload_path)) {
+            echo "File uploaded successfully!<br>";
+            echo "Saved as: " . htmlspecialchars($name);
+            http_response_code(201);
+        } else {
+            echo "Error saving file";
+            http_response_code(500);
+        }
     } else {
-        echo "Upload failed!";
-        http_response_code(500);
+        // Various upload error conditions
+        echo "Upload error: " . $file['error'];
+        http_response_code(400);
     }
 } else {
-    echo "No input file specified.";
-    http_response_code(404);
+    echo "No file uploaded";
+    http_response_code(400);
 }
 ?>

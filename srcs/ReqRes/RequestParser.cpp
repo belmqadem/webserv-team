@@ -13,6 +13,8 @@ RequestParser::RequestParser()
 	this->reading_chunk_data = false;
 	this->current_chunk_size = 0;
 	this->current_chunk_read = 0;
+	this->cgi_script = "";
+	this->is_cgi_request_flag = false;
 }
 
 // Copy Constructor
@@ -32,7 +34,9 @@ RequestParser::RequestParser(const RequestParser &other) : state(other.state),
 														   location_config(other.location_config),
 														   reading_chunk_data(other.reading_chunk_data),
 														   current_chunk_size(other.current_chunk_size),
-														   current_chunk_read(other.current_chunk_read) {}
+														   current_chunk_read(other.current_chunk_read),
+														   cgi_script(other.cgi_script),
+														   is_cgi_request_flag(other.is_cgi_request_flag) {}
 
 // Copy Assignement
 RequestParser &RequestParser::operator=(const RequestParser &other)
@@ -56,6 +60,8 @@ RequestParser &RequestParser::operator=(const RequestParser &other)
 		this->reading_chunk_data = other.reading_chunk_data;
 		this->current_chunk_size = other.current_chunk_size;
 		this->current_chunk_read = other.current_chunk_read;
+		this->cgi_script = other.cgi_script;
+		this->is_cgi_request_flag = other.is_cgi_request_flag;
 	}
 	return *this;
 }
@@ -601,23 +607,27 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 // Method to check if the request is for cgi
 bool RequestParser::is_cgi_request()
 {
-	std::string path = request_uri;
+    // Return true if manually set
+    if (is_cgi_request_flag)
+        return true;
+        
+    std::string path = request_uri;
 
-	if (!path.empty() && path[path.size() - 1] == '/' && location_config)
-	{
-		if (!location_config->index.empty())
-			path += location_config->index;
-	}
+    if (!path.empty() && path[path.size() - 1] == '/' && location_config)
+    {
+        if (!location_config->index.empty())
+            path += location_config->index;
+    }
 
-	size_t dot_pos = path.find_last_of('.');
-	if (dot_pos == std::string::npos || path.find_last_of('/') > dot_pos)
-		return false;
+    size_t dot_pos = path.find_last_of('.');
+    if (dot_pos == std::string::npos || path.find_last_of('/') > dot_pos)
+        return false;
 
-	std::string extension = path.substr(dot_pos);
-	if ((extension == ".php" || extension == ".py") && http_method != "DELETE")
-		return true;
+    std::string extension = path.substr(dot_pos);
+    if ((extension == ".php" || extension == ".py") && http_method != "DELETE")
+        return true;
 
-	return false;
+    return false;
 }
 
 /****************************
@@ -712,6 +722,21 @@ void RequestParser::set_query_string(const std::string &query_string)
 {
 	this->query_string = query_string;
 }
+
+void RequestParser::set_uri(const std::string& uri)
+{
+    this->request_uri = uri;
+}
+
+void RequestParser::set_cgi_script(const std::string& script)
+{
+    this->cgi_script = script;
+}
+
+void RequestParser::set_is_cgi_request(bool is_cgi)
+{
+    this->is_cgi_request_flag = is_cgi;
+}
 /****************************
 		END SETTERS
 ****************************/
@@ -732,6 +757,10 @@ uint16_t &RequestParser::get_port_number() { return port; }
 ParseState &RequestParser::get_state() { return state; }
 const ServerConfig *RequestParser::get_server_config() { return server_config; }
 const Location *RequestParser::get_location_config() { return location_config; }
+std::string RequestParser::get_cgi_script() const
+{
+    return this->cgi_script;
+}
 /****************************
 		END GETTERS
 ****************************/
