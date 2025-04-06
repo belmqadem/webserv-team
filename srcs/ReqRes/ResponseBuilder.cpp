@@ -263,14 +263,11 @@ void ResponseBuilder::doPOST()
 
 	if (content_type.find("multipart/form-data") != std::string::npos)
 	{
-		if (!request.is_cgi_request())
+		if (!handleMultipartFormData(content_type, req_body))
 		{
-			if (!handleMultipartFormData(content_type, req_body))
-			{
-				set_status(403);
-				body = generate_error_page();
-				return;
-			}
+			set_status(403);
+			body = generate_error_page();
+			return;
 		}
 		set_status(201);
 		return;
@@ -606,6 +603,7 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 void ResponseBuilder::include_required_headers()
 {
 	// Include standard headers
+	headers["Accept-Ranges"] = "bytes";
 	headers["Server"] = WEBSERV_NAME;
 	headers["Date"] = get_http_date();
 

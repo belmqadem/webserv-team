@@ -483,7 +483,7 @@ std::string RequestParser::decode_percent_encoding(const std::string &str)
 			if (std::isxdigit(hex1) && std::isxdigit(hex2))
 			{
 				int value = (std::isdigit(hex1) ? hex1 - '0' : std::toupper(hex1) - 'A' + 10) * 16 + (std::isdigit(hex2) ? hex2 - '0' : std::toupper(hex2) - 'A' + 10);
-				
+
 				if (value == '\0')
 				{
 					log_error("Null byte injection attempt via %00", 400);
@@ -562,6 +562,30 @@ void RequestParser::log_error(const std::string &error_str, short error_code)
 	}
 }
 
+std::string RequestParser::normalize_path(const std::string &path)
+{
+	std::string result;
+	bool last_was_slash = false;
+
+	for (size_t i = 0; i < path.length(); ++i)
+	{
+		if (path[i] == '/')
+		{
+			if (!last_was_slash)
+			{
+				result += '/';
+				last_was_slash = true;
+			}
+		}
+		else
+		{
+			result += path[i];
+			last_was_slash = false;
+		}
+	}
+	return result;
+}
+
 // Method for setting the right location for the request
 void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 {
@@ -569,33 +593,39 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 
 	this->server_config = ConfigManager::getInstance().getServerByName(host);
 	if (!this->server_config)
-	{
 		this->server_config = ConfigManager::getInstance().getServerByPort(port);
-	}
 	if (!server_config && !servers.empty())
-	{
 		this->server_config = &servers[0];
-	}
 
 	// Find the best matching Location
 	size_t best_match_length = 0;
+	const Location *exact_match = NULL;
+	const Location *best_prefix_match = NULL;
+
 	for (size_t i = 0; i < server_config->locations.size(); ++i)
 	{
 		const std::string &location_path = server_config->locations[i].location;
+		std::string normalize_location = normalize_path(location_path);
 
-		if (request_uri.find(location_path) == 0 && location_path.length() > best_match_length)
+		if (request_uri == normalize_location)
 		{
-			best_match_length = location_path.length();
-			this->location_config = &server_config->locations[i];
+			exact_match = &server_config->locations[i];
+			break;
+		}
+		else if (request_uri.find(normalize_location) == 0 && normalize_location.length() > best_match_length)
+		{
+			best_match_length = normalize_location.length();
+			best_prefix_match = &server_config->locations[i];
 		}
 	}
 
+	if (exact_match)
+		location_config = exact_match;
+	else if (best_prefix_match)
+		location_config = best_prefix_match;
+
 	if (!location_config)
-	{
-		if (!error_code)
-			log_error(HTTP_PARSE_NO_LOCATION_BLOCK, 404);
-		return;
-	}
+		log_error(HTTP_PARSE_NO_LOCATION_BLOCK, 404);
 }
 
 // Method to check if the request is for cgi
