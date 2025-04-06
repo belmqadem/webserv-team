@@ -263,7 +263,7 @@ void ResponseBuilder::doPOST()
         }
         
         // For non-CGI multipart requests, check if we should redirect to a CGI handler
-        std::string upload_handler = "www/cgi/upload.php";
+        std::string upload_handler = "www/cgi/phpcgi/upload.php";
         struct stat handler_stat;
         
         if (stat(upload_handler.c_str(), &handler_stat) == 0)

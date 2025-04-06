@@ -151,8 +151,7 @@ bool ClientServer::readIncomingData()
         
         // Safer conversion with error checking
         try {
-            unsigned long long temp = std::strtoull(content_length_str.c_str(), NULL, 10);
-            declared_length = static_cast<size_t>(temp);
+            declared_length = static_cast<size_t>(std::strtoull(content_length_str.c_str(), NULL, 10));
         }
         catch (...) {
             LOG_ERROR("Invalid Content-Length header: " + content_length_str);
@@ -161,8 +160,7 @@ bool ClientServer::readIncomingData()
         }
         
         // Get the client_max_body_size from the configuration
-        size_t max_size = _parser->get_server_config() ? 
-                          _parser->get_server_config()->clientMaxBodySize : 1048576; // Default 1MB
+        size_t max_size =  _parser->get_server_config()->clientMaxBodySize;
         
         // Check if the declared size exceeds the limit
         if (declared_length > max_size)
@@ -303,42 +301,71 @@ void ClientServer::processCompletedRequest()
 
 void ClientServer::processNormalRequest()
 {
-	// Clean up any existing response builder
-	if (_responseBuilder) {
-		delete _responseBuilder;
-	}
-	
-	// Create a new response builder
-	_responseBuilder = new ResponseBuilder(*_parser);
-	
-	// Check for multipart uploads that should be handled by CGI
-	if (_parser->get_header_value("content-type").find("multipart/form-data") != std::string::npos &&
-		_parser->get_http_method() == "POST" && 
-		!_parser->is_cgi_request())
-	{
-		std::string upload_handler = "www/cgi/upload.php";
-		struct stat handler_stat;
-		
-		if (stat(upload_handler.c_str(), &handler_stat) == 0)
-		{
-			LOG_INFO("Redirecting multipart form to CGI handler: " + upload_handler);
+    // Clean up any existing response builder
+    if (_responseBuilder) {
+        delete _responseBuilder;
+    }
+    
+    // Create a new response builder
+    _responseBuilder = new ResponseBuilder(*_parser);
+    
+    // Special case for the /upload endpoint - always use the upload.php handler
+    if (_parser->get_request_uri() == "/upload" && 
+        _parser->get_http_method() == "POST" && 
+        _parser->get_header_value("content-type").find("multipart/form-data") != std::string::npos)
+    {
+        std::string upload_handler = "www/cgi/phpcgi/upload.php";
+        struct stat handler_stat;
+        
+        if (stat(upload_handler.c_str(), &handler_stat) == 0)
+        {
+            LOG_INFO("Redirecting /upload to CGI handler: " + upload_handler);
+            
+            std::string uri_path = "/phpcgi/upload.php";
+            
+            // Update the parser to directly use upload.php as the CGI script
+            _parser->set_cgi_script(upload_handler);
+            _parser->set_request_uri(uri_path);  // Set the URI as if it was requested directly
+            _parser->set_is_cgi_request(true);
+			_parser->match_location(ConfigManager::getInstance().getServers());
 			
-			// Update the parser to point to the CGI script
-			_parser->set_request_uri(upload_handler);
-			_parser->set_cgi_script(upload_handler);
-			_parser->set_is_cgi_request(true);
-			
-			// Process as CGI instead of normal request
-			delete _responseBuilder;
-			_responseBuilder = NULL;
-			processCGIRequest();
-			return;
-		}
-	}
+            
+            // Process as CGI instead of normal request
+            delete _responseBuilder;
+            _responseBuilder = NULL;
+            processCGIRequest();
+            return;
+        }
+    }
+    // Check for other multipart uploads that should be handled by CGI
+    else if (_parser->get_header_value("content-type").find("multipart/form-data") != std::string::npos &&
+             _parser->get_http_method() == "POST" && 
+             !_parser->is_cgi_request())
+    {
+        std::string upload_handler = "www/cgi/phpcgi/upload.php";
+        struct stat handler_stat;
+        
+        if (stat(upload_handler.c_str(), &handler_stat) == 0)
+        {
+            LOG_INFO("Redirecting multipart form to CGI handler: " + upload_handler);
+            
+            // Update the parser to point to the CGI script
+            upload_handler.insert(upload_handler.begin(), '/');
+            _parser->set_request_uri(upload_handler);
+            _parser->set_cgi_script(upload_handler);
+            _parser->set_is_cgi_request(true);
+            
+            // Process as CGI instead of normal request
+            delete _responseBuilder;
+            _responseBuilder = NULL;
+            processCGIRequest();
+            return;
+        }
+    }
 
-	// Build the normal response
-	_response_buffer = _responseBuilder->build_response();
-	_response_ready = true;
+    // Rest of the method remains the same...
+    _response_buffer = _responseBuilder->build_response();
+    _response_ready = true;
 }
 
 void ClientServer::handleRequestException(const std::exception &e)
