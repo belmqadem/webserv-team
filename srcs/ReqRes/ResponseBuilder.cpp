@@ -603,7 +603,6 @@ std::string ResponseBuilder::generate_directory_listing(const std::string &path)
 void ResponseBuilder::include_required_headers()
 {
 	// Include standard headers
-	headers["Accept-Ranges"] = "bytes";
 	headers["Server"] = WEBSERV_NAME;
 	headers["Date"] = get_http_date();
 
@@ -701,6 +700,7 @@ void ResponseBuilder::set_status(short status_code)
 	{
 	case 200:
 		this->status = STATUS_200;
+		headers["Accept-Ranges"] = "bytes";
 		break;
 	case 201:
 		this->status = STATUS_201;
