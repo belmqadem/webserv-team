@@ -24,8 +24,6 @@
 #define STATUS_204 "204 No Content"
 #define STATUS_301 "301 Moved Permanently"
 #define STATUS_302 "302 Found"
-#define STATUS_303 "303 See Other"
-#define STATUS_304 "304 Not Modified"
 #define STATUS_307 "307 Temporary Redirect"
 #define STATUS_400 "400 Bad Request"
 #define STATUS_403 "403 Forbidden"

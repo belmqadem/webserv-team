@@ -6,16 +6,16 @@
 class ResponseBuilder
 {
 private:
-	RequestParser request; // The request that will be processed
-	std::string response;  // The response that will be sent to the client
+	RequestParser request;
+	std::string response;
 	std::string http_version;
 	std::string status;
 	std::map<std::string, std::string> headers;
 	std::string body;
 	short status_code;
-	std::map<std::string, void (ResponseBuilder::*)(void)> routes; // A map to route the request to the correct method
-	const ServerConfig *server_config;							   // Pointer to the matched server block
-	const Location *location_config;							   // Pointer to the matched location block
+	std::map<std::string, void (ResponseBuilder::*)(void)> routes;
+	const ServerConfig *server_config;
+	const Location *location_config;
 
 	// Required HTTP Methods
 	void doGET();
@@ -56,11 +56,10 @@ public:
 	// Setters
 	void set_status(short status_code);
 	void set_headers(const std::string &key, const std::string &value);
-	void set_all_headers(const std::map<std::string, std::string> &headers);
 	void set_body(const std::string &body);
 
 	// Getters
-	RequestParser getRequest() const;
+	RequestParser getRequest();
 	std::string get_response();
 	std::string get_http_version();
 	std::string get_status();

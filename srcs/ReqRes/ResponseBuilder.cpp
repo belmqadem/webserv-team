@@ -238,80 +238,71 @@ void ResponseBuilder::doGET()
 // POST method implementation
 void ResponseBuilder::doPOST()
 {
-    LOG_DEBUG("POST METHOD EXECUTED");
-    std::string content_type = request.get_header_value("content-type");
-    std::vector<byte> req_body = request.get_body();
+	LOG_DEBUG("POST METHOD EXECUTED");
+	std::string content_type = request.get_header_value("content-type");
+	std::vector<byte> req_body = request.get_body();
 
-    // Early check for content length exceeding limit
-    if (req_body.size() > server_config->clientMaxBodySize)
-    {
-        LOG_ERROR(HTTP_PARSE_PAYLOAD_TOO_LARGE);
-        set_status(413);
-        body = generate_error_page();
-        return;
-    }
+	// Special handling for multipart/form-data
+	if (content_type.find("multipart/form-data") != std::string::npos)
+	{
+		// If this is already a CGI request, let it proceed normally
+		if (request.is_cgi_request())
+		{
+			set_status(201);
+			return;
+		}
 
-    // Special handling for multipart/form-data
-    if (content_type.find("multipart/form-data") != std::string::npos)
-    {
-        // If this is already a CGI request, let it proceed normally
-        if (request.is_cgi_request())
-        {
-            set_status(201);
-            return;
-        }
-        
-        // For non-CGI multipart requests, check if we should redirect to a CGI handler
-        std::string upload_handler = "www/cgi/phpcgi/upload.php";
-        struct stat handler_stat;
-        
-        if (stat(upload_handler.c_str(), &handler_stat) == 0)
-        {
-            // Signal to ClientServer that this should be handled by CGI
-            // by setting a special header
-            LOG_INFO("Redirecting multipart form to CGI handler: " + upload_handler);
-            set_status(307);  // Temporary Redirect
-            headers["X-CGI-Handler"] = upload_handler;
-            return;
-        }
-        
-        // Fall back to built-in handler if CGI upload script isn't available
-        std::string upload_path = location_config->uploadStore;
-        if (!validate_upload_path(upload_path))
-        {
-            set_status(500);
-            body = generate_error_page();
-            return;
-        }
-        
-        LOG_INFO("No CGI handler available, using built-in multipart handler");
-        if (!handleMultipartFormData(content_type, req_body))
-        {
-            set_status(403);
-            body = generate_error_page();
-            return;
-        }
-        
-        set_status(201);
-        return;
-    }
+		// For non-CGI multipart requests, check if we should redirect to a CGI handler
+		std::string upload_handler = "www/cgi/phpcgi/upload.php";
+		struct stat handler_stat;
 
-    // Handle non-multipart requests as before
-    std::string filename = "upload_" + Utils::get_timestamp_str() + ".bin";
-    std::string upload_path = location_config->uploadStore;
-    std::string full_path = upload_path + "/" + filename;
+		if (stat(upload_handler.c_str(), &handler_stat) == 0)
+		{
+			// Signal to ClientServer that this should be handled by CGI
+			// by setting a special header
+			LOG_INFO("Redirecting multipart form to CGI handler: " + upload_handler);
+			set_status(307); // Temporary Redirect
+			headers["X-CGI-Handler"] = upload_handler;
+			return;
+		}
 
-    // Write the data to the file
-    if (!save_uploaded_file(full_path, req_body))
-    {
-        set_status(403);
-        body = generate_error_page();
-        return;
-    }
+		// Fall back to built-in handler if CGI upload script isn't available
+		std::string upload_path = location_config->uploadStore;
+		if (!validate_upload_path(upload_path))
+		{
+			set_status(500);
+			body = generate_error_page();
+			return;
+		}
 
-    set_status(201);
-    LOG_INFO("File uploaded: " + full_path);
-    set_body(generate_upload_success_page(filename));
+		LOG_INFO("No CGI handler available, using built-in multipart handler");
+		if (!handleMultipartFormData(content_type, req_body))
+		{
+			set_status(403);
+			body = generate_error_page();
+			return;
+		}
+
+		set_status(201);
+		return;
+	}
+
+	// Handle non-multipart requests as before
+	std::string filename = "upload_" + Utils::get_timestamp_str() + ".bin";
+	std::string upload_path = location_config->uploadStore;
+	std::string full_path = upload_path + "/" + filename;
+
+	// Write the data to the file
+	if (!save_uploaded_file(full_path, req_body))
+	{
+		set_status(403);
+		body = generate_error_page();
+		return;
+	}
+
+	set_status(201);
+	LOG_INFO("File uploaded: " + full_path);
+	set_body(generate_upload_success_page(filename));
 }
 
 // DELETE method implementation
@@ -725,7 +716,7 @@ void ResponseBuilder::set_status(short status_code)
 	{
 	case 200:
 		this->status = STATUS_200;
-		headers["Accept-Ranges"] = "bytes";
+		this->headers["Accept-Ranges"] = "bytes";
 		break;
 	case 201:
 		this->status = STATUS_201;
@@ -741,12 +732,6 @@ void ResponseBuilder::set_status(short status_code)
 		break;
 	case 302:
 		this->status = STATUS_302;
-		break;
-	case 303:
-		this->status = STATUS_303;
-		break;
-	case 304:
-		this->status = STATUS_304;
 		break;
 	case 307:
 		this->status = STATUS_307;
@@ -797,17 +782,11 @@ void ResponseBuilder::set_status(short status_code)
 		this->status = STATUS_505;
 		break;
 	default:
-		this->status = "UNDEFINED STATUS (To add)";
+		this->status = "UNDEFINED STATUS";
 		break;
 	}
 }
 void ResponseBuilder::set_headers(const std::string &key, const std::string &value) { this->headers[key] = value; }
-void ResponseBuilder::set_all_headers(const std::map<std::string, std::string> &headers)
-{
-	this->headers.clear();
-	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
-		this->headers[it->first] = it->second;
-}
 void ResponseBuilder::set_body(const std::string &body) { this->body = body; }
 /****************************
  END SETTERS
@@ -816,7 +795,7 @@ void ResponseBuilder::set_body(const std::string &body) { this->body = body; }
 /****************************
  START GETTERS
  ****************************/
-RequestParser ResponseBuilder::getRequest() const { return request; }
+RequestParser ResponseBuilder::getRequest() { return request; }
 std::string ResponseBuilder::get_response() { return response; }
 std::string ResponseBuilder::get_http_version() { return http_version; }
 std::string ResponseBuilder::get_status() { return status; }

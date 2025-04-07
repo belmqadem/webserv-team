@@ -31,17 +31,14 @@ private:
 	std::vector<byte> body;
 	uint16_t port;
 	short error_code;
-	bool has_content_length;
-	bool has_transfer_encoding;
 	const ServerConfig *server_config;
 	const Location *location_config;
 	bool reading_chunk_data;
 	size_t current_chunk_size;
 	size_t current_chunk_read;
-
-	// New attributes for CGI handling
 	std::string cgi_script;
 	bool is_cgi_request_flag;
+	size_t content_length_value;
 
 	// Helper Methods
 	const char *parse_request_line(const char *pos, const char *end);
@@ -61,6 +58,9 @@ public:
 	RequestParser(const RequestParser &other);
 	RequestParser &operator=(const RequestParser &other);
 
+	bool has_content_length;
+	bool has_transfer_encoding;
+
 	// Helper methods
 	size_t parse_request(const std::string &request);
 	void match_location(const std::vector<ServerConfig> &servers);
@@ -69,18 +69,13 @@ public:
 	void print_request();
 
 	// Setters
-	
 	void set_request_line();
 	bool set_http_method(const std::string &http_method);
 	bool set_request_uri(const std::string &request_uri);
 	void set_query_string(const std::string &query_string);
 	bool set_http_version(const std::string &http_version);
-
-	// New CGI-related methods
-	void set_uri(const std::string& uri);
-	void set_cgi_script(const std::string& script);
-	void set_is_cgi_request(bool is_cgi);
-	std::string get_cgi_script() const;
+	void set_cgi_script(const std::string &script);
+	void set_cgi_flag(bool is_cgi);
 
 	// Getters
 	std::string &get_request_line();
@@ -96,4 +91,6 @@ public:
 	ParseState &get_state();
 	const ServerConfig *get_server_config();
 	const Location *get_location_config();
+	std::string get_cgi_script();
+	size_t get_content_length_value();
 };

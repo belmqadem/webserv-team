@@ -44,16 +44,15 @@ void ClientServer::RegisterWithIOMultiplexer()
 	}
 }
 
-ClientServer::ClientServer(const int &server_socket_fd, const int &peer_socket_fd) : 
-	_is_started(false),
-	_server_socket_fd(server_socket_fd), 
-	_peer_socket_fd(peer_socket_fd), 
-	_parser(NULL), 
-	_last_activity(time(NULL)), 
-	_continue_sent(false), 
-	_pendingCgi(NULL), 
-	_waitingForCGI(false),
-	_responseBuilder(NULL) {}
+ClientServer::ClientServer(const int &server_socket_fd, const int &peer_socket_fd) : _is_started(false),
+																					 _server_socket_fd(server_socket_fd),
+																					 _peer_socket_fd(peer_socket_fd),
+																					 _parser(NULL),
+																					 _last_activity(time(NULL)),
+																					 _continue_sent(false),
+																					 _pendingCgi(NULL),
+																					 _waitingForCGI(false),
+																					 _responseBuilder(NULL) {}
 
 ClientServer::~ClientServer()
 {
@@ -142,69 +141,50 @@ void ClientServer::handleIncomingData()
 
 bool ClientServer::readIncomingData()
 {
-    // Early size check based on Content-Length header
-    if (_parser && _parser->get_headers().count("content-length"))
-    {
-        // Parse the declared length properly
-        size_t declared_length = 0;
-        std::string content_length_str = _parser->get_headers()["content-length"];
-        
-        // Safer conversion with error checking
-        try {
-            declared_length = static_cast<size_t>(std::strtoull(content_length_str.c_str(), NULL, 10));
-        }
-        catch (...) {
-            LOG_ERROR("Invalid Content-Length header: " + content_length_str);
-            sendErrorResponse(400, "Invalid Content-Length header");
-            return false;
-        }
-        
-        // Get the client_max_body_size from the configuration
-        size_t max_size =  _parser->get_server_config()->clientMaxBodySize;
-        
-        // Check if the declared size exceeds the limit
-        if (declared_length > max_size)
-        {
-            LOG_ERROR("Request body exceeds maximum allowed size: " + 
-                     Utils::to_string(declared_length) + " bytes (max: " + 
-                     Utils::to_string(max_size) + " bytes)");
-            
-            sendErrorResponse(413, "Request body exceeds maximum allowed size");
-            return false;
-        }
-    }
+	// Early size check based on Content-Length header
+	if (_parser && _parser->has_content_length)
+	{
+		// Get the client_max_body_size from the configuration
+		size_t max_size = _parser->get_server_config()->clientMaxBodySize;
 
-    // Proceed with normal read
-    char buffer[RD_SIZE];
-    ssize_t rd_count = recv(this->_peer_socket_fd, buffer, RD_SIZE, MSG_DONTWAIT);
-    
-    if (rd_count <= 0)
-    {
-        this->terminate();
-        return false;
-    }
+		// Check if the declared size exceeds the limit
+		if (_parser->get_content_length_value() > max_size)
+		{
+			sendErrorResponse(413, HTTP_PARSE_PAYLOAD_TOO_LARGE);
+			return false;
+		}
+	}
 
-    updateActivity();
-    _request_buffer.append(buffer, rd_count);
-    return true;
+	// Proceed with normal read
+	char buffer[RD_SIZE];
+	ssize_t rd_count = recv(this->_peer_socket_fd, buffer, RD_SIZE, MSG_DONTWAIT);
+
+	if (rd_count <= 0)
+	{
+		this->terminate();
+		return false;
+	}
+
+	updateActivity();
+	_request_buffer.append(buffer, rd_count);
+	return true;
 }
 
-void ClientServer::sendErrorResponse(int status_code, const std::string& message)
+void ClientServer::sendErrorResponse(int status_code, const std::string &message)
 {
-    // Create a temporary ResponseBuilder to generate the error page
-    ResponseBuilder errorResponse(*_parser);
-    errorResponse.set_status(status_code);
-    errorResponse.set_body(errorResponse.generate_error_page());
-    
-    // Log the error
-    LOG_ERROR(message + " - Sending " + Utils::to_string(status_code) + " response");
-    
-    // Send the response immediately
-    std::string response = errorResponse.generate_response_only();
-    send(_peer_socket_fd, response.c_str(), response.size(), 0);
-    
-    // Close the connection
-    this->terminate();
+	LOG_ERROR(message);
+
+	// Create a temporary ResponseBuilder to generate the error page
+	ResponseBuilder errorResponse(*_parser);
+	errorResponse.set_status(status_code);
+	errorResponse.set_body(errorResponse.generate_error_page());
+
+	// Send the response immediately
+	std::string response = errorResponse.generate_response_only();
+	send(_peer_socket_fd, response.c_str(), response.size(), 0);
+
+	// Close the connection
+	this->terminate();
 }
 
 void ClientServer::handleExpectContinue()
@@ -301,71 +281,71 @@ void ClientServer::processCompletedRequest()
 
 void ClientServer::processNormalRequest()
 {
-    // Clean up any existing response builder
-    if (_responseBuilder) {
-        delete _responseBuilder;
-    }
-    
-    // Create a new response builder
-    _responseBuilder = new ResponseBuilder(*_parser);
-    
-    // Special case for the /upload endpoint - always use the upload.php handler
-    if (_parser->get_request_uri() == "/upload" && 
-        _parser->get_http_method() == "POST" && 
-        _parser->get_header_value("content-type").find("multipart/form-data") != std::string::npos)
-    {
-        std::string upload_handler = "www/cgi/phpcgi/upload.php";
-        struct stat handler_stat;
-        
-        if (stat(upload_handler.c_str(), &handler_stat) == 0)
-        {
-            LOG_INFO("Redirecting /upload to CGI handler: " + upload_handler);
-            
-            std::string uri_path = "/phpcgi/upload.php";
-            
-            // Update the parser to directly use upload.php as the CGI script
-            _parser->set_cgi_script(upload_handler);
-            _parser->set_request_uri(uri_path);  // Set the URI as if it was requested directly
-            _parser->set_is_cgi_request(true);
-			_parser->match_location(ConfigManager::getInstance().getServers());
-			
-            
-            // Process as CGI instead of normal request
-            delete _responseBuilder;
-            _responseBuilder = NULL;
-            processCGIRequest();
-            return;
-        }
-    }
-    // Check for other multipart uploads that should be handled by CGI
-    else if (_parser->get_header_value("content-type").find("multipart/form-data") != std::string::npos &&
-             _parser->get_http_method() == "POST" && 
-             !_parser->is_cgi_request())
-    {
-        std::string upload_handler = "www/cgi/phpcgi/upload.php";
-        struct stat handler_stat;
-        
-        if (stat(upload_handler.c_str(), &handler_stat) == 0)
-        {
-            LOG_INFO("Redirecting multipart form to CGI handler: " + upload_handler);
-            
-            // Update the parser to point to the CGI script
-            upload_handler.insert(upload_handler.begin(), '/');
-            _parser->set_request_uri(upload_handler);
-            _parser->set_cgi_script(upload_handler);
-            _parser->set_is_cgi_request(true);
-            
-            // Process as CGI instead of normal request
-            delete _responseBuilder;
-            _responseBuilder = NULL;
-            processCGIRequest();
-            return;
-        }
-    }
+	// Clean up any existing response builder
+	if (_responseBuilder)
+	{
+		delete _responseBuilder;
+	}
 
-    // Rest of the method remains the same...
-    _response_buffer = _responseBuilder->build_response();
-    _response_ready = true;
+	// Create a new response builder
+	_responseBuilder = new ResponseBuilder(*_parser);
+
+	// Special case for the /upload endpoint - always use the upload.php handler
+	if (_parser->get_request_uri() == "/upload" &&
+		_parser->get_http_method() == "POST" &&
+		_parser->get_header_value("content-type").find("multipart/form-data") != std::string::npos)
+	{
+		std::string upload_handler = "www/cgi/phpcgi/upload.php";
+		struct stat handler_stat;
+
+		if (stat(upload_handler.c_str(), &handler_stat) == 0)
+		{
+			LOG_INFO("Redirecting /upload to CGI handler: " + upload_handler);
+
+			std::string uri_path = "/phpcgi/upload.php";
+
+			// Update the parser to directly use upload.php as the CGI script
+			_parser->set_cgi_script(upload_handler);
+			_parser->set_request_uri(uri_path); // Set the URI as if it was requested directly
+			_parser->set_cgi_flag(true);
+			_parser->match_location(ConfigManager::getInstance().getServers());
+
+			// Process as CGI instead of normal request
+			delete _responseBuilder;
+			_responseBuilder = NULL;
+			processCGIRequest();
+			return;
+		}
+	}
+	// Check for other multipart uploads that should be handled by CGI
+	else if (_parser->get_header_value("content-type").find("multipart/form-data") != std::string::npos &&
+			 _parser->get_http_method() == "POST" &&
+			 !_parser->is_cgi_request())
+	{
+		std::string upload_handler = "www/cgi/phpcgi/upload.php";
+		struct stat handler_stat;
+
+		if (stat(upload_handler.c_str(), &handler_stat) == 0)
+		{
+			LOG_INFO("Redirecting multipart form to CGI handler: " + upload_handler);
+
+			// Update the parser to point to the CGI script
+			upload_handler.insert(upload_handler.begin(), '/');
+			_parser->set_request_uri(upload_handler);
+			_parser->set_cgi_script(upload_handler);
+			_parser->set_cgi_flag(true);
+
+			// Process as CGI instead of normal request
+			delete _responseBuilder;
+			_responseBuilder = NULL;
+			processCGIRequest();
+			return;
+		}
+	}
+
+	// Rest of the method remains the same...
+	_response_buffer = _responseBuilder->build_response();
+	_response_ready = true;
 }
 
 void ClientServer::handleRequestException(const std::exception &e)
@@ -386,7 +366,8 @@ void ClientServer::cleanupParser()
 void ClientServer::processCGIRequest()
 {
 	// Create a response builder if not existing
-	if (!_responseBuilder) {
+	if (!_responseBuilder)
+	{
 		_responseBuilder = new ResponseBuilder(*_parser);
 	}
 
@@ -437,7 +418,6 @@ void ClientServer::onCGIComplete(CGIHandler *handler)
 		// Clean up only the CGI handler
 		delete _pendingCgi;
 		_pendingCgi = NULL;
-		
 	}
 }
 
@@ -469,20 +449,20 @@ void ClientServer::checkCGIProgress()
 
 void ClientServer::handleResponse()
 {
-    if (!isResponseReady())
-        return;
+	if (!isResponseReady())
+		return;
 
-    if (hasTimeOut())
-    {
-        handleTimeout();
-        return;
-    }
+	if (hasTimeOut())
+	{
+		handleTimeout();
+		return;
+	}
 
-    if (!sendResponseChunk())
-        return;
+	if (!sendResponseChunk())
+		return;
 
-    if (_response_buffer.empty())
-        finalizeResponse();
+	if (_response_buffer.empty())
+		finalizeResponse();
 }
 
 bool ClientServer::isResponseReady()
@@ -528,7 +508,8 @@ void ClientServer::finalizeResponse()
 	_response_ready = false;
 
 	// Clean up the response builder now that we're done with it
-	if (_responseBuilder) {
+	if (_responseBuilder)
+	{
 		delete _responseBuilder;
 		_responseBuilder = NULL;
 	}
