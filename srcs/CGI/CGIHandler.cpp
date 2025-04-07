@@ -27,7 +27,6 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &cgi_path,
 
 	if (interpreter.empty())
 	{
-		LOG_ERROR("No CGI interpreter found");
 		throw std::runtime_error("500 Internal Server Error: No CGI interpreter found");
 	}
 }
@@ -78,14 +77,22 @@ void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 	env.push_back("PATH_TRANSLATED=" + scriptPath);
 	env.push_back("REQUEST_URI=" + uri);
 
-	// Add server-specific variables
+	// Server info
 	env.push_back("SERVER_SOFTWARE=" + std::string(WEBSERV_NAME));
 	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	env.push_back("GATEWAY_INTERFACE=CGI/1.1");
 
-	// Add HTTP_ headers
-	for (std::map<std::string, std::string>::const_iterator it = headers.begin();
-		 it != headers.end(); ++it)
+	// Python
+	env.push_back("PYTHONIOENCODING=UTF-8");
+
+	// multipart/form-data
+	if (contentType.find("multipart/form-data") != std::string::npos)
+	{
+		env.push_back("UPLOAD_TMPDIR=/tmp");
+	}
+
+	// CGI-compliant HTTP_* variables
+	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
 	{
 		std::string key = it->first;
 		std::transform(key.begin(), key.end(), key.begin(), ::toupper);
@@ -130,7 +137,6 @@ void CGIHandler::startCGI()
 		if (input_pipe[1] != -1)
 			close(input_pipe[1]);
 
-		LOG_ERROR("fork() failed: " + std::string(strerror(errno)));
 		throw std::runtime_error("500 Internal Server Error: Fork failed");
 	}
 
@@ -202,8 +208,6 @@ void CGIHandler::startCGI()
 		envp[env.size()] = NULL;
 
 		execve(argv[0], argv, envp);
-
-		// If execve returns, there was an error
 		LOG_ERROR("execve() failed: " + std::string(strerror(errno)));
 		exit(1);
 	}
@@ -303,8 +307,6 @@ void CGIHandler::onEvent(int fd, epoll_event ev)
 	// EPOLLHUP is normal when the CGI process finishes and closes its pipe
 	if (ev.events & EPOLLHUP)
 	{
-		LOG_INFO("CGI pipe closed (EPOLLHUP)");
-
 		// Try to read any remaining data
 		char buffer[1024];
 		ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
@@ -494,7 +496,4 @@ void CGIHandler::processCGIOutput()
 	// Set content type and body
 	responseBuilder->set_headers("Content-Type", contentType);
 	responseBuilder->set_body(body);
-
-	// After processing is done, dump debug info about final state
-	LOG_INFO("Final CGI status code: " + Utils::to_string(responseBuilder->get_status_code()));
 }

@@ -162,7 +162,6 @@ std::string ResponseBuilder::generate_response_string()
 // GET method implementation
 void ResponseBuilder::doGET()
 {
-	LOG_DEBUG("GET METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
 	bool is_root = (uri == "/") ? true : false;
 	std::string root = location_config->root;
@@ -318,7 +317,6 @@ void ResponseBuilder::doPOST()
 // DELETE method implementation
 void ResponseBuilder::doDELETE()
 {
-	LOG_DEBUG("DELETE METHOD EXECUTED");
 	std::string uri = request.get_request_uri();
 	std::string path = location_config->root + uri;
 	struct stat path_stat;
@@ -337,8 +335,9 @@ void ResponseBuilder::doDELETE()
 		// Ensure URI ends with '/'
 		if (uri[uri.size() - 1] != '/')
 		{
-			set_status(409);
-			body = generate_error_page();
+			set_status(301);
+			set_headers("Location", uri + "/");
+			body = "";
 			return;
 		}
 
@@ -726,6 +725,7 @@ void ResponseBuilder::set_status(short status_code)
 	{
 	case 200:
 		this->status = STATUS_200;
+		headers["Accept-Ranges"] = "bytes";
 		break;
 	case 201:
 		this->status = STATUS_201;

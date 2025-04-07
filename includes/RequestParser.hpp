@@ -54,6 +54,7 @@ private:
 	bool is_valid_header_name(const std::string &name);
 	bool is_valid_header_value(const std::string &value);
 	void log_error(const std::string &error_str, short error_code);
+	std::string normalize_path(const std::string &path);
 
 public:
 	RequestParser();
