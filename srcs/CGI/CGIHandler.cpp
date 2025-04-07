@@ -22,6 +22,9 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &cgi_path,
 	body.assign(rawBody.begin(), rawBody.end());
 	headers = request.get_headers();
 
+	// Initialize contentType here
+	contentType = headers.count("content-type") ? headers["content-type"] : "application/x-www-form-urlencoded";
+
 	if (interpreter.empty())
 	{
 		LOG_ERROR("No CGI interpreter found");
@@ -36,12 +39,15 @@ CGIHandler::~CGIHandler()
 
 void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 {
+	// Extract the script name from the full path for better PHP compatibility
+	std::string script_name = uri;
+	size_t last_slash = scriptPath.find_last_of('/');
+	if (last_slash != std::string::npos)
+		script_name = scriptPath.substr(last_slash + 1);
+
 	env.push_back("REQUEST_METHOD=" + method);
 	env.push_back("QUERY_STRING=" + queryString);
 	env.push_back("CONTENT_LENGTH=" + Utils::to_string(body.length()));
-
-	// Pass the full Content-Type header with boundary for multipart/form-data
-	std::string contentType = headers.count("content-type") ? headers["content-type"] : "application/x-www-form-urlencoded";
 	env.push_back("CONTENT_TYPE=" + contentType);
 
 	// These are important for PHP file uploads
@@ -50,18 +56,25 @@ void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 		env.push_back("UPLOAD_TMPDIR=/tmp");
 		env.push_back("HTTP_CONTENT_TYPE=" + contentType);
 		env.push_back("HTTP_CONTENT_LENGTH=" + Utils::to_string(body.length()));
+
+		size_t max_size = responseBuilder->getRequest().get_server_config()->clientMaxBodySize;
+		env.push_back("PHP_VALUE=upload_max_filesize=" + Utils::to_string(max_size) + "M" +
+					  "\npost_max_size=" + Utils::to_string(max_size) + "M" +
+					  "\nmemory_limit=" + Utils::to_string(max_size * 2) + "M" +
+					  "\nfile_uploads=On");
 	}
 
-	// Rest of your environment setup
-	env.push_back("CONTENT_TYPE=" + (headers.count("Content-Type") ? headers["Content-Type"] : "application/x-www-form-urlencoded"));
-	
-	env.push_back("PYTHONIOENCODING=UTF-8");  // Python specific
-	
+	env.push_back("PYTHONIOENCODING=UTF-8");
+
+	// Critical environment variables for PHP to locate the script correctly
 	env.push_back("REDIRECT_STATUS=200");
 	env.push_back("SCRIPT_FILENAME=" + scriptPath);
-	env.push_back("SCRIPT_NAME=" + scriptPath);
+
+	// Use the URI-based path for SCRIPT_NAME - critical for PHP uploads
+	env.push_back("SCRIPT_NAME=" + uri);
+
 	env.push_back("DOCUMENT_ROOT=" + root_path);
-	env.push_back("PHP_SELF=" + scriptPath);
+	env.push_back("PHP_SELF=" + uri); // PHP_SELF should match the URI, not the filesystem path
 	env.push_back("PATH_TRANSLATED=" + scriptPath);
 	env.push_back("REQUEST_URI=" + uri);
 
@@ -149,6 +162,29 @@ void CGIHandler::startCGI()
 		// Prepare arguments for execve
 		std::vector<std::string> args;
 		args.push_back(interpreter);
+
+		// If this is PHP and we're handling an upload, add settings via command line
+		if (interpreter.find("php-cgi") != std::string::npos &&
+			method == "POST" &&
+			contentType.find("multipart/form-data") != std::string::npos)
+		{
+			// Get the max size in MB from server config
+			size_t max_size_mb = responseBuilder->getRequest().get_server_config()->clientMaxBodySize;
+
+			// Add PHP settings as command line arguments with correct 'M' suffix
+			args.push_back("-d");
+			args.push_back("upload_max_filesize=" + Utils::to_string(max_size_mb) + "M");
+			args.push_back("-d");
+			args.push_back("post_max_size=" + Utils::to_string(max_size_mb) + "M");
+			args.push_back("-d");
+			args.push_back("memory_limit=" + Utils::to_string(max_size_mb * 2) + "M");
+
+			// Add debugging output for the complete command
+			std::string cmd = interpreter;
+			for (size_t i = 1; i < args.size(); i++)
+				cmd += " " + args[i];
+		}
+
 		args.push_back(scriptPath);
 
 		char *argv[args.size() + 1];
@@ -184,7 +220,17 @@ void CGIHandler::startCGI()
 			// Write the body to the input pipe
 			ssize_t written = write(input_pipe[1], body.data(), body.length());
 			if (written < 0)
+			{
 				LOG_ERROR("Error writing to CGI input: " + std::string(strerror(errno)));
+			}
+			else if (written < static_cast<ssize_t>(body.length()))
+			{
+				LOG_ERROR("Incomplete write to CGI input: " + Utils::to_string(written) + " of " + Utils::to_string(body.length()) + " bytes");
+			}
+			else
+			{
+				LOG_INFO("Successfully wrote " + Utils::to_string(written) + " bytes to CGI input");
+			}
 
 			close(input_pipe[1]); // Close after writing
 		}
@@ -239,6 +285,7 @@ void CGIHandler::onEvent(int fd, epoll_event ev)
 			buffer[bytesRead] = '\0';
 			cgi_output.append(buffer, bytesRead);
 			LOG_INFO("Read " + Utils::to_string(bytesRead) + " bytes from CGI process");
+			LOG_INFO(buffer);
 		}
 		else if (bytesRead == 0 || (bytesRead < 0 && errno != EAGAIN))
 		{

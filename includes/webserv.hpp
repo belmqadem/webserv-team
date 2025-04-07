@@ -26,6 +26,7 @@
 #define STATUS_302 "302 Found"
 #define STATUS_303 "303 See Other"
 #define STATUS_304 "304 Not Modified"
+#define STATUS_307 "307 Temporary Redirect"
 #define STATUS_400 "400 Bad Request"
 #define STATUS_403 "403 Forbidden"
 #define STATUS_404 "404 Not Found"
@@ -51,7 +52,6 @@
 #define WEBSERV_NAME "Not Nginx/4.2"
 #define DEFAULT_CONF "config/webserv.conf"
 #define LOG_FILE "Webserv.log"
-#define STYLE "style=\"font-family: \"Ubuntu\", sans-serif; color: #4b4b4b;\""
 #define USAGE(progname) "Usage " + std::string(progname) + " [/path/to/config/file]"
 
 // PARSE ERRORS

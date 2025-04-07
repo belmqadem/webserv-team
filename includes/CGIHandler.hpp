@@ -28,6 +28,8 @@ private:
 	time_t startTime;
 	std::string interpreter;
 
+	std::string contentType;
+
 	// Helper method to set up environment variables
 	void setupEnvironment(std::vector<std::string> &env);
 	void finalizeCGI(); // Helper method to finalize CGI processing
