@@ -34,6 +34,17 @@
         </form>
       </section>
 
+      <!-- POST - File Upload with CGI -->
+      <section class="test-section">
+        <h2>POST - File Upload With CGI</h2>
+        <form action="/phpcgi/upload.php" method="POST" enctype="multipart/form-data">
+          <label for="file-upload">Choose a file to upload:</label><br />
+          <input type="file" name="file" id="file-upload" required />
+          <br /><br />
+          <input type="submit" value="Upload Multipart File" />
+        </form>
+      </section>
+
       <!-- DELETE - File Deletion -->
       <section class="test-section">
         <h2>DELETE - File Deletion</h2>

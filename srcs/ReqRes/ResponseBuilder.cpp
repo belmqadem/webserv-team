@@ -241,58 +241,29 @@ void ResponseBuilder::doPOST()
 	LOG_DEBUG("POST METHOD EXECUTED");
 	std::string content_type = request.get_header_value("content-type");
 	std::vector<byte> req_body = request.get_body();
+	std::string upload_path = location_config->uploadStore;
 
-	// Special handling for multipart/form-data
+	if (!validate_upload_path(upload_path))
+	{
+		set_status(500);
+		body = generate_error_page();
+		return;
+	}
+
 	if (content_type.find("multipart/form-data") != std::string::npos)
 	{
-		// If this is already a CGI request, let it proceed normally
-		if (request.is_cgi_request())
-		{
-			set_status(201);
-			return;
-		}
-
-		// For non-CGI multipart requests, check if we should redirect to a CGI handler
-		std::string upload_handler = "www/cgi/phpcgi/upload.php";
-		struct stat handler_stat;
-
-		if (stat(upload_handler.c_str(), &handler_stat) == 0)
-		{
-			// Signal to ClientServer that this should be handled by CGI
-			// by setting a special header
-			LOG_INFO("Redirecting multipart form to CGI handler: " + upload_handler);
-			set_status(307); // Temporary Redirect
-			headers["X-CGI-Handler"] = upload_handler;
-			return;
-		}
-
-		// Fall back to built-in handler if CGI upload script isn't available
-		std::string upload_path = location_config->uploadStore;
-		if (!validate_upload_path(upload_path))
-		{
-			set_status(500);
-			body = generate_error_page();
-			return;
-		}
-
-		LOG_INFO("No CGI handler available, using built-in multipart handler");
 		if (!handleMultipartFormData(content_type, req_body))
 		{
 			set_status(403);
 			body = generate_error_page();
 			return;
 		}
-
-		set_status(201);
 		return;
 	}
 
-	// Handle non-multipart requests as before
 	std::string filename = "upload_" + Utils::get_timestamp_str() + ".bin";
-	std::string upload_path = location_config->uploadStore;
 	std::string full_path = upload_path + "/" + filename;
 
-	// Write the data to the file
 	if (!save_uploaded_file(full_path, req_body))
 	{
 		set_status(403);
@@ -474,6 +445,8 @@ bool ResponseBuilder::handleMultipartFormData(std::string &content_type, std::ve
 		}
 
 		LOG_INFO("Saved file: " + full_path);
+		set_headers("Location", full_path);
+		set_status(201);
 		set_body(generate_upload_success_page(safe_name));
 	}
 

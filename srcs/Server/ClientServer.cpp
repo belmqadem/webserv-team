@@ -191,7 +191,6 @@ void ClientServer::handleExpectContinue()
 {
 	if (_parser && _parser->get_headers().count("expect") && !_continue_sent)
 	{
-		LOG_INFO("Received Expect: 100-continue header");
 		std::string continue_response = "HTTP/1.1 100 Continue\r\n\r\n";
 		send(_peer_socket_fd, continue_response.c_str(), continue_response.length(), 0);
 		_continue_sent = true;
@@ -290,58 +289,58 @@ void ClientServer::processNormalRequest()
 	// Create a new response builder
 	_responseBuilder = new ResponseBuilder(*_parser);
 
-	// Special case for the /upload endpoint - always use the upload.php handler
-	if (_parser->get_request_uri() == "/upload" &&
-		_parser->get_http_method() == "POST" &&
-		_parser->get_header_value("content-type").find("multipart/form-data") != std::string::npos)
-	{
-		std::string upload_handler = "www/cgi/phpcgi/upload.php";
-		struct stat handler_stat;
+	// // Special case for the /upload endpoint - always use the upload.php handler
+	// if (_parser->get_request_uri() == "/upload" &&
+	// 	_parser->get_http_method() == "POST" &&
+	// 	_parser->get_header_value("content-type").find("multipart/form-data") != std::string::npos)
+	// {
+	// 	std::string upload_handler = "www/cgi/phpcgi/upload.php";
+	// 	struct stat handler_stat;
 
-		if (stat(upload_handler.c_str(), &handler_stat) == 0)
-		{
-			LOG_INFO("Redirecting /upload to CGI handler: " + upload_handler);
+	// 	if (stat(upload_handler.c_str(), &handler_stat) == 0)
+	// 	{
+	// 		LOG_INFO("Redirecting /upload to CGI handler: " + upload_handler);
 
-			std::string uri_path = "/phpcgi/upload.php";
+	// 		std::string uri_path = "/phpcgi/upload.php";
 
-			// Update the parser to directly use upload.php as the CGI script
-			_parser->set_cgi_script(upload_handler);
-			_parser->set_request_uri(uri_path); // Set the URI as if it was requested directly
-			_parser->set_cgi_flag(true);
-			_parser->match_location(ConfigManager::getInstance().getServers());
+	// 		// Update the parser to directly use upload.php as the CGI script
+	// 		_parser->set_cgi_script(upload_handler);
+	// 		_parser->set_request_uri(uri_path); // Set the URI as if it was requested directly
+	// 		_parser->set_cgi_flag(true);
+	// 		_parser->match_location(ConfigManager::getInstance().getServers());
 
-			// Process as CGI instead of normal request
-			delete _responseBuilder;
-			_responseBuilder = NULL;
-			processCGIRequest();
-			return;
-		}
-	}
-	// Check for other multipart uploads that should be handled by CGI
-	else if (_parser->get_header_value("content-type").find("multipart/form-data") != std::string::npos &&
-			 _parser->get_http_method() == "POST" &&
-			 !_parser->is_cgi_request())
-	{
-		std::string upload_handler = "www/cgi/phpcgi/upload.php";
-		struct stat handler_stat;
+	// 		// Process as CGI instead of normal request
+	// 		delete _responseBuilder;
+	// 		_responseBuilder = NULL;
+	// 		processCGIRequest();
+	// 		return;
+	// 	}
+	// }
+	// // Check for other multipart uploads that should be handled by CGI
+	// else if (_parser->get_header_value("content-type").find("multipart/form-data") != std::string::npos &&
+	// 		 _parser->get_http_method() == "POST" &&
+	// 		 !_parser->is_cgi_request())
+	// {
+	// 	std::string upload_handler = "www/cgi/phpcgi/upload.php";
+	// 	struct stat handler_stat;
 
-		if (stat(upload_handler.c_str(), &handler_stat) == 0)
-		{
-			LOG_INFO("Redirecting multipart form to CGI handler: " + upload_handler);
+	// 	if (stat(upload_handler.c_str(), &handler_stat) == 0)
+	// 	{
+	// 		LOG_INFO("Redirecting multipart form to CGI handler: " + upload_handler);
 
-			// Update the parser to point to the CGI script
-			upload_handler.insert(upload_handler.begin(), '/');
-			_parser->set_request_uri(upload_handler);
-			_parser->set_cgi_script(upload_handler);
-			_parser->set_cgi_flag(true);
+	// 		// Update the parser to point to the CGI script
+	// 		upload_handler.insert(upload_handler.begin(), '/');
+	// 		_parser->set_request_uri(upload_handler);
+	// 		_parser->set_cgi_script(upload_handler);
+	// 		_parser->set_cgi_flag(true);
 
-			// Process as CGI instead of normal request
-			delete _responseBuilder;
-			_responseBuilder = NULL;
-			processCGIRequest();
-			return;
-		}
-	}
+	// 		// Process as CGI instead of normal request
+	// 		delete _responseBuilder;
+	// 		_responseBuilder = NULL;
+	// 		processCGIRequest();
+	// 		return;
+	// 	}
+	// }
 
 	// Rest of the method remains the same...
 	_response_buffer = _responseBuilder->build_response();
