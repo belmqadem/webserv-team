@@ -17,14 +17,11 @@ private:
 	const ServerConfig *server_config;
 	const Location *location_config;
 
-	// Required HTTP Methods
 	void doGET();
 	void doPOST();
 	void doDELETE();
 
-	// Helper Methods
 	void init_config();
-	void init_routes();
 	void handle_redirection();
 	std::string generate_default_root();
 	std::string generate_directory_listing(const std::string &path);
@@ -52,6 +49,7 @@ public:
 	std::string build_response();
 	std::string generate_error_page();
 	std::string generate_response_only();
+	void init_routes();
 
 	// Setters
 	void set_status(short status_code);
@@ -69,4 +67,5 @@ public:
 	short get_status_code();
 	const ServerConfig *get_server_config();
 	const Location *get_location_config();
+	std::map<std::string, void (ResponseBuilder::*)(void)> get_routes();
 };

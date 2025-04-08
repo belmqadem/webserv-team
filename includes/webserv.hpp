@@ -76,6 +76,7 @@
 #define HTTP_PARSE_HTTP_VERSION_NOT_SUPPORTED "Client sent a request with unsupported http version"
 #define HTTP_PARSE_INVALID_EXPECT_VALUE "Client sent a request with invalid expect header value"
 #define HTTP_PARSE_NO_LOCATION_BLOCK "Server has no location block defined in config file"
+#define HTTP_PARSE_NULL_BYTE "Client attempting null byte injection via %00"
 
 // HEADER FILES
 #include <ctime>

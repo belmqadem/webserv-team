@@ -40,7 +40,6 @@ private:
 	bool is_cgi_request_flag;
 	size_t content_length_value;
 
-	// Helper Methods
 	const char *parse_request_line(const char *pos, const char *end);
 	const char *parse_headers(const char *pos, const char *end);
 	const char *parse_body(const char *pos, const char *end);

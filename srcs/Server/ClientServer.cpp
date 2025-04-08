@@ -210,7 +210,6 @@ bool ClientServer::isParsingRequestBody()
 
 		if (_parser->get_state() == DONE)
 		{
-			LOG_INFO("Request body fully received");
 			processCompletedRequest();
 		}
 		return true;
@@ -234,7 +233,6 @@ void ClientServer::processRequestHeaders()
 
 		if (_parser->get_state() == BODY)
 		{
-			LOG_INFO("Headers processed, waiting for more body data");
 			return;
 		}
 
@@ -370,6 +368,20 @@ void ClientServer::processCGIRequest()
 		_responseBuilder = new ResponseBuilder(*_parser);
 	}
 
+	// Check for Allowed methods
+	_responseBuilder->init_routes();
+	std::string method = (*_parser).get_http_method();
+	std::map<std::string, void (ResponseBuilder::*)(void)> routes = _responseBuilder->get_routes();
+	std::map<std::string, void (ResponseBuilder::*)(void)>::iterator it = routes.find(method);
+	if (it == routes.end())
+	{
+		_responseBuilder->set_status(405);
+		_responseBuilder->set_body(_responseBuilder->generate_error_page());
+		_response_buffer = _responseBuilder->generate_response_only();
+		_response_ready = true;
+		return;
+	}
+
 	if (!_responseBuilder->get_location_config()->useCgi)
 	{
 		LOG_ERROR("CGI NOT ALLOWED IN CONFIG FILE (" + _responseBuilder->getRequest().get_request_uri() + ")");
@@ -408,8 +420,6 @@ void ClientServer::onCGIComplete(CGIHandler *handler)
 {
 	if (_pendingCgi == handler)
 	{
-		LOG_INFO("CGI processing complete, sending response");
-
 		_response_buffer = _responseBuilder->generate_response_only();
 		_response_ready = true;
 		_waitingForCGI = false;

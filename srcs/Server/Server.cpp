@@ -79,7 +79,7 @@ void Server::listenOnAddr(sockaddr_in addr)
 
 void Server::StartServer(void)
 {
-	LOG_SERVER("Our Webserver *Not Nginx* Is Starting . . .");
+	LOG_SERVER("Our Web Server *Not Nginx* Is Starting ...\n");
 	_is_started = true;
 
 	std::vector<ServerConfig>::iterator it = _config.begin();
@@ -117,7 +117,8 @@ void Server::terminate()
 			(*i)->terminate();
 		}
 	}
-	LOG_SERVER("Our Webserver *Not Nginx* is Shuted down !");
+	std::cout << std::endl;
+	LOG_SERVER("Our Web Server *Not Nginx* is Shuted down !");
 }
 
 void Server::onEvent(int fd, epoll_event ev)

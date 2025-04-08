@@ -231,10 +231,6 @@ void CGIHandler::startCGI()
 			{
 				LOG_ERROR("Incomplete write to CGI input: " + Utils::to_string(written) + " of " + Utils::to_string(body.length()) + " bytes");
 			}
-			else
-			{
-				LOG_INFO("Successfully wrote " + Utils::to_string(written) + " bytes to CGI input");
-			}
 
 			close(input_pipe[1]); // Close after writing
 		}
@@ -268,9 +264,6 @@ void CGIHandler::startCGI()
 
 void CGIHandler::onEvent(int fd, epoll_event ev)
 {
-	LOG_INFO("CGI onEvent called for fd: " + Utils::to_string(fd) +
-			 ", events: " + Utils::to_string(ev.events));
-
 	if (fd != output_fd)
 	{
 		LOG_ERROR("CGI onEvent called with unexpected fd: " + Utils::to_string(fd));
@@ -288,17 +281,12 @@ void CGIHandler::onEvent(int fd, epoll_event ev)
 			// Add the data to the output buffer
 			buffer[bytesRead] = '\0';
 			cgi_output.append(buffer, bytesRead);
-			LOG_INFO("Read " + Utils::to_string(bytesRead) + " bytes from CGI process");
-			LOG_INFO(buffer);
 		}
 		else if (bytesRead == 0 || (bytesRead < 0 && errno != EAGAIN))
 		{
 			// End of data or error
 			if (bytesRead < 0)
 				LOG_ERROR("Read error from CGI: " + std::string(strerror(errno)));
-			else
-				LOG_INFO("CGI process completed output");
-
 			// Process the output and finalize
 			finalizeCGI();
 		}
@@ -314,7 +302,6 @@ void CGIHandler::onEvent(int fd, epoll_event ev)
 		{
 			buffer[bytesRead] = '\0';
 			cgi_output.append(buffer, bytesRead);
-			LOG_INFO("Read " + Utils::to_string(bytesRead) + " final bytes from CGI process");
 		}
 
 		// Process the output and finalize
@@ -387,7 +374,6 @@ void CGIHandler::terminate()
 
 	if (pid > 0)
 	{
-		LOG_INFO("Killing CGI process: " + Utils::to_string(pid));
 		kill(pid, SIGKILL);
 
 		// Wait for the process to avoid zombies, but with a timeout
@@ -413,7 +399,6 @@ void CGIHandler::processCGIOutput()
 {
 	if (!responseBuilder)
 		return;
-	LOG_INFO("Processing CGI output: " + Utils::to_string(cgi_output.size()) + " bytes");
 
 	responseBuilder->set_status(200); // Start with 200 OK by default
 
@@ -474,7 +459,6 @@ void CGIHandler::processCGIOutput()
 					{
 						responseBuilder->set_status(statusCode);
 						statusSet = true;
-						LOG_INFO("Setting status code: " + Utils::to_string(statusCode));
 					}
 				}
 			}
@@ -490,7 +474,6 @@ void CGIHandler::processCGIOutput()
 	if (!statusSet)
 	{
 		responseBuilder->set_status(200); // Default to 200 OK
-		LOG_INFO("No status found, using default 200 OK");
 	}
 
 	// Set content type and body

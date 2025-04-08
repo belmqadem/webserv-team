@@ -65,10 +65,6 @@ namespace Utils
 	void sigint_handle(int sig)
 	{
 		(void)sig;
-		LOG_INFO("SIG_INT The Server will shut down");
-
-		// Log active resources before shutdown
-		LOG_INFO("Active connections: " + Utils::to_string(IOMultiplexer::getInstance().getListenersCount()));
 
 		// Then shut down
 		IOMultiplexer::getInstance().setStarted(false);

@@ -1,6 +1,5 @@
 #include "RequestParser.hpp"
 
-// Constructor
 RequestParser::RequestParser()
 {
 	this->state = REQUEST_LINE;
@@ -14,10 +13,9 @@ RequestParser::RequestParser()
 	this->current_chunk_size = 0;
 	this->current_chunk_read = 0;
 	this->is_cgi_request_flag = false;
-	content_length_value = 0;
+	this->content_length_value = 0;
 }
 
-// Copy Constructor
 RequestParser::RequestParser(const RequestParser &other) : state(other.state),
 														   request_line(other.request_line),
 														   http_method(other.http_method),
@@ -39,7 +37,6 @@ RequestParser::RequestParser(const RequestParser &other) : state(other.state),
 														   has_content_length(other.has_content_length),
 														   has_transfer_encoding(other.has_transfer_encoding) {}
 
-// Copy Assignement
 RequestParser &RequestParser::operator=(const RequestParser &other)
 {
 	if (this != &other)
@@ -110,20 +107,19 @@ size_t RequestParser::parse_request(const std::string &request)
 // Method to extract the request line
 const char *RequestParser::parse_request_line(const char *pos, const char *end)
 {
-	const char *line_end = find_line_end(pos, end); // Points to the end of the line (after CRLF)
+	const char *line_end = find_line_end(pos, end);
 	if (line_end == end)
 	{
 		return pos; // Wait for more data
 	}
 
-	if ((line_end - pos) > MAX_REQUEST_LINE_LENGTH) // Check for long Request line
+	if ((line_end - pos) > MAX_REQUEST_LINE_LENGTH)
 	{
 		log_error(HTTP_PARSE_URI_TOO_LONG, 414);
 		return pos;
 	}
 
-	// Split the request line by exactly one SP and check if its 3 parts ([METHOD] SP [URI] SP [VERSION])
-	std::vector<std::string> parts = Utils::split(pos, line_end - 2, ' ');
+	std::vector<std::string> parts = Utils::split(pos, line_end - 2, ' '); /* REQUEST LINE ==> [METHOD] SP [URI] SP [VERSION] */
 	if (parts.size() != 3)
 	{
 		log_error(HTTP_PARSE_INVALID_REQUEST_LINE, 400);
@@ -148,6 +144,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 	while (pos < end)
 	{
 		const char *header_end = find_line_end(pos, end);
+
 		if (pos == header_end - 2) // If an empty line that means end of headers
 		{
 			if (!has_host)
@@ -167,7 +164,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 					log_error(HTTP_PARSE_MISSING_CONTENT_LENGTH, 411);
 					return pos;
 				}
-				state = DONE; // Ignore the Body by marking the request as DONE
+				state = DONE; // Ignore the Body
 				return header_end;
 			}
 			state = BODY;
@@ -180,7 +177,7 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			return pos;
 		}
 
-		if ((header_end - pos) > MAX_HEADER_LENGTH) // Header field too large
+		if ((header_end - pos) > MAX_HEADER_LENGTH)
 		{
 			log_error(HTTP_PARSE_HEADER_FIELDS_TOO_LARGE, 431);
 			return pos;
@@ -196,14 +193,11 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			return pos;
 		}
 
-		// Set the header key and header value
 		std::string key = header_line.substr(0, colon_pos);
 		std::string value = Utils::trim(header_line.substr(colon_pos + 1), " \t");
 
-		// Convert header names to lowercase
 		std::transform(key.begin(), key.end(), key.begin(), ::tolower);
 
-		// Validate header name and value
 		if (!is_valid_header_name(key) || !is_valid_header_value(value))
 		{
 			log_error(HTTP_PARSE_INVALID_HEADER_FIELD, 400);
@@ -405,7 +399,6 @@ const char *RequestParser::parse_chunked_body(const char *pos, const char *end)
 
 				// Done reading chunked body
 				state = DONE;
-				headers["connection"] = "close";
 				return pos;
 			}
 
@@ -423,7 +416,7 @@ const char *RequestParser::find_line_end(const char *pos, const char *end)
 	while (pos < end - 1)
 	{
 		if (*pos == '\r' && *(pos + 1) == '\n')
-			return pos + 2; // Found full CRLF
+			return pos + 2;
 		pos++;
 	}
 	return (pos < end) ? pos : end;
@@ -449,7 +442,7 @@ std::string RequestParser::normalize_uri(const std::string &uri)
 
 		if (segment == "..")
 		{
-			// Prevent directory traversal (`/../../etc/passwd`)
+			// directory traversal (`/../../a/b`)
 			if (!is_absolute || parts.empty())
 			{
 				log_error(HTTP_PARSE_INVALID_URI, 400);
@@ -458,7 +451,9 @@ std::string RequestParser::normalize_uri(const std::string &uri)
 			parts.pop_back();
 		}
 		else
+		{
 			parts.push_back(segment);
+		}
 	}
 
 	std::ostringstream normalized;
@@ -494,7 +489,7 @@ std::string RequestParser::decode_percent_encoding(const std::string &str)
 
 				if (value == '\0')
 				{
-					log_error("Null byte injection attempt via %00", 400);
+					log_error(HTTP_PARSE_NULL_BYTE, 400);
 					return "";
 				}
 
@@ -639,7 +634,6 @@ void RequestParser::match_location(const std::vector<ServerConfig> &servers)
 // Method to check if the request is for cgi
 bool RequestParser::is_cgi_request()
 {
-	// Return true if manually set
 	if (is_cgi_request_flag)
 		return true;
 
@@ -788,10 +782,9 @@ size_t RequestParser::get_content_length_value() { return this->content_length_v
 		END GETTERS
 ****************************/
 
-// Print the parsed request
 void RequestParser::print_request()
 {
-	if (error_code > 0)
+	if (!error_code)
 	{
 		std::cout << BLUE "Method: " RESET << http_method << std::endl;
 		std::cout << BLUE "PATH: " RESET << request_uri << std::endl;

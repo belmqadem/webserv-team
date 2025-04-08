@@ -59,11 +59,6 @@ void ResponseBuilder::processSessionCookie()
 	{
 		session_id = SessionCookieHandler::generate_session_id();
 		SessionCookieHandler::set_cookie(*this, "session_id", session_id, 3600);
-		LOG_INFO("New session created: " + session_id);
-	}
-	else
-	{
-		LOG_INFO("Existing session: " + session_id);
 	}
 }
 
@@ -132,9 +127,9 @@ std::string ResponseBuilder::build_response()
 		{
 			(this->*(it->second))();
 		}
-	}
 
-	handle_redirection();
+		handle_redirection();
+	}
 
 	return generate_response_only();
 }
@@ -238,7 +233,6 @@ void ResponseBuilder::doGET()
 // POST method implementation
 void ResponseBuilder::doPOST()
 {
-	LOG_DEBUG("POST METHOD EXECUTED");
 	std::string content_type = request.get_header_value("content-type");
 	std::vector<byte> req_body = request.get_body();
 	std::string upload_path = location_config->uploadStore;
@@ -444,7 +438,7 @@ bool ResponseBuilder::handleMultipartFormData(std::string &content_type, std::ve
 			continue;
 		}
 
-		LOG_INFO("Saved file: " + full_path);
+		LOG_INFO("File uploaded: " + full_path);
 		set_headers("Location", full_path);
 		set_status(201);
 		set_body(generate_upload_success_page(safe_name));
@@ -778,6 +772,7 @@ std::string ResponseBuilder::get_body() { return body; }
 short ResponseBuilder::get_status_code() { return status_code; }
 const ServerConfig *ResponseBuilder::get_server_config() { return server_config; }
 const Location *ResponseBuilder::get_location_config() { return location_config; }
+std::map<std::string, void (ResponseBuilder::*)(void)> ResponseBuilder::get_routes() { return routes; }
 /****************************
 		END GETTERS
 ****************************/
