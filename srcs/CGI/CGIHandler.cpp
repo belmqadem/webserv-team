@@ -262,7 +262,7 @@ void CGIHandler::onEvent(int fd, epoll_event ev)
 			buffer[bytesRead] = '\0';
 			cgi_output.append(buffer, bytesRead);
 		}
-		else if (bytesRead == 0 || (bytesRead < 0 && errno != EAGAIN))
+		else if (bytesRead == 0 || bytesRead < 0)
 		{
 			// End of data or error
 			if (bytesRead < 0)
