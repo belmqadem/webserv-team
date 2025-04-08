@@ -14,7 +14,6 @@ private:
 	std::string method;
 	std::string uri;
 	std::string queryString;
-	std::string body;
 	std::map<std::string, std::string> headers;
 	std::string root_path;
 
@@ -27,7 +26,8 @@ private:
 	bool isCompleted;
 	time_t startTime;
 	std::string interpreter;
-
+	
+	int			bodyFd;
 	std::string contentType;
 
 	// Helper method to set up environment variables

@@ -1,4 +1,5 @@
 #include "CGIHandler.hpp"
+#include <fcntl.h>
 
 void CGIHandler::keepClientAlive()
 {
@@ -10,7 +11,7 @@ void CGIHandler::keepClientAlive()
 
 CGIHandler::CGIHandler(RequestParser &request, const std::string &cgi_path,
 					   ResponseBuilder *response, ClientServer *client)
-	: pid(-1), output_fd(-1), responseBuilder(response), clientServer(client), isCompleted(false), interpreter(cgi_path)
+	: pid(-1), output_fd(-1), responseBuilder(response), clientServer(client), isCompleted(false), interpreter(cgi_path), bodyFd(-1)
 {
 	root_path = request.get_location_config()->root;
 	uri = request.get_request_uri();
@@ -19,7 +20,15 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &cgi_path,
 	queryString = request.get_query_string();
 
 	const std::vector<byte> &rawBody = request.get_body();
-	body.assign(rawBody.begin(), rawBody.end());
+	if (rawBody.size()) {
+		bodyFd = open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
+		if (bodyFd < 0) {
+			throw std::runtime_error("500 Internal Server Error: No CGI interpreter found");
+		}
+		write(bodyFd, rawBody.data(), rawBody.size());
+		lseek(bodyFd, 0, SEEK_SET);
+	}
+
 	headers = request.get_headers();
 
 	// Initialize contentType here
@@ -46,7 +55,7 @@ void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 
 	env.push_back("REQUEST_METHOD=" + method);
 	env.push_back("QUERY_STRING=" + queryString);
-	env.push_back("CONTENT_LENGTH=" + Utils::to_string(body.length()));
+	env.push_back("CONTENT_LENGTH=" + Utils::to_string(responseBuilder->getRequest().get_body().size()));
 	env.push_back("CONTENT_TYPE=" + contentType);
 
 	// These are important for PHP file uploads
@@ -54,7 +63,7 @@ void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 	{
 		env.push_back("UPLOAD_TMPDIR=/tmp");
 		env.push_back("HTTP_CONTENT_TYPE=" + contentType);
-		env.push_back("HTTP_CONTENT_LENGTH=" + Utils::to_string(body.length()));
+		env.push_back("HTTP_CONTENT_LENGTH=" + Utils::to_string(responseBuilder->getRequest().get_body().size()));
 
 		size_t max_size = responseBuilder->getRequest().get_server_config()->clientMaxBodySize;
 		env.push_back("PHP_VALUE=upload_max_filesize=" + Utils::to_string(max_size) + "M" +
@@ -112,19 +121,6 @@ void CGIHandler::startCGI()
 		throw std::runtime_error("500 Internal Server Error: Pipe creation failed");
 	}
 
-	// Create a pipe for CGI input (if needed for POST)
-	int input_pipe[2] = {-1, -1};
-	if (method == "POST" && !body.empty())
-	{
-		if (pipe(input_pipe) == -1)
-		{
-			close(pipe_fd[0]);
-			close(pipe_fd[1]);
-			LOG_ERROR("pipe() failed for input: " + std::string(strerror(errno)));
-			throw std::runtime_error("500 Internal Server Error: Input pipe creation failed");
-		}
-	}
-
 	// Fork a child process
 	pid = fork();
 	if (pid == -1)
@@ -132,11 +128,9 @@ void CGIHandler::startCGI()
 		// Close all pipes on error
 		close(pipe_fd[0]);
 		close(pipe_fd[1]);
-		if (input_pipe[0] != -1)
-			close(input_pipe[0]);
-		if (input_pipe[1] != -1)
-			close(input_pipe[1]);
-
+		if (bodyFd != -1)
+			close(bodyFd);
+		bodyFd = -1;
 		throw std::runtime_error("500 Internal Server Error: Fork failed");
 	}
 
@@ -154,15 +148,17 @@ void CGIHandler::startCGI()
 		close(pipe_fd[1]);
 
 		// For POST requests, set up stdin redirection
-		if (method == "POST" && input_pipe[0] != -1)
+		if (method == "POST" && bodyFd != -1)
 		{
-			close(input_pipe[1]); // Close write end
-			if (dup2(input_pipe[0], STDIN_FILENO) == -1)
+			if (dup2(bodyFd, STDIN_FILENO) == -1)
 			{
 				LOG_ERROR("dup2() failed for stdin: " + std::string(strerror(errno)));
 				exit(1);
 			}
-			close(input_pipe[0]);
+			close(bodyFd);
+		}
+		else {
+			close(STDIN_FILENO);
 		}
 
 		// Prepare arguments for execve
@@ -215,25 +211,9 @@ void CGIHandler::startCGI()
 	{
 		// Close write end of the output pipe
 		close(pipe_fd[1]);
-
-		// For POST requests, write data to the input pipe
-		if (method == "POST" && input_pipe[0] != -1)
-		{
-			close(input_pipe[0]); // Close read end
-
-			// Write the body to the input pipe
-			ssize_t written = write(input_pipe[1], body.data(), body.length());
-			if (written < 0)
-			{
-				LOG_ERROR("Error writing to CGI input: " + std::string(strerror(errno)));
-			}
-			else if (written < static_cast<ssize_t>(body.length()))
-			{
-				LOG_ERROR("Incomplete write to CGI input: " + Utils::to_string(written) + " of " + Utils::to_string(body.length()) + " bytes");
-			}
-
-			close(input_pipe[1]); // Close after writing
-		}
+		if (bodyFd != -1)
+			close(bodyFd);
+		bodyFd = -1;
 
 		// Set the output pipe to non-blocking
 		int flags = fcntl(pipe_fd[0], F_GETFL, 0);
@@ -391,7 +371,11 @@ void CGIHandler::terminate()
 		}
 		pid = -1;
 	}
-
+	if (bodyFd != -1)
+	{
+		close(bodyFd);
+		bodyFd = -1;
+	}
 	isCompleted = true;
 }
 

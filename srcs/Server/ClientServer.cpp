@@ -63,47 +63,48 @@ void ClientServer::terminate()
 {
 	if (_is_started == false)
 		return;
-	_is_started = false;
+		
+		// Clean up parser
+		if (_parser)
+		{
+			delete _parser;
+			_parser = NULL;
+		}
+		
+		// Clean up response builder
+		if (_responseBuilder)
+		{
+			delete _responseBuilder;
+			_responseBuilder = NULL;
+		}
+		
+		// Clean up pending CGI
+		if (_pendingCgi)
+		{
+			delete _pendingCgi;
+			_pendingCgi = NULL;
+		}
+		
+		// Clear any buffered data
+		_request_buffer.clear();
+		_response_buffer.clear();
+		_response_ready = false;
+		_waitingForCGI = false;
+		
+		try
+		{
+			IOMultiplexer::getInstance().removeListener(_epoll_ev, _peer_socket_fd);
+		}
+		catch (std::exception &e)
+		{
+			LOG_ERROR("Error while removing listener from IO multiplexer " + Utils::to_string(e.what()));
+		}
 
-	// Clean up parser
-	if (_parser)
-	{
-		delete _parser;
-		_parser = NULL;
-	}
+		std::string addr = inet_ntoa(_client_addr.sin_addr);
+		LOG_CLIENT(addr + " Fd " + Utils::to_string(_peer_socket_fd) + " Disconnected!");
+		_is_started = false;
 
-	// Clean up response builder
-	if (_responseBuilder)
-	{
-		delete _responseBuilder;
-		_responseBuilder = NULL;
-	}
-
-	// Clean up pending CGI
-	if (_pendingCgi)
-	{
-		delete _pendingCgi;
-		_pendingCgi = NULL;
-	}
-
-	// Clear any buffered data
-	_request_buffer.clear();
-	_response_buffer.clear();
-	_response_ready = false;
-	_waitingForCGI = false;
-
-	try
-	{
-		IOMultiplexer::getInstance().removeListener(_epoll_ev, _peer_socket_fd);
-	}
-	catch (std::exception &e)
-	{
-		LOG_ERROR("Error while removing listener from IO multiplexer " + Utils::to_string(e.what()));
-	}
-
-	std::string addr = inet_ntoa(_client_addr.sin_addr);
-	LOG_CLIENT(addr + " Fd " + Utils::to_string(_peer_socket_fd) + " Disconnected!");
-	close(_peer_socket_fd);
+		close(_peer_socket_fd);
 }
 
 void ClientServer::onEvent(int fd, epoll_event ev)
