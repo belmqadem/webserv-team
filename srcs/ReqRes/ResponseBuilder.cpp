@@ -118,6 +118,7 @@ std::string ResponseBuilder::build_response()
 		init_routes();
 		std::string method = request.get_http_method();
 		std::map<std::string, void (ResponseBuilder::*)(void)>::iterator it = routes.find(method);
+
 		if (it == routes.end())
 		{
 			set_status(405);

@@ -63,34 +63,34 @@ void ClientServer::terminate()
 {
 	if (_is_started == false)
 		return;
-		
+
 	// Clean up parser
 	if (_parser)
 	{
 		delete _parser;
 		_parser = NULL;
 	}
-	
+
 	// Clean up response builder
 	if (_responseBuilder)
 	{
 		delete _responseBuilder;
 		_responseBuilder = NULL;
 	}
-	
+
 	// Clean up pending CGI
 	if (_pendingCgi)
 	{
 		delete _pendingCgi;
 		_pendingCgi = NULL;
 	}
-	
+
 	// Clear any buffered data
 	_request_buffer.clear();
 	_response_buffer.clear();
 	_response_ready = false;
 	_waitingForCGI = false;
-	
+
 	try
 	{
 		IOMultiplexer::getInstance().removeListener(_epoll_ev, _peer_socket_fd);
@@ -99,7 +99,7 @@ void ClientServer::terminate()
 	{
 		LOG_ERROR("Error while removing listener from IO multiplexer " + Utils::to_string(e.what()));
 	}
-	
+
 	std::string addr = inet_ntoa(_client_addr.sin_addr);
 	LOG_CLIENT(addr + " Fd " + Utils::to_string(_peer_socket_fd) + " Disconnected!");
 	_is_started = false;
@@ -288,61 +288,6 @@ void ClientServer::processNormalRequest()
 
 	// Create a new response builder
 	_responseBuilder = new ResponseBuilder(*_parser);
-
-	// // Special case for the /upload endpoint - always use the upload.php handler
-	// if (_parser->get_request_uri() == "/upload" &&
-	// 	_parser->get_http_method() == "POST" &&
-	// 	_parser->get_header_value("content-type").find("multipart/form-data") != std::string::npos)
-	// {
-	// 	std::string upload_handler = "www/cgi/phpcgi/upload.php";
-	// 	struct stat handler_stat;
-
-	// 	if (stat(upload_handler.c_str(), &handler_stat) == 0)
-	// 	{
-	// 		LOG_INFO("Redirecting /upload to CGI handler: " + upload_handler);
-
-	// 		std::string uri_path = "/phpcgi/upload.php";
-
-	// 		// Update the parser to directly use upload.php as the CGI script
-	// 		_parser->set_cgi_script(upload_handler);
-	// 		_parser->set_request_uri(uri_path); // Set the URI as if it was requested directly
-	// 		_parser->set_cgi_flag(true);
-	// 		_parser->match_location(ConfigManager::getInstance().getServers());
-
-	// 		// Process as CGI instead of normal request
-	// 		delete _responseBuilder;
-	// 		_responseBuilder = NULL;
-	// 		processCGIRequest();
-	// 		return;
-	// 	}
-	// }
-	// // Check for other multipart uploads that should be handled by CGI
-	// else if (_parser->get_header_value("content-type").find("multipart/form-data") != std::string::npos &&
-	// 		 _parser->get_http_method() == "POST" &&
-	// 		 !_parser->is_cgi_request())
-	// {
-	// 	std::string upload_handler = "www/cgi/phpcgi/upload.php";
-	// 	struct stat handler_stat;
-
-	// 	if (stat(upload_handler.c_str(), &handler_stat) == 0)
-	// 	{
-	// 		LOG_INFO("Redirecting multipart form to CGI handler: " + upload_handler);
-
-	// 		// Update the parser to point to the CGI script
-	// 		upload_handler.insert(upload_handler.begin(), '/');
-	// 		_parser->set_request_uri(upload_handler);
-	// 		_parser->set_cgi_script(upload_handler);
-	// 		_parser->set_cgi_flag(true);
-
-	// 		// Process as CGI instead of normal request
-	// 		delete _responseBuilder;
-	// 		_responseBuilder = NULL;
-	// 		processCGIRequest();
-	// 		return;
-	// 	}
-	// }
-
-	// Rest of the method remains the same...
 	_response_buffer = _responseBuilder->build_response();
 	_response_ready = true;
 }
@@ -373,6 +318,20 @@ void ClientServer::processCGIRequest()
 	if (!_responseBuilder->get_location_config()->useCgi)
 	{
 		LOG_ERROR("CGI NOT ALLOWED IN CONFIG FILE (" + _responseBuilder->getRequest().get_request_uri() + ")");
+		_responseBuilder->set_status(405);
+		_responseBuilder->set_body(_responseBuilder->generate_error_page());
+		_response_buffer = _responseBuilder->generate_response_only();
+		_response_ready = true;
+		return;
+	}
+
+	// Check for Allowed methods
+	_responseBuilder->init_routes();
+	std::string method = (*_parser).get_http_method();
+	std::map<std::string, void (ResponseBuilder::*)(void)> routes = _responseBuilder->get_routes();
+	std::map<std::string, void (ResponseBuilder::*)(void)>::iterator it = routes.find(method);
+	if (it == routes.end())
+	{
 		_responseBuilder->set_status(405);
 		_responseBuilder->set_body(_responseBuilder->generate_error_page());
 		_response_buffer = _responseBuilder->generate_response_only();
