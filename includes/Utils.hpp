@@ -11,7 +11,6 @@ namespace Utils
 	void sigint_handle(int sig);
 	void signalhandler();
 	bool string_to_size_t(const std::string &str, int &result);
-	// void printServerConfig(const ServerConfig &server);
 
 	template <class T>
 	std::string to_string(T t)

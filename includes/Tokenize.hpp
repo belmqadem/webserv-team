@@ -1,11 +1,5 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <sstream>
-#include <iostream>
-#include <limits>
-#include <algorithm>
 #include "Utils.hpp"
 
 enum TokenType
@@ -30,9 +24,6 @@ enum TokenType
 	REDIRECT,
 	CGI,
 	CGI_PATH,
-	CGI_EXTENSION,
-	CGI_PASS,
-	CGI_WORKING_DIRECTORY,
 	UPLOAD_STORE,
 };
 

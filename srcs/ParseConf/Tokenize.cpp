@@ -119,24 +119,6 @@ std::vector<Token> tokenize(std::string &input)
 			token.value = word;
 			tokens.push_back(token);
 		}
-		else if (word == "cgi_extension")
-		{
-			token.type = CGI_EXTENSION;
-			token.value = word;
-			tokens.push_back(token);
-		}
-		else if (word == "cgi_pass")
-		{
-			token.type = CGI_PASS;
-			token.value = word;
-			tokens.push_back(token);
-		}
-		else if (word == "cgi_working_directory")
-		{
-			token.type = CGI_WORKING_DIRECTORY;
-			token.value = word;
-			tokens.push_back(token);
-		}
 		else if (word == "upload_store")
 		{
 			token.type = UPLOAD_STORE;

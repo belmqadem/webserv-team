@@ -102,6 +102,6 @@
 #include <signal.h>
 #include <cstring>
 #include <sys/epoll.h>
-#include <limits.h>
+#include <limits>
 #include "Logger.hpp"
 #include "Exceptions.hpp"

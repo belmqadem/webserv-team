@@ -106,8 +106,6 @@ void IOMultiplexer::modifyListener(IEvenetListeners *listener, epoll_event ev)
 	{
 		throw IOMultiplexerExceptions("epoll_ctl() failed in modifyListener.");
 	}
-
-	// LOG_INFO("EventListener modified " + Utils::to_string(ev.data.fd));
 }
 
 void IOMultiplexer::addListener(IEvenetListeners *listener, epoll_event ev)
@@ -122,7 +120,6 @@ void IOMultiplexer::addListener(IEvenetListeners *listener, epoll_event ev)
 	{
 		throw IOMultiplexerExceptions("epoll_ctl() failed.");
 	}
-	// LOG_INFO("EventListner added " + Utils::to_string(ev.data.fd));
 }
 
 void IOMultiplexer::removeListener(epoll_event ev, int fd)
@@ -137,7 +134,6 @@ void IOMultiplexer::removeListener(epoll_event ev, int fd)
 	{
 		throw IOMultiplexerExceptions("epoll_ctl() failed.");
 	}
-	// LOG_INFO("EventListner removed " + Utils::to_string(fd));
 }
 
 void IOMultiplexer::terminate(void)

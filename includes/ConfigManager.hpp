@@ -27,8 +27,6 @@ struct Location
 	// CGI parameters
 	bool useCgi;
 	std::string cgiPath;
-	std::map<std::string, std::string> cgiExtensions;
-	std::string cgiWorkingDirectory;
 
 	// file upload parameters
 	std::string uploadStore;

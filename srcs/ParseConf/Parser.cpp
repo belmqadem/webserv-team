@@ -92,7 +92,6 @@ size_t parseSize(const std::string &sizeStr, char unit)
 	std::string numPart = sizeStr;
 	size_t multiplier = 1;
 
-	// Check for size suffix
 	if (sizeStr.length() > 0)
 	{
 		if (unit == 'k')
@@ -195,10 +194,7 @@ void Parser::parseCgiDirective(Location &location)
 	}
 	consume(SEMICOLON);
 
-	while (_tokens[_index].type == CGI_PATH ||
-		   _tokens[_index].type == CGI_EXTENSION ||
-		   _tokens[_index].type == CGI_PASS ||
-		   _tokens[_index].type == CGI_WORKING_DIRECTORY)
+	while (_tokens[_index].type == CGI_PATH)
 	{
 
 		if (_tokens[_index].type == CGI_PATH)
@@ -206,28 +202,6 @@ void Parser::parseCgiDirective(Location &location)
 			consume(CGI_PATH);
 			Token path = consume(STRING);
 			location.cgiPath = path.value;
-			consume(SEMICOLON);
-		}
-		else if (_tokens[_index].type == CGI_EXTENSION)
-		{
-			consume(CGI_EXTENSION);
-			Token extension = consume(STRING);
-			Token handler = consume(STRING);
-			location.cgiExtensions[extension.value] = handler.value;
-			consume(SEMICOLON);
-		}
-		else if (_tokens[_index].type == CGI_PASS)
-		{
-			consume(CGI_PASS);
-			Token interpreter = consume(STRING);
-			location.cgiPath = interpreter.value; // Use existing field
-			consume(SEMICOLON);
-		}
-		else if (_tokens[_index].type == CGI_WORKING_DIRECTORY)
-		{
-			consume(CGI_WORKING_DIRECTORY);
-			Token workingDir = consume(STRING);
-			location.cgiWorkingDirectory = workingDir.value; // Add this field to Location struct
 			consume(SEMICOLON);
 		}
 	}
@@ -317,7 +291,6 @@ void Parser::parseDirecive()
 	}
 	else if (directiveToken.type == ROOT)
 	{
-		// parseRootDirective();
 		throw std::runtime_error("Configuration Error: 'root' directive is only allowed in location blocks");
 	}
 	else if (directiveToken.type == ERROR_PAGE)
