@@ -722,6 +722,9 @@ void ResponseBuilder::set_status(short status_code)
 	case 410:
 		this->status = STATUS_410;
 		break;
+	case 411:
+		this->status = STATUS_411;
+		break;
 	case 413:
 		this->status = STATUS_413;
 		break;

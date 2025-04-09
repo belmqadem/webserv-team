@@ -20,9 +20,11 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &cgi_path,
 	queryString = request.get_query_string();
 
 	const std::vector<byte> &rawBody = request.get_body();
-	if (rawBody.size()) {
+	if (rawBody.size())
+	{
 		bodyFd = open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
-		if (bodyFd < 0) {
+		if (bodyFd < 0)
+		{
 			throw std::runtime_error("500 Internal Server Error: No CGI interpreter found");
 		}
 		write(bodyFd, rawBody.data(), rawBody.size());
@@ -47,7 +49,6 @@ CGIHandler::~CGIHandler()
 
 void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 {
-	// Extract the script name from the full path for better PHP compatibility
 	std::string script_name = uri;
 	size_t last_slash = scriptPath.find_last_of('/');
 	if (last_slash != std::string::npos)
@@ -57,50 +58,27 @@ void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 	env.push_back("QUERY_STRING=" + queryString);
 	env.push_back("CONTENT_LENGTH=" + Utils::to_string(responseBuilder->getRequest().get_body().size()));
 	env.push_back("CONTENT_TYPE=" + contentType);
-
-	// These are important for PHP file uploads
-	if (contentType.find("multipart/form-data") != std::string::npos)
-	{
-		env.push_back("UPLOAD_TMPDIR=/tmp");
-		env.push_back("HTTP_CONTENT_TYPE=" + contentType);
-		env.push_back("HTTP_CONTENT_LENGTH=" + Utils::to_string(responseBuilder->getRequest().get_body().size()));
-
-		size_t max_size = responseBuilder->getRequest().get_server_config()->clientMaxBodySize;
-		env.push_back("PHP_VALUE=upload_max_filesize=" + Utils::to_string(max_size) + "M" +
-					  "\npost_max_size=" + Utils::to_string(max_size) + "M" +
-					  "\nmemory_limit=" + Utils::to_string(max_size * 2) + "M" +
-					  "\nfile_uploads=On");
-	}
-
-	env.push_back("PYTHONIOENCODING=UTF-8");
-
-	// Critical environment variables for PHP to locate the script correctly
-	env.push_back("REDIRECT_STATUS=200");
 	env.push_back("SCRIPT_FILENAME=" + scriptPath);
-
-	// Use the URI-based path for SCRIPT_NAME - critical for PHP uploads
 	env.push_back("SCRIPT_NAME=" + uri);
-
 	env.push_back("DOCUMENT_ROOT=" + root_path);
-	env.push_back("PHP_SELF=" + uri); // PHP_SELF should match the URI, not the filesystem path
+	env.push_back("PHP_SELF=" + uri);
 	env.push_back("PATH_TRANSLATED=" + scriptPath);
 	env.push_back("REQUEST_URI=" + uri);
-
-	// Server info
-	env.push_back("SERVER_SOFTWARE=" + std::string(WEBSERV_NAME));
 	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	env.push_back("GATEWAY_INTERFACE=CGI/1.1");
+	env.push_back("SERVER_SOFTWARE=" + std::string(WEBSERV_NAME));
 
-	// Python
+	// PHP-specific
+	env.push_back("REDIRECT_STATUS=200");
+
+	// Python-specific
 	env.push_back("PYTHONIOENCODING=UTF-8");
 
-	// multipart/form-data
+	// Set upload directory for file upload support
 	if (contentType.find("multipart/form-data") != std::string::npos)
-	{
 		env.push_back("UPLOAD_TMPDIR=/tmp");
-	}
 
-	// CGI-compliant HTTP_* variables
+	// Convert HTTP headers to CGI format
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
 	{
 		std::string key = it->first;
@@ -157,7 +135,8 @@ void CGIHandler::startCGI()
 			}
 			close(bodyFd);
 		}
-		else {
+		else
+		{
 			close(STDIN_FILENO);
 		}
 

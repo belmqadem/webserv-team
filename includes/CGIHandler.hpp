@@ -26,8 +26,8 @@ private:
 	bool isCompleted;
 	time_t startTime;
 	std::string interpreter;
-	
-	int			bodyFd;
+
+	int bodyFd;
 	std::string contentType;
 
 	// Helper method to set up environment variables

@@ -130,7 +130,6 @@ const char *RequestParser::parse_request_line(const char *pos, const char *end)
 	if (!set_http_method(parts[0]) || !set_request_uri(parts[1]) || !set_http_version(parts[2]))
 		return pos;
 
-	set_request_line();
 	state = HEADERS;
 	return line_end;
 }
@@ -553,8 +552,7 @@ void RequestParser::log_error(const std::string &error_str, short error_code)
 		err << error_str << " (code: " << error_code << ")";
 		LOG_ERROR(err.str());
 		this->error_code = error_code;
-		if (this->error_code == 400 || this->error_code == 411 || this->error_code == 413 ||
-			this->error_code == 415 || this->error_code == 500 || this->error_code == 503)
+		if (this->error_code)
 			this->headers["connection"] = "close";
 		state = ERROR_PARSE;
 	}

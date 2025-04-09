@@ -9,12 +9,11 @@ std::string SessionCookieHandler::generate_session_id()
 	char buffer[1024];
 	strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S", timeinfo);
 
-	srand(time(NULL)); //	 Seed for random number generation
+	srand(time(NULL));
 	int random_number = rand() % 10000;
 
-	// Using manual string concatenation in C++98
 	std::string session_id(buffer);
-	session_id += "_" + Utils::to_string(random_number); // Convert integer to string
+	session_id += "_" + Utils::to_string(random_number);
 
 	return session_id;
 }
@@ -30,8 +29,9 @@ void SessionCookieHandler::set_cookie(ResponseBuilder &response, const std::stri
 	cookie_header += "; Path=/";
 	cookie_header += "; HttpOnly; SameSite=Strict";
 
-	response.set_headers("Set-Cookie", cookie_header); // Add cookie to headers
+	response.set_headers("Set-Cookie", cookie_header);
 }
+
 // Get a cookie value from request headers
 std::string SessionCookieHandler::get_cookie(RequestParser &request, const std::string &name)
 {
@@ -54,7 +54,7 @@ std::string SessionCookieHandler::get_cookie(RequestParser &request, const std::
 void SessionCookieHandler::delete_cookie(ResponseBuilder &response, const std::string &name)
 {
 	std::string cookie_header = name + "=; Max-Age=0; Path=/";
-	response.set_headers("Set-Cookie", cookie_header); // Add cookie to headers for deletion
+	response.set_headers("Set-Cookie", cookie_header);
 }
 
 // Validate the session (check if a session ID exists in cookies)

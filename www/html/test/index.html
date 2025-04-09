@@ -10,8 +10,8 @@
     <section class="testing" id="testing">
       <section class="test-section">
         <h2>Redirections</h2>
-        <a href="/redirectone">Test 301 Redirect (Permanent)</a><br /><br />
-        <a href="/redirecttwo">Test 302 Redirect (Temporary)</a>
+        <a href="/github">Test 301 Redirect (Permanent)</a><br /><br />
+        <a href="/redirect">Test 302 Redirect (Temporary)</a>
       </section>
 
       <!-- Static Content Test -->
@@ -29,18 +29,22 @@
           <label for="file-upload">Choose a file to upload:</label><br />
           <input type="file" name="file" id="file-upload" required />
           <br /><br />
-          <input type="submit" value="Upload Multipart File" />
+          <input type="submit" value="Upload File" />
         </form>
       </section>
 
       <!-- POST - File Upload with CGI -->
       <section class="test-section">
         <h2>POST - File Upload With CGI</h2>
-        <form action="/phpcgi/upload.php" method="POST" enctype="multipart/form-data">
+        <form
+          action="/phpcgi/upload.php"
+          method="POST"
+          enctype="multipart/form-data"
+        >
           <label for="file-upload">Choose a file to upload:</label><br />
           <input type="file" name="file" id="file-upload" required />
           <br /><br />
-          <input type="submit" value="Upload Multipart File" />
+          <input type="submit" value="Upload File" />
         </form>
       </section>
 
@@ -61,6 +65,36 @@
         <h2>CGI Script Execution</h2>
         <a href="/pycgi/">Run Python CGI Script</a><br /><br />
         <a href="/phpcgi/">Run PHP CGI Script</a>
+      </section>
+
+      <!-- Cookies Test -->
+      <section class="test-section">
+        <h2>Cookies Test</h2>
+
+        <!-- Set Cookie -->
+        <form action="/pycgi/set_cookie.py" method="GET">
+          <label for="cookie-name">Cookie Name:</label><br />
+          <input
+            type="text"
+            name="name"
+            id="cookie-name"
+            required
+          /><br /><br />
+
+          <label for="cookie-value">Cookie Value:</label><br />
+          <input
+            type="text"
+            name="value"
+            id="cookie-value"
+            required
+          /><br /><br />
+
+          <input type="submit" value="Set Cookie" />
+        </form>
+        <br />
+
+        <!-- Check Cookie -->
+        <a href="/pycgi/check_cookie.py">Check if Cookie is Set</a>
       </section>
     </section>
 

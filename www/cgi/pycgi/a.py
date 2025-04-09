@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# filepath: /home/nmellal/Projects/webserv-team/www/cgi/test.py
 
 import cgi
 import os

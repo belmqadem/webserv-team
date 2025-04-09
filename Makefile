@@ -27,7 +27,7 @@ fclean :
 	@echo -n "$(RED)"
 	rm -f $(OBJS) $(NAME)
 	@echo -n "$(RESET)"
-	@echo "" > Webserv.log
+	@echo -n "" > Webserv.log
 
 re : fclean all
 

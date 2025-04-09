@@ -35,7 +35,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 		_is_started = true;
 
 		std::string addr = inet_ntoa(_client_addr.sin_addr);
-		LOG_CLIENT("Connected on " + addr + ":" + Utils::to_string(ntohs(_client_addr.sin_port)) + " Fd " + Utils::to_string(_peer_socket_fd));
+		LOG_CLIENT("Fd " + Utils::to_string(_peer_socket_fd) + " Connected on " + addr + ":" + Utils::to_string(ntohs(_client_addr.sin_port)));
 	}
 	catch (std::exception &e)
 	{
@@ -101,7 +101,7 @@ void ClientServer::terminate()
 	}
 
 	std::string addr = inet_ntoa(_client_addr.sin_addr);
-	LOG_CLIENT(addr + " Fd " + Utils::to_string(_peer_socket_fd) + " Disconnected!");
+	LOG_CLIENT("Fd " + Utils::to_string(_peer_socket_fd) + " Disconnected on " + addr + ":" + Utils::to_string(ntohs(_client_addr.sin_port)));
 	_is_started = false;
 	close(_peer_socket_fd);
 }
@@ -124,30 +124,22 @@ void ClientServer::onEvent(int fd, epoll_event ev)
 
 void ClientServer::handleIncomingData()
 {
-	// Read incoming data into buffer
 	if (!readIncomingData())
 		return;
 
-	// Handle 100-continue expectations
 	handleExpectContinue();
 
-	// Process ongoing body parsing
 	if (isParsingRequestBody())
 		return;
 
-	// Process new request headers
 	processRequestHeaders();
 }
 
 bool ClientServer::readIncomingData()
 {
-	// Early size check based on Content-Length header
 	if (_parser && _parser->has_content_length)
 	{
-		// Get the client_max_body_size from the configuration
 		size_t max_size = _parser->get_server_config()->clientMaxBodySize;
-
-		// Check if the declared size exceeds the limit
 		if (_parser->get_content_length_value() > max_size)
 		{
 			sendErrorResponse(413, HTTP_PARSE_PAYLOAD_TOO_LARGE);
@@ -155,7 +147,6 @@ bool ClientServer::readIncomingData()
 		}
 	}
 
-	// Proceed with normal read
 	char buffer[RD_SIZE];
 	ssize_t rd_count = recv(this->_peer_socket_fd, buffer, RD_SIZE, MSG_DONTWAIT);
 
@@ -172,14 +163,13 @@ bool ClientServer::readIncomingData()
 
 void ClientServer::sendErrorResponse(int status_code, const std::string &message)
 {
-	LOG_ERROR(message);
+	if (!message.empty())
+		LOG_ERROR(message);
 
-	// Create a temporary ResponseBuilder to generate the error page
+	// Create a temporary ResponseBuilder to generate the error page and send response immediatly
 	ResponseBuilder errorResponse(*_parser);
 	errorResponse.set_status(status_code);
 	errorResponse.set_body(errorResponse.generate_error_page());
-
-	// Send the response immediately
 	std::string response = errorResponse.generate_response_only();
 	send(_peer_socket_fd, response.c_str(), response.size(), 0);
 
@@ -205,12 +195,12 @@ bool ClientServer::isParsingRequestBody()
 	try
 	{
 		size_t bytes_read = _parser->parse_request(_request_buffer);
+
 		if (bytes_read > 0)
 			_request_buffer.erase(0, bytes_read);
 
-		if (_parser->get_state() == DONE)
+		if (_parser->get_state() == DONE || _parser->get_state() == ERROR_PARSE)
 		{
-			LOG_INFO("Request body fully received");
 			processCompletedRequest();
 		}
 		return true;
@@ -226,7 +216,9 @@ void ClientServer::processRequestHeaders()
 {
 	size_t header_end = _request_buffer.find(DOUBLE_CRLF);
 	if (header_end == std::string::npos)
+	{
 		return;
+	}
 
 	try
 	{
@@ -234,7 +226,6 @@ void ClientServer::processRequestHeaders()
 
 		if (_parser->get_state() == BODY)
 		{
-			LOG_INFO("Headers processed, waiting for more body data");
 			return;
 		}
 
@@ -248,26 +239,25 @@ void ClientServer::processRequestHeaders()
 
 void ClientServer::parseHeaders()
 {
-	// Reset the request buffer and state for a new request
 	RequestParser parser;
 	size_t bytes_read = parser.parse_request(_request_buffer);
 
-	// Only remove the bytes we've successfully processed
 	if (bytes_read > 0)
 		_request_buffer.erase(0, bytes_read);
 
-	parser.match_location(ConfigManager::getInstance().getServers());
+	if (!parser.get_error_code())
+		parser.match_location(ConfigManager::getInstance().getServers());
 
 	cleanupParser();
 
-	// Create a clean parser instance
 	_parser = new RequestParser(parser);
-
-	LOG_REQUEST(_parser->get_request_line());
 }
 
 void ClientServer::processCompletedRequest()
 {
+	_parser->set_request_line();
+	LOG_REQUEST(_parser->get_request_line());
+
 	if (_parser->is_cgi_request() && _parser->get_http_method() != "DELETE")
 	{
 		processCGIRequest();
@@ -280,13 +270,11 @@ void ClientServer::processCompletedRequest()
 
 void ClientServer::processNormalRequest()
 {
-	// Clean up any existing response builder
 	if (_responseBuilder)
 	{
 		delete _responseBuilder;
 	}
 
-	// Create a new response builder
 	_responseBuilder = new ResponseBuilder(*_parser);
 	_response_buffer = _responseBuilder->build_response();
 	_response_ready = true;
@@ -345,7 +333,6 @@ void ClientServer::processCGIRequest()
 
 	try
 	{
-		// Start the CGI process
 		_pendingCgi->startCGI();
 		_waitingForCGI = true;
 	}
@@ -355,7 +342,6 @@ void ClientServer::processCGIRequest()
 		delete _pendingCgi;
 		_pendingCgi = NULL;
 
-		// Create an error response
 		_responseBuilder->set_status(500);
 		_responseBuilder->set_body(_responseBuilder->generate_error_page());
 		_response_buffer = _responseBuilder->generate_response_only();
@@ -367,13 +353,10 @@ void ClientServer::onCGIComplete(CGIHandler *handler)
 {
 	if (_pendingCgi == handler)
 	{
-		LOG_INFO("CGI processing complete, sending response");
-
 		_response_buffer = _responseBuilder->generate_response_only();
 		_response_ready = true;
 		_waitingForCGI = false;
 
-		// Clean up only the CGI handler
 		delete _pendingCgi;
 		_pendingCgi = NULL;
 	}
@@ -386,7 +369,7 @@ void ClientServer::checkCGIProgress()
 		// Keep the connection alive while CGI is processing
 		updateActivity();
 
-		// Check if it's been too long (e.g., 60 seconds)
+		// Check if it's been too long
 		time_t elapsed = time(NULL) - _pendingCgi->getStartTime();
 		if (elapsed > TIME_OUT_SECONDS)
 		{
@@ -395,11 +378,10 @@ void ClientServer::checkCGIProgress()
 			_pendingCgi = NULL;
 			_waitingForCGI = false;
 
-			// Create an error response
 			ResponseBuilder response(*_parser);
-			response.set_status(504); // Gateway Timeout
+			response.set_status(504);
 			response.set_body(response.generate_error_page());
-			_response_buffer = response.generate_response_only(); //  CONSTRUCTING RESPONSE
+			_response_buffer = response.generate_response_only();
 			_response_ready = true;
 		}
 	}

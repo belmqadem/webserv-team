@@ -9,7 +9,7 @@ class RequestParser;
 class ResponseBuilder;
 
 #define RD_SIZE 1024
-#define TIME_OUT_SECONDS 60
+#define TIME_OUT_SECONDS 10
 
 class ClientServer : public IEvenetListeners
 {
@@ -26,11 +26,10 @@ private:
 	time_t _last_activity;
 	bool _continue_sent;
 
-	// Add new members for CGI support
 	CGIHandler *_pendingCgi;
 	bool _waitingForCGI;
 
-	ResponseBuilder* _responseBuilder; // Member variable to hold response builder
+	ResponseBuilder* _responseBuilder;
 
 private:
 	// Main processing methods
