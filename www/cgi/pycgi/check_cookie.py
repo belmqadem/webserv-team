@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 
-print("Content-Type: text/html\n")
+import os
 
-try:
-    with open("/home/abel-mqa/Desktop/webserv/www/cookie/cookie.txt", "r") as f:
-        cookies = f.read().strip()
-except FileNotFoundError:
-    cookies = "No cookies saved."
+print("Content-Type: text/html")
+print()
 
-print(f"<html><body><pre>{cookies}</pre></body></html>")
+cookies = os.environ.get("HTTP_COOKIE", "")
+
+html = "<html><body><h2>Cookies</h2><ul>"
+
+if cookies:
+    for pair in cookies.split("; "):
+        html += f"<li>{pair}</li>"
+else:
+    html += "<li>No cookies found</li>"
+
+html += "</ul><a href='/test/'>Back</a></body></html>"
+
+print(html)

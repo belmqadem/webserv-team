@@ -3,17 +3,17 @@
 import os
 import cgi
 
+print("Content-Type: text/html")
+
 form = cgi.FieldStorage()
-name = form.getfirst("name")
-value = form.getfirst("value")
+name = form.getvalue("name", "")
+value = form.getvalue("value", "")
 
 if name and value:
-    # Save to server-side file
-    with open("/home/abel-mqa/Desktop/webserv/www/cookie/cookie.txt", "a") as f:
-        f.write(f"{name}={value}\n")
-
-    # Set cookie header
-    print(f"Set-Cookie: {name}={value}; Path=/")
-
-print("Content-Type: text/html\n")
-print(f"<html><body><p>Cookie '{name}' set with value '{value}' and saved on the server.</p></body></html>")
+    print(f"Set-Cookie: {name}={value}; Path=/; HttpOnly; SameSite=Strict")
+    print()
+    print(f"<html><body><h2>Cookie '{name}' set to '{value}'</h2>")
+    print("<a href='/pycgi/check_cookie.py'>Check Cookie</a></body></html>")
+else:
+    print()
+    print("<html><body><h2>Missing name or value</h2></body></html>")
