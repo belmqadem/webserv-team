@@ -78,32 +78,45 @@ void CGIHandler::startCGI()
 {
     startTime = time(NULL);
 
-    // Create a socketpair for bidirectional communication
-    int cgi_socket[2];
-    if (socketpair(AF_UNIX, SOCK_STREAM, 0, cgi_socket) == -1)
+    int pipe_fd[2];
+    if (pipe(pipe_fd) == -1)
     {
-        LOG_ERROR("socketpair() failed: " + std::string(strerror(errno)));
-        throw std::runtime_error("Socketpair creation failed");
+        LOG_ERROR("pipe() failed: " + std::string(strerror(errno)));
+        throw std::runtime_error("Pipe creation failed");
     }
 
     pid = fork();
     if (pid == -1)
     {
-        close(cgi_socket[0]);
-        close(cgi_socket[1]);
+        close(pipe_fd[0]);
+        close(pipe_fd[1]);
         throw std::runtime_error("Fork failed");
     }
 
     if (pid == 0) // Child process
     {
-        close(cgi_socket[0]);
+        close(pipe_fd[0]);
 
-        if (dup2(cgi_socket[1], STDIN_FILENO) == -1 || dup2(cgi_socket[1], STDOUT_FILENO) == -1)
+        if (dup2(pipe_fd[1], STDOUT_FILENO) == -1)
         {
-            LOG_ERROR("dup2() failed: " + std::string(strerror(errno)));
+            LOG_ERROR("dup2() failed for stdout: " + std::string(strerror(errno)));
             exit(1);
         }
-        close(cgi_socket[1]);
+        close(pipe_fd[1]);
+
+        if (method == "POST" && bodyFd != -1)
+        {
+            if (dup2(bodyFd, STDIN_FILENO) == -1)
+            {
+                LOG_ERROR("dup2() failed for stdin: " + std::string(strerror(errno)));
+                exit(1);
+            }
+            close(bodyFd);
+        }
+        else
+        {
+            close(STDIN_FILENO);
+        }
         std::vector<std::string> args;
         args.push_back(interpreter);
         args.push_back(scriptPath);
@@ -123,16 +136,19 @@ void CGIHandler::startCGI()
     }
     else // Parent process
     {
-        close(cgi_socket[1]);
+        close(pipe_fd[1]);
+        if (bodyFd != -1)
+            close(bodyFd);
+        bodyFd = -1;
 
-        int flags = fcntl(cgi_socket[0], F_GETFL, 0);
-        fcntl(cgi_socket[0], F_SETFL, flags | O_NONBLOCK);
+        int flags = fcntl(pipe_fd[0], F_GETFL, 0);
+        fcntl(pipe_fd[0], F_SETFL, flags | O_NONBLOCK);
 
-        output_fd = cgi_socket[0];
+        output_fd = pipe_fd[0];
+
         epoll_event ev;
         ev.events = EPOLLIN;
         ev.data.fd = output_fd;
-
         try
         {
             IOMultiplexer::getInstance().addListener(this, ev);
