@@ -59,50 +59,6 @@ def main():
     else:
         print("<p>No form data received.</p>")
 
-    # File Upload Handling
-    print("<h2>File Upload</h2>")
-    if "file" in form:
-        fileitem = form["file"]
-        if fileitem.file:
-            # It's an uploaded file
-            filename = fileitem.filename
-            filedata = fileitem.file.read()
-            filesize = len(filedata)
-            filetype = "binary" if b'\0' in filedata else "text"
-
-            print("<table>")
-            print(f"<tr><td>Filename</td><td>{filename}</td></tr>")
-            print(f"<tr><td>File Size</td><td>{filesize} bytes</td></tr>")
-            print(f"<tr><td>File Type</td><td>{filetype}</td></tr>")
-            print("</table>")
-
-            # Save the file
-            try:
-                upload_dir = "../uploads"
-                if not os.path.exists(upload_dir):
-                    os.makedirs(upload_dir)
-
-                file_path = os.path.join(upload_dir, os.path.basename(filename))
-                with open(file_path, 'wb') as f:
-                    f.write(filedata)
-                print(f"<p style='color: green;'>File successfully saved to {file_path}</p>")
-            except Exception as e:
-                print(f"<p style='color: red;'>Error saving file: {str(e)}</p>")
-        else:
-            print("<p>File field found but no file was uploaded.</p>")
-    else:
-        print("<p>No file was uploaded.</p>")
-
-    # Test Form
-    print("<h2>Test Form</h2>")
-    print("<form method='post' enctype='multipart/form-data'>")
-    print("<p><label>Name: <input type='text' name='name'></label></p>")
-    print("<p><label>Message: <textarea name='message'></textarea></label></p>")
-    print("<p><label>File: <input type='file' name='file'></label></p>")
-    print("<p><input type='submit' value='Submit'></p>")
-    print("</form>")
-
-    # System Information
     print("<h2>System Information</h2>")
     print("<table>")
     print(f"<tr><td>Python Version</td><td>{sys.version}</td></tr>")
