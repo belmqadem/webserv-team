@@ -104,3 +104,5 @@ if (!empty(ini_get('upload_tmp_dir'))) {
     echo "Directory exists: " . (is_dir(sys_get_temp_dir()) ? "Yes" : "No") . "\n";
     echo "Directory writable: " . (is_writable(sys_get_temp_dir()) ? "Yes" : "No") . "\n";
 }
+
+header("Status: 201");

@@ -88,18 +88,18 @@ main header h1::after {
 }
 @media (max-width: 768px) {
   main header {
-    padding: 20px 50px 35px;
+    padding: 40px 80px 60px;
     border-radius: 12px;
   }
   main header h1 {
-    font-size: 62px;
+    font-size: 78px;
   }
   main header h1::before {
-    width: 78%;
-    height: 6px;
+    width: 76%;
+    height: 9px;
   }
   main header h1::after {
-    font-size: 10px;
+    font-size: 14px;
   }
 }
 @media (max-width: 480px) {
@@ -120,6 +120,8 @@ main header h1::after {
 }
 
 .profiles {
+  margin-top: 30px;
+  margin-bottom: 30px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -127,11 +129,11 @@ main header h1::after {
   padding: 40px 20px;
 }
 .profile {
-  background-color: rgba(41, 41, 41, 0.85);
+  background-color: var(--main-bg-color);
   width: fit-content;
-  padding: 25px 50px 130px;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  padding: 25px 40px 130px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
   border-bottom-left-radius: 50%;
   border-bottom-right-radius: 50%;
   transition-duration: 0.2s;
@@ -145,7 +147,7 @@ main header h1::after {
   height: 250px;
   border-radius: 50%;
   margin-bottom: 22px;
-  box-shadow: 0 0 12px 2px var(--main-bg-color);
+  box-shadow: 0 0 12px 2px rgba(41, 41, 41, 0.8);
   transition-duration: 0.2s;
 }
 .profile:hover img {
@@ -153,17 +155,17 @@ main header h1::after {
 }
 .profiles h3 {
   font-size: 20px;
-  background-color: var(--main-bg-color);
-  color: var(--main-color);
-  padding: 10px 60px;
+  background-color: var(--main-color);
+  color: var(--main-bg-color);
+  padding: 14px 60px;
   width: fit-content;
   margin: 0 auto;
   border-radius: 16px;
   transition-duration: 0.2s;
 }
 .profile:hover h3 {
-  background-color: var(--main-color);
-  color: var(--main-bg-color);
+  background-color: var(--main-bg-color);
+  color: var(--main-color);
 }
 @media (max-width: 1024px) {
   .profiles {
@@ -177,11 +179,11 @@ main header h1::after {
 }
 @media (max-width: 768px) {
   .profile img {
-    width: 200px;
-    height: 200px;
+    width: 240px;
+    height: 240px;
   }
   .profile h3 {
-    font-size: 15px;
+    font-size: 18px;
   }
 }
 
