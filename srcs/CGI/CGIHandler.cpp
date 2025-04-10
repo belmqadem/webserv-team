@@ -18,12 +18,10 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &cgi_path,
 	scriptPath = root_path + uri;
 	method = request.get_http_method();
 	queryString = request.get_query_string();
-
 	if (access(scriptPath.c_str(), F_OK) != 0)
 		throw std::runtime_error("CGI script not found");
 	if (access(scriptPath.c_str(), X_OK) != 0)
 		throw std::runtime_error("CGI script not executable");
-
 	const std::vector<byte> &rawBody = request.get_body();
 	if (rawBody.size())
 	{
@@ -35,12 +33,9 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &cgi_path,
 		write(bodyFd, rawBody.data(), rawBody.size());
 		lseek(bodyFd, 0, SEEK_SET);
 	}
-
 	headers = request.get_headers();
-
 	// Initialize contentType here
 	contentType = headers.count("content-type") ? headers["content-type"] : "application/x-www-form-urlencoded";
-
 	if (interpreter.empty())
 	{
 		throw std::runtime_error("No CGI interpreter found");
@@ -58,226 +53,141 @@ void CGIHandler::setupEnvironment(std::vector<std::string> &env)
 	size_t last_slash = scriptPath.find_last_of('/');
 	if (last_slash != std::string::npos)
 		script_name = scriptPath.substr(last_slash + 1);
-
-	env.push_back("REQUEST_METHOD=" + method);
-	env.push_back("QUERY_STRING=" + queryString);
-	env.push_back("CONTENT_LENGTH=" + Utils::to_string(responseBuilder->getRequest().get_body().size()));
-	env.push_back("CONTENT_TYPE=" + contentType);
-	env.push_back("SCRIPT_FILENAME=" + scriptPath);
-	env.push_back("SCRIPT_NAME=" + uri);
-	env.push_back("DOCUMENT_ROOT=" + root_path);
-	env.push_back("PHP_SELF=" + uri);
-	env.push_back("PATH_TRANSLATED=" + scriptPath);
-	env.push_back("REQUEST_URI=" + uri);
-	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
-	env.push_back("GATEWAY_INTERFACE=CGI/1.1");
-	env.push_back("SERVER_SOFTWARE=" + std::string(WEBSERV_NAME));
-
-	// PHP-specific
-	env.push_back("REDIRECT_STATUS=200");
-
-	// Python-specific
-	env.push_back("PYTHONIOENCODING=UTF-8");
-
-	// Set upload directory for file upload support
-	if (contentType.find("multipart/form-data") != std::string::npos)
-		env.push_back("UPLOAD_TMPDIR=/tmp");
-
-	// Convert HTTP headers to CGI format
-	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
-	{
-		std::string key = it->first;
-		std::transform(key.begin(), key.end(), key.begin(), ::toupper);
-		std::replace(key.begin(), key.end(), '-', '_');
-		env.push_back("HTTP_" + key + "=" + it->second);
-	}
+	env.push_back("REQUEST_METHOD=" + method); 
+    env.push_back("QUERY_STRING=" + queryString); 
+    env.push_back("CONTENT_LENGTH=" + Utils::to_string(responseBuilder->getRequest().get_body().size()));
+    env.push_back("CONTENT_TYPE=" + contentType); 
+    env.push_back("SCRIPT_FILENAME=" + scriptPath); 
+    env.push_back("SCRIPT_NAME=" + uri); 
+    env.push_back("REQUEST_URI=" + uri); 
+    env.push_back("SERVER_PROTOCOL=HTTP/1.1"); 
+    env.push_back("GATEWAY_INTERFACE=CGI/1.1"); 
+    env.push_back("REDIRECT_STATUS=200");
+    if (headers.count("Host"))
+        env.push_back("HTTP_HOST=" + headers.at("Host"));
+    if (headers.count("User-Agent"))
+        env.push_back("HTTP_USER_AGENT=" + headers.at("User-Agent"));
+	// Sensitive information (e.g., passwords or tokens) is not exposed to the CGI script
+    // if (headers.count("Authorization"))
+    //     env.push_back("HTTP_AUTHORIZATION=" + headers.at("Authorization"));
+    if (headers.count("Cookie"))
+        env.push_back("HTTP_COOKIE=" + headers.at("Cookie"));
 }
 
 void CGIHandler::startCGI()
 {
-	startTime = time(NULL);
-	// Create a pipe for CGI output
-	int pipe_fd[2];
-	if (pipe(pipe_fd) == -1)
-	{
-		LOG_ERROR("pipe() failed: " + std::string(strerror(errno)));
-		throw std::runtime_error("Pipe creation failed");
-	}
+    startTime = time(NULL);
 
-	// Fork a child process
-	pid = fork();
-	if (pid == -1)
-	{
-		// Close all pipes on error
-		close(pipe_fd[0]);
-		close(pipe_fd[1]);
-		if (bodyFd != -1)
-			close(bodyFd);
-		bodyFd = -1;
-		throw std::runtime_error("Fork failed");
-	}
+    // Create a socketpair for bidirectional communication
+    int cgi_socket[2];
+    if (socketpair(AF_UNIX, SOCK_STREAM, 0, cgi_socket) == -1)
+    {
+        LOG_ERROR("socketpair() failed: " + std::string(strerror(errno)));
+        throw std::runtime_error("Socketpair creation failed");
+    }
 
-	if (pid == 0) // Child process
-	{
-		// Close read end of the output pipe
-		close(pipe_fd[0]);
+    pid = fork();
+    if (pid == -1)
+    {
+        close(cgi_socket[0]);
+        close(cgi_socket[1]);
+        throw std::runtime_error("Fork failed");
+    }
 
-		// Redirect stdout to the write end of the pipe
-		if (dup2(pipe_fd[1], STDOUT_FILENO) == -1)
-		{
-			LOG_ERROR("dup2() failed for stdout: " + std::string(strerror(errno)));
-			exit(1);
-		}
-		close(pipe_fd[1]);
+    if (pid == 0) // Child process
+    {
+        close(cgi_socket[0]);
 
-		// For POST requests, set up stdin redirection
-		if (method == "POST" && bodyFd != -1)
-		{
-			if (dup2(bodyFd, STDIN_FILENO) == -1)
-			{
-				LOG_ERROR("dup2() failed for stdin: " + std::string(strerror(errno)));
-				exit(1);
-			}
-			close(bodyFd);
-		}
-		else
-		{
-			close(STDIN_FILENO);
-		}
+        if (dup2(cgi_socket[1], STDIN_FILENO) == -1 || dup2(cgi_socket[1], STDOUT_FILENO) == -1)
+        {
+            LOG_ERROR("dup2() failed: " + std::string(strerror(errno)));
+            exit(1);
+        }
+        close(cgi_socket[1]);
+        std::vector<std::string> args;
+        args.push_back(interpreter);
+        args.push_back(scriptPath);
+        char *argv[args.size() + 1];
+        for (size_t i = 0; i < args.size(); ++i)
+            argv[i] = const_cast<char *>(args[i].c_str());
+        argv[args.size()] = NULL;
+        std::vector<std::string> env;
+        setupEnvironment(env);
+        char *envp[env.size() + 1];
+        for (size_t i = 0; i < env.size(); ++i)
+            envp[i] = const_cast<char *>(env[i].c_str());
+        envp[env.size()] = NULL;
+        execve(argv[0], argv, envp);
+        LOG_ERROR("execve() failed: " + std::string(strerror(errno)));
+        exit(1);
+    }
+    else // Parent process
+    {
+        close(cgi_socket[1]);
 
-		// Prepare arguments for execve
-		std::vector<std::string> args;
-		args.push_back(interpreter);
+        int flags = fcntl(cgi_socket[0], F_GETFL, 0);
+        fcntl(cgi_socket[0], F_SETFL, flags | O_NONBLOCK);
 
-		// If this is PHP and we're handling an upload, add settings via command line
-		if (interpreter.find("php-cgi") != std::string::npos &&
-			method == "POST" &&
-			contentType.find("multipart/form-data") != std::string::npos)
-		{
-			// Get the max size in MB from server config
-			size_t max_size_mb = responseBuilder->getRequest().get_server_config()->clientMaxBodySize;
+        output_fd = cgi_socket[0];
+        epoll_event ev;
+        ev.events = EPOLLIN;
+        ev.data.fd = output_fd;
 
-			// Add PHP settings as command line arguments with correct 'M' suffix
-			args.push_back("-d");
-			args.push_back("upload_max_filesize=" + Utils::to_string(max_size_mb) + "M");
-			args.push_back("-d");
-			args.push_back("post_max_size=" + Utils::to_string(max_size_mb) + "M");
-			args.push_back("-d");
-			args.push_back("memory_limit=" + Utils::to_string(max_size_mb * 2) + "M");
-
-			// Add debugging output for the complete command
-			std::string cmd = interpreter;
-			for (size_t i = 1; i < args.size(); i++)
-				cmd += " " + args[i];
-		}
-
-		args.push_back(scriptPath);
-
-		char *argv[args.size() + 1];
-		for (size_t i = 0; i < args.size(); ++i)
-			argv[i] = const_cast<char *>(args[i].c_str());
-		argv[args.size()] = NULL;
-
-		// Prepare environment variables
-		std::vector<std::string> env;
-		setupEnvironment(env);
-
-		char *envp[env.size() + 1];
-		for (size_t i = 0; i < env.size(); ++i)
-			envp[i] = const_cast<char *>(env[i].c_str());
-		envp[env.size()] = NULL;
-
-		execve(argv[0], argv, envp);
-		LOG_ERROR("execve() failed: " + std::string(strerror(errno)));
-		exit(1);
-	}
-	else // Parent process
-	{
-		// Close write end of the output pipe
-		close(pipe_fd[1]);
-		if (bodyFd != -1)
-			close(bodyFd);
-		bodyFd = -1;
-
-		// Set the output pipe to non-blocking
-		int flags = fcntl(pipe_fd[0], F_GETFL, 0);
-		fcntl(pipe_fd[0], F_SETFL, flags | O_NONBLOCK);
-
-		// Store the output file descriptor
-		output_fd = pipe_fd[0];
-
-		// Register with the IOMultiplexer to be notified when data is available
-		epoll_event ev;
-		ev.events = EPOLLIN;
-		ev.data.fd = output_fd;
-
-		try
-		{
-			IOMultiplexer::getInstance().addListener(this, ev);
-		}
-		catch (const std::exception &e)
-		{
-			LOG_ERROR("Failed to register CGI with IOMultiplexer: " + std::string(e.what()));
-			close(output_fd);
-			kill(pid, SIGKILL);
-			waitpid(pid, NULL, 0);
-			throw;
-		}
-	}
+        try
+        {
+            IOMultiplexer::getInstance().addListener(this, ev);
+        }
+        catch (const std::exception &e)
+        {
+            LOG_ERROR("Failed to register CGI with IOMultiplexer: " + std::string(e.what()));
+            close(output_fd);
+            kill(pid, SIGKILL);
+            waitpid(pid, NULL, 0);
+            throw;
+        }
+    }
 }
 
 void CGIHandler::onEvent(int fd, epoll_event ev)
 {
-	if (fd != output_fd)
-	{
-		LOG_ERROR("CGI onEvent called with unexpected fd: " + Utils::to_string(fd));
-		return;
-	}
+    if (fd != output_fd)
+    {
+        LOG_ERROR("CGI onEvent called with unexpected fd: " + Utils::to_string(fd));
+        return;
+    }
 
-	if (ev.events & EPOLLIN)
-	{
-		// Read data from the CGI process
-		char buffer[1024];
-		ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
+    if (ev.events & EPOLLIN)
+    {
+        // Read data from the CGI process
+        char buffer[1024];
+        ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
 
-		if (bytesRead > 0)
-		{
-			// Add the data to the output buffer
-			buffer[bytesRead] = '\0';
-			cgi_output.append(buffer, bytesRead);
-		}
-		else if (bytesRead == 0 || bytesRead < 0)
-		{
-			// End of data or error
-			if (bytesRead < 0)
-				LOG_ERROR("Read error from CGI: " + std::string(strerror(errno)));
-			// Process the output and finalize
-			finalizeCGI();
-		}
-	}
+        if (bytesRead > 0)
+        {
+            // Add the data to the output buffer
+            buffer[bytesRead] = '\0';
+            cgi_output.append(buffer, bytesRead);
+        }
+        else
+        {
+            // End of data or error
+            if (bytesRead < 0)
+                LOG_ERROR("Read error from CGI: " + std::string(strerror(errno)));
+            finalizeCGI();
+        }
+    }
 
-	// EPOLLHUP is normal when the CGI process finishes and closes its pipe
-	if (ev.events & EPOLLHUP)
-	{
-		// Try to read any remaining data
-		char buffer[1024];
-		ssize_t bytesRead = read(fd, buffer, sizeof(buffer) - 1);
-		if (bytesRead > 0)
-		{
-			buffer[bytesRead] = '\0';
-			cgi_output.append(buffer, bytesRead);
-		}
+    if (ev.events & EPOLLHUP)
+    {
+        // Finalize directly on hang-up
+        finalizeCGI();
+    }
 
-		// Process the output and finalize
-		finalizeCGI();
-	}
-
-	// Only treat EPOLLERR as an actual error
-	if (ev.events & EPOLLERR)
-	{
-		LOG_ERROR("Error on CGI pipe (EPOLLERR)");
-		terminate();
-	}
+    if (ev.events & EPOLLERR)
+    {
+        LOG_ERROR("Error on CGI pipe (EPOLLERR)");
+        terminate();
+    }
 }
 
 // Add this helper method to reduce duplication:
