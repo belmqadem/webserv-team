@@ -44,16 +44,16 @@ void ClientServer::RegisterWithIOMultiplexer()
 	}
 }
 
-ClientServer::ClientServer(const int &server_socket_fd, const int &peer_socket_fd, const std::vector<ServerConfig*> &server_configs) : _is_started(false),
-																					 _server_socket_fd(server_socket_fd),
-																					 _peer_socket_fd(peer_socket_fd),
-																					 _parser(NULL),
-																					 _last_activity(time(NULL)),
-																					 _continue_sent(false),
-																					 _pendingCgi(NULL),
-																					 _waitingForCGI(false),
-																					 _responseBuilder(NULL),
-																					 _server_configs(server_configs) {}
+ClientServer::ClientServer(const int &server_socket_fd, const int &peer_socket_fd, const std::vector<ServerConfig *> &server_configs) : _is_started(false),
+																																		_server_socket_fd(server_socket_fd),
+																																		_peer_socket_fd(peer_socket_fd),
+																																		_parser(NULL),
+																																		_last_activity(time(NULL)),
+																																		_continue_sent(false),
+																																		_pendingCgi(NULL),
+																																		_waitingForCGI(false),
+																																		_responseBuilder(NULL),
+																																		_server_configs(server_configs) {}
 
 ClientServer::~ClientServer()
 {
@@ -339,10 +339,10 @@ void ClientServer::processCGIRequest()
 
 	// Create a CGI handler
 	std::string cgi_path = _responseBuilder->get_location_config()->cgiPath;
-	_pendingCgi = new CGIHandler(*_parser, cgi_path, _responseBuilder, this);
 
 	try
 	{
+		_pendingCgi = new CGIHandler(*_parser, cgi_path, _responseBuilder, this);
 		_pendingCgi->startCGI();
 		_waitingForCGI = true;
 	}

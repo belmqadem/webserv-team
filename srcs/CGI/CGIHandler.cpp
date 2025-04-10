@@ -19,13 +19,18 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &cgi_path,
 	method = request.get_http_method();
 	queryString = request.get_query_string();
 
+	if (access(scriptPath.c_str(), F_OK) != 0)
+		throw std::runtime_error("CGI script not found");
+	if (access(scriptPath.c_str(), X_OK) != 0)
+		throw std::runtime_error("CGI script not executable");
+
 	const std::vector<byte> &rawBody = request.get_body();
 	if (rawBody.size())
 	{
 		bodyFd = open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
 		if (bodyFd < 0)
 		{
-			throw std::runtime_error("500 Internal Server Error: No CGI interpreter found");
+			throw std::runtime_error("No CGI interpreter found");
 		}
 		write(bodyFd, rawBody.data(), rawBody.size());
 		lseek(bodyFd, 0, SEEK_SET);
@@ -38,7 +43,7 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &cgi_path,
 
 	if (interpreter.empty())
 	{
-		throw std::runtime_error("500 Internal Server Error: No CGI interpreter found");
+		throw std::runtime_error("No CGI interpreter found");
 	}
 }
 
@@ -96,7 +101,7 @@ void CGIHandler::startCGI()
 	if (pipe(pipe_fd) == -1)
 	{
 		LOG_ERROR("pipe() failed: " + std::string(strerror(errno)));
-		throw std::runtime_error("500 Internal Server Error: Pipe creation failed");
+		throw std::runtime_error("Pipe creation failed");
 	}
 
 	// Fork a child process
@@ -109,7 +114,7 @@ void CGIHandler::startCGI()
 		if (bodyFd != -1)
 			close(bodyFd);
 		bodyFd = -1;
-		throw std::runtime_error("500 Internal Server Error: Fork failed");
+		throw std::runtime_error("Fork failed");
 	}
 
 	if (pid == 0) // Child process
