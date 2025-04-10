@@ -62,7 +62,7 @@ public:
 
 	// Helper methods
 	size_t parse_request(const std::string &request);
-	void match_location(const std::vector<ServerConfig> &servers);
+	void match_location(const std::vector<ServerConfig*> &servers);
 	bool is_connection_close();
 	bool is_cgi_request();
 	void print_request();
@@ -75,6 +75,7 @@ public:
 	bool set_http_version(const std::string &http_version);
 	void set_cgi_script(const std::string &script);
 	void set_cgi_flag(bool is_cgi);
+	void set_port(uint16_t p);
 
 	// Getters
 	std::string &get_request_line();

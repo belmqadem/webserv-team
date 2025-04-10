@@ -207,6 +207,25 @@ void Parser::parseCgiDirective(Location &location)
 	}
 }
 
+void Parser::parseReturnDirective(Location &location)
+{
+    consume(RETURN);
+    
+    Token code = consume(NUMBER);
+    int statusCode = std::atoi(code.value.c_str());
+    
+    location.has_return = true;
+    location.return_code = statusCode;
+    
+    while (_tokens[_index].type == STRING) {
+        Token message = consume(STRING);
+        std::string msg = message.value;
+        location.return_message += location.return_message.empty() ? msg : " " + msg;
+    }
+    
+    consume(SEMICOLON);
+}
+
 void Parser::parseLocationBlock()
 {
 	Token key = consume(LOCATION);
@@ -265,6 +284,10 @@ void Parser::parseLocationBlock()
 		else if (_tokens[_index].type == UPLOAD_STORE)
 		{
 			parseUploadStoreDirective(location);
+		}
+		else if (_tokens[_index].type == RETURN)
+		{
+			parseReturnDirective(location);
 		}
 		else
 		{

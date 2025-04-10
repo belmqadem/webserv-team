@@ -149,6 +149,12 @@ std::vector<Token> tokenize(std::string &input)
 			token.value = word;
 			tokens.push_back(token);
 		}
+		else if (word == "return")
+		{
+			token.type = RETURN;
+			token.value = word;
+			tokens.push_back(token);
+		}
 		else if (word.length() == 1 && is_size_multiplier(word[0]))
 		{
 			token.type = CLIENT_MAX_BODY_SIZE_MUL;

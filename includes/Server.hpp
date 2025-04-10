@@ -19,6 +19,8 @@ private:
 	std::vector<int> _listen_fds;
 	/* List of ClientServer connection objects */
 	std::vector<ClientServer *> _clients;
+	/* Maps socket FDs to their server configs */
+	std::map<int, std::vector<ServerConfig*> > _socket_configs;
 
 	~Server();
 	Server(std::vector<ServerConfig> config);
@@ -29,7 +31,7 @@ public:
 	static Server &getInstance(std::vector<ServerConfig> config);
 
 	sockaddr_in getListenAddress(ServerConfig conf);
-	void listenOnAddr(sockaddr_in addr);
+	void listenOnAddr(sockaddr_in addr, std::vector<ServerConfig*>configs);
 	void accept_peer(int fd);
 
 	virtual void terminate();

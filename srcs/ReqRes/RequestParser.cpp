@@ -237,22 +237,21 @@ const char *RequestParser::parse_headers(const char *pos, const char *end)
 			}
 
 			has_host = true;
-			std::string host_value = value;
-			size_t colon_pos = host_value.find(':');
-			if (colon_pos != std::string::npos)
-			{
-				std::string port_str = host_value.substr(colon_pos + 1);
-				host_value = host_value.substr(0, colon_pos);
-				char *endptr;
-				long parsed_port = std::strtol(port_str.c_str(), &endptr, 10);
-				if (*endptr != '\0' || parsed_port < 1 || parsed_port > 65535)
-				{
-					log_error(HTTP_PARSE_INVALID_PORT, 400);
-					return pos;
-				}
-				this->port = static_cast<uint16_t>(parsed_port);
+			// std::string host_value = value;
+			// size_t colon_pos = host_value.find(':');
+			// if (colon_pos != std::string::npos)
+			// {
+			// 	std::string port_str = host_value.substr(colon_pos + 1);
+			// 	host_value = host_value.substr(0, colon_pos);
+			// 	char *endptr;
+			// 	long parsed_port = std::strtol(port_str.c_str(), &endptr, 10);
+			// 	if (*endptr != '\0' || parsed_port < 1 || parsed_port > 65535)
+			// 	{
+			// 		log_error(HTTP_PARSE_INVALID_PORT, 400);
+			// 		return pos;
+			// 	}
+			// 	this->port = static_cast<uint16_t>(parsed_port);
 			}
-		}
 
 		// Special Handling for `Expect`
 		if (key == "expect")
@@ -588,17 +587,34 @@ std::string RequestParser::normalize_path(const std::string &path)
 }
 
 // Method for setting the right location for the request
-void RequestParser::match_location(const std::vector<ServerConfig> &servers)
+void RequestParser::match_location(const std::vector<ServerConfig*> &servers)
 {
-	std::string host = headers["host"];
 
-	this->server_config = ConfigManager::getInstance().getServerByName(host);
-	if (!this->server_config)
-		this->server_config = ConfigManager::getInstance().getServerByPort(port);
-	if (!server_config && !servers.empty())
-		this->server_config = &servers[0];
-
-	// Find the best matching Location
+    if (servers.empty()) {
+        if (!servers.empty()) {
+            this->server_config = servers[0];
+        }
+    }
+	this->server_config = servers[0]; 
+    std::string host;
+    std::map<std::string, std::string>::const_iterator host_it = headers.find("host");
+    if (host_it != headers.end()) {
+        host = host_it->second;
+    }
+    
+    size_t colon_pos = host.find(':');
+    if (colon_pos != std::string::npos) {
+        host = host.substr(0, colon_pos);
+    }
+    
+	std::vector<ServerConfig*>::const_iterator it = servers.begin();
+    for (; it != servers.end(); ++it) 
+	{
+        if (std::find((*it)->serverNames.begin(), (*it)->serverNames.end(), host) != (*it)->serverNames.end()) {
+            this->server_config = *it;
+        }
+    }
+    
 	size_t best_match_length = 0;
 	const Location *exact_match = NULL;
 	const Location *best_prefix_match = NULL;
@@ -753,6 +769,10 @@ void RequestParser::set_cgi_script(const std::string &script)
 void RequestParser::set_cgi_flag(bool is_cgi)
 {
 	this->is_cgi_request_flag = is_cgi;
+}
+
+void RequestParser::set_port(uint16_t p) {
+	port = p;
 }
 /****************************
 		END SETTERS

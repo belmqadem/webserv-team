@@ -22,6 +22,7 @@ enum TokenType
 	CLIENT_MAX_BODY_SIZE_MUL,
 	ALLOWED_METHODS,
 	REDIRECT,
+	RETURN,  // Add this new token type
 	CGI,
 	CGI_PATH,
 	UPLOAD_STORE,

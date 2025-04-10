@@ -30,6 +30,7 @@ private:
 	bool _waitingForCGI;
 
 	ResponseBuilder* _responseBuilder;
+	std::vector<ServerConfig*> _server_configs;
 
 private:
 	// Main processing methods
@@ -68,7 +69,7 @@ public:
 	void RegisterWithIOMultiplexer();
 	bool shouldKeepAlive() const;
 
-	ClientServer(const int &server_socket_fd, const int &peer_socket_fd);
+	ClientServer(const int &server_socket_fd, const int &peer_socket_fd, const std::vector<ServerConfig*> &server_configs);
 	~ClientServer();
 
 	virtual void terminate();

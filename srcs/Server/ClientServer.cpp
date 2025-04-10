@@ -44,7 +44,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 	}
 }
 
-ClientServer::ClientServer(const int &server_socket_fd, const int &peer_socket_fd) : _is_started(false),
+ClientServer::ClientServer(const int &server_socket_fd, const int &peer_socket_fd, const std::vector<ServerConfig*> &server_configs) : _is_started(false),
 																					 _server_socket_fd(server_socket_fd),
 																					 _peer_socket_fd(peer_socket_fd),
 																					 _parser(NULL),
@@ -52,7 +52,8 @@ ClientServer::ClientServer(const int &server_socket_fd, const int &peer_socket_f
 																					 _continue_sent(false),
 																					 _pendingCgi(NULL),
 																					 _waitingForCGI(false),
-																					 _responseBuilder(NULL) {}
+																					 _responseBuilder(NULL),
+																					 _server_configs(server_configs) {}
 
 ClientServer::~ClientServer()
 {
@@ -246,7 +247,16 @@ void ClientServer::parseHeaders()
 		_request_buffer.erase(0, bytes_read);
 
 	if (!parser.get_error_code())
-		parser.match_location(ConfigManager::getInstance().getServers());
+	{
+
+		sockaddr_in server_addrr;
+		memset(&server_addrr, 0, sizeof(server_addrr));
+		socklen_t len = sizeof(server_addrr);
+		getsockname(_peer_socket_fd, (struct sockaddr *)&server_addrr, &len);
+
+		parser.set_port(htons(server_addrr.sin_port));
+		parser.match_location(_server_configs);
+	}
 
 	cleanupParser();
 

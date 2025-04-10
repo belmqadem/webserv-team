@@ -107,32 +107,47 @@ void ResponseBuilder::init_routes()
 // Method to process the response
 std::string ResponseBuilder::build_response()
 {
-	short request_error_code = request.get_error_code();
-	if (request_error_code) // If an error in request parsing (error code != 0)
-	{
-		set_status(request_error_code);
-		body = generate_error_page();
-	}
-	else
-	{
-		init_routes();
-		std::string method = request.get_http_method();
-		std::map<std::string, void (ResponseBuilder::*)(void)>::iterator it = routes.find(method);
+    short request_error_code = request.get_error_code();
+    if (request_error_code) // If an error in request parsing (error code != 0)
+    {
+        set_status(request_error_code);
+        body = generate_error_page();
+    }
+    else
+    {
+        // Check if location has a return directive
+        if (location_config && location_config->has_return)
+        {
+            set_status(location_config->return_code);
+            set_body(location_config->return_message);
+            
+            // Set content type to plain text if it's a message
+            if (!location_config->return_message.empty()) {
+                set_headers("Content-Type", "text/plain");
+            }
+        }
+        else
+        {
+            // Existing route handling
+            init_routes();
+            std::string method = request.get_http_method();
+            std::map<std::string, void (ResponseBuilder::*)(void)>::iterator it = routes.find(method);
 
-		if (it == routes.end())
-		{
-			set_status(405);
-			body = generate_error_page();
-		}
-		else
-		{
-			(this->*(it->second))();
-		}
+            if (it == routes.end())
+            {
+                set_status(405);
+                body = generate_error_page();
+            }
+            else
+            {
+                (this->*(it->second))();
+            }
+        }
 
-		handle_redirection();
-	}
+        handle_redirection();
+    }
 
-	return generate_response_only();
+    return generate_response_only();
 }
 
 // Generate response structure with including headers

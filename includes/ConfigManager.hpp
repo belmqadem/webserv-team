@@ -31,9 +31,13 @@ struct Location
 	// file upload parameters
 	std::string uploadStore;
 
-	Location() : autoindex(false), index("index.html"), isRedirect(false),
-				 isRedirectPermanent(false), useCgi(false)
+	bool has_return;
+	int return_code;
+	std::string return_message;
 
+	Location() : autoindex(false), index("index.html"), isRedirect(false),
+				 isRedirectPermanent(false), redirectCode(0), useCgi(false),
+				 has_return(false), return_code(0)
 	{
 		allowedMethods.push_back("GET");
 		allowedMethods.push_back("POST");

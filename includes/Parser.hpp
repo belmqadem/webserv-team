@@ -30,6 +30,7 @@ private:
 	void parseCgiDirective(Location &location);
 	void parseUploadStoreDirective(Location &location);
 	void parseClientMaxBodySizeDirective();
+	void parseReturnDirective(Location &location);
 
 public:
 	Parser(const std::vector<Token> &tokens) : _tokens(tokens), _index(0), _currentServer(NULL) {}

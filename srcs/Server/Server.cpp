@@ -46,12 +46,12 @@ sockaddr_in Server::getListenAddress(ServerConfig conf)
 	return addr;
 }
 
-void Server::listenOnAddr(sockaddr_in addr)
+void Server::listenOnAddr(sockaddr_in addr, std::vector<ServerConfig*>configs)
 {
 	int socket_fd;
 	if ((socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		throw ServerExceptions("socket(): failed.");
-
+	_socket_configs[socket_fd] = configs;
 	int flag = 1;
 	if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag)) == -1)
 		close(socket_fd), throw ServerExceptions("setsockopt(): failed");
@@ -82,18 +82,26 @@ void Server::StartServer(void)
 	LOG_SERVER("Our Web Server *Not Nginx* Is Starting ...\n");
 	_is_started = true;
 
+	// Logic for multiple Server Blocks in config file using same port
+	std::map< std::string, std::vector<ServerConfig* > > addressGroups;
 	std::vector<ServerConfig>::iterator it = _config.begin();
-	for (; it != _config.end(); it++)
+	for (; it != _config.end(); ++it)
+	{
+		std::string addrrKey = it->host + ":" + Utils::to_string(it->port);
+		addressGroups[addrrKey].push_back(&(*it));
+	}
+	std::map<std::string, std::vector<ServerConfig*> >::iterator itrr = addressGroups.begin();
+	for (; itrr != addressGroups.end(); itrr++)
 	{
 		try
 		{
-			sockaddr_in addr = getListenAddress(*it);
-			listenOnAddr(addr);
+			sockaddr_in addr = getListenAddress(*itrr->second[0]);
+			listenOnAddr(addr, itrr->second);
 		}
 		catch (std::exception &e)
 		{
-			LOG_ERROR("Failed to listen on addr " + it->host + ":" + Utils::to_string(it->port) + " > " + std::string(e.what()));
-		}
+			std::string addressKey = itrr->first;
+            LOG_ERROR("Failed to listen on addr " + addressKey + " > " + std::string(e.what()));		}
 	}
 }
 
@@ -146,7 +154,7 @@ void Server::accept_peer(int fd)
 		(*client)->setPeerSocketFd(client_fd), (*client)->setServerSocketFd(fd);
 	else
 	{
-		ClientServer *new_client = new ClientServer(fd, client_fd);
+		ClientServer *new_client = new ClientServer(fd, client_fd, _socket_configs[fd]);
 		_clients.push_back(new_client);
 		client = _clients.begin() + _clients.size() - 1;
 	}
