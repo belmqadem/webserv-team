@@ -1,6 +1,5 @@
 #pragma once
 
-#include "IEvenetListeners.hpp"
 #include "ClientServer.hpp"
 #include "ResponseBuilder.hpp"
 
@@ -24,33 +23,29 @@ private:
 	ResponseBuilder *responseBuilder;
 	ClientServer *clientServer;
 	bool isCompleted;
-	time_t startTime;
+	std::time_t startTime;
 	std::string interpreter;
 
 	int bodyFd;
 	std::string contentType;
 
-	// Helper method to set up environment variables
 	void setupEnvironment(std::vector<std::string> &env);
-	void finalizeCGI(); // Helper method to finalize CGI processing
+	void finalizeCGI();
+
 public:
-	CGIHandler(RequestParser &request, const std::string &cgi_path,
-			   ResponseBuilder *response, ClientServer *client);
+	CGIHandler(RequestParser &request, const std::string &cgi_path, ResponseBuilder *response, ClientServer *client);
 	~CGIHandler();
 
 	// IEvenetListeners interface implementation
 	void onEvent(int fd, epoll_event ev);
 	void terminate();
-	// Start async CGI execution
+
 	void keepClientAlive();
 	void startCGI();
 
-	// Check if CGI processing is complete
-	bool isProcessCompleted() const { return isCompleted; }
-	time_t getStartTime() const { return startTime; }
-
-	// Process the CGI output when complete
 	void processCGIOutput();
 
-	ResponseBuilder *getResponseBuilder() const { return responseBuilder; }
+	bool isProcessCompleted() const;
+	std::time_t getStartTime() const;
+	ResponseBuilder *getResponseBuilder() const;
 };

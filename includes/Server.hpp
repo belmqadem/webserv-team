@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ConfigManager.hpp"
-#include "IOMultiplexer.hpp"
 #include "ClientServer.hpp"
 
 class ClientServer;
@@ -20,7 +18,7 @@ private:
 	/* List of ClientServer connection objects */
 	std::vector<ClientServer *> _clients;
 	/* Maps socket FDs to their server configs */
-	std::map<int, std::vector<ServerConfig*> > _socket_configs;
+	std::map<int, std::vector<ServerConfig *> > _socket_configs;
 
 	~Server();
 	Server(std::vector<ServerConfig> config);
@@ -31,21 +29,9 @@ public:
 	static Server &getInstance(std::vector<ServerConfig> config);
 
 	sockaddr_in getListenAddress(ServerConfig conf);
-	void listenOnAddr(sockaddr_in addr, std::vector<ServerConfig*>configs);
+	void listenOnAddr(sockaddr_in addr, std::vector<ServerConfig *> configs);
 	void accept_peer(int fd);
 
 	virtual void terminate();
 	virtual void onEvent(int fd, epoll_event ev);
-
-	const ServerConfig *getMatchingServerConfig(const std::string &host) const
-	{
-		for (size_t i = 0; i < _config.size(); i++)
-		{
-			if (_config[i].serverNames[0] == host)
-			{
-				return &_config[i];
-			}
-		}
-		return &_config[0];
-	}
 };

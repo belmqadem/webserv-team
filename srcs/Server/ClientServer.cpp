@@ -24,7 +24,7 @@ void ClientServer::RegisterWithIOMultiplexer()
 {
 	if (_is_started == true)
 	{
-		LOG_ERROR("WARNING: Attempting to registre an already started fd " + Utils::to_string(_peer_socket_fd));
+		LOG_WARNING("Attempting to registre an already started fd " + Utils::to_string(_peer_socket_fd));
 		return;
 	}
 	_epoll_ev.data.fd = _peer_socket_fd;
@@ -48,7 +48,7 @@ ClientServer::ClientServer(const int &server_socket_fd, const int &peer_socket_f
 																																		_server_socket_fd(server_socket_fd),
 																																		_peer_socket_fd(peer_socket_fd),
 																																		_parser(NULL),
-																																		_last_activity(time(NULL)),
+																																		_last_activity(std::time(NULL)),
 																																		_continue_sent(false),
 																																		_pendingCgi(NULL),
 																																		_waitingForCGI(false),
@@ -307,7 +307,6 @@ void ClientServer::cleanupParser()
 
 void ClientServer::processCGIRequest()
 {
-	// Create a response builder if not existing
 	if (!_responseBuilder)
 	{
 		_responseBuilder = new ResponseBuilder(*_parser);
@@ -380,7 +379,7 @@ void ClientServer::checkCGIProgress()
 		updateActivity();
 
 		// Check if it's been too long
-		time_t elapsed = time(NULL) - _pendingCgi->getStartTime();
+		std::time_t elapsed = std::time(NULL) - _pendingCgi->getStartTime();
 		if (elapsed > TIME_OUT_SECONDS)
 		{
 			LOG_ERROR("CGI execution exceeded maximum allowed time");
@@ -457,7 +456,6 @@ void ClientServer::finalizeResponse()
 {
 	_response_ready = false;
 
-	// Clean up the response builder now that we're done with it
 	if (_responseBuilder)
 	{
 		delete _responseBuilder;
@@ -495,10 +493,10 @@ void ClientServer::modifyEpollEvent(uint32_t events)
 
 void ClientServer::updateActivity()
 {
-	_last_activity = time(NULL);
+	_last_activity = std::time(NULL);
 }
 
 bool ClientServer::hasTimeOut() const
 {
-	return ((time(NULL) - _last_activity) > TIME_OUT_SECONDS);
+	return ((std::time(NULL) - _last_activity) > TIME_OUT_SECONDS);
 }

@@ -32,13 +32,14 @@ private:
 	void parseClientMaxBodySizeDirective();
 	void parseReturnDirective(Location &location);
 
-public:
-	Parser(const std::vector<Token> &tokens) : _tokens(tokens), _index(0), _currentServer(NULL) {}
+	std::pair<std::string, uint16_t> listenDirective(Token directive);
+	size_t parseSize(const std::string &sizeStr, char unit);
+	bool isValidAddr(std::string addr);
 
-	const std::vector<ServerConfig> &getServers() const
-	{
-		return _servers;
-	}
+public:
+	Parser(const std::vector<Token> &tokens);
+
+	const std::vector<ServerConfig> &getServers() const;
 
 	friend class ConfigManager;
 };

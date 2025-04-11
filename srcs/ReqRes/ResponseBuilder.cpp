@@ -698,6 +698,15 @@ void ResponseBuilder::set_status(short status_code)
 	this->status_code = status_code;
 	switch (status_code)
 	{
+	case 100:
+		this->status = STATUS_100;
+		break;
+	case 101:
+		this->status = STATUS_101;
+		break;
+	case 102:
+		this->status = STATUS_102;
+		break;
 	case 200:
 		this->status = STATUS_200;
 		this->headers["Accept-Ranges"] = "bytes";
@@ -708,8 +717,29 @@ void ResponseBuilder::set_status(short status_code)
 	case 202:
 		this->status = STATUS_202;
 		break;
+	case 203:
+		this->status = STATUS_203;
+		break;
 	case 204:
 		this->status = STATUS_204;
+		break;
+	case 205:
+		this->status = STATUS_205;
+		break;
+	case 206:
+		this->status = STATUS_206;
+		break;
+	case 207:
+		this->status = STATUS_207;
+		break;
+	case 208:
+		this->status = STATUS_208;
+		break;
+	case 226:
+		this->status = STATUS_226;
+		break;
+	case 300:
+		this->status = STATUS_300;
 		break;
 	case 301:
 		this->status = STATUS_301;
@@ -717,11 +747,29 @@ void ResponseBuilder::set_status(short status_code)
 	case 302:
 		this->status = STATUS_302;
 		break;
+	case 303:
+		this->status = STATUS_303;
+		break;
+	case 304:
+		this->status = STATUS_304;
+		break;
+	case 305:
+		this->status = STATUS_305;
+		break;
 	case 307:
 		this->status = STATUS_307;
 		break;
+	case 308:
+		this->status = STATUS_308;
+		break;
 	case 400:
 		this->status = STATUS_400;
+		break;
+	case 401:
+		this->status = STATUS_401;
+		break;
+	case 402:
+		this->status = STATUS_402;
 		break;
 	case 403:
 		this->status = STATUS_403;
@@ -732,6 +780,15 @@ void ResponseBuilder::set_status(short status_code)
 	case 405:
 		this->status = STATUS_405;
 		break;
+	case 406:
+		this->status = STATUS_406;
+		break;
+	case 407:
+		this->status = STATUS_407;
+		break;
+	case 408:
+		this->status = STATUS_408;
+		break;
 	case 409:
 		this->status = STATUS_409;
 		break;
@@ -740,6 +797,9 @@ void ResponseBuilder::set_status(short status_code)
 		break;
 	case 411:
 		this->status = STATUS_411;
+		break;
+	case 412:
+		this->status = STATUS_412;
 		break;
 	case 413:
 		this->status = STATUS_413;
@@ -750,11 +810,44 @@ void ResponseBuilder::set_status(short status_code)
 	case 415:
 		this->status = STATUS_415;
 		break;
+	case 416:
+		this->status = STATUS_416;
+		break;
 	case 417:
 		this->status = STATUS_417;
 		break;
+	case 418:
+		this->status = STATUS_418;
+		break;
+	case 421:
+		this->status = STATUS_421;
+		break;
+	case 422:
+		this->status = STATUS_422;
+		break;
+	case 423:
+		this->status = STATUS_423;
+		break;
+	case 424:
+		this->status = STATUS_424;
+		break;
+	case 426:
+		this->status = STATUS_426;
+		break;
+	case 429:
+		this->status = STATUS_429;
+		break;
 	case 431:
 		this->status = STATUS_431;
+		break;
+	case 444:
+		this->status = STATUS_444;
+		break;
+	case 451:
+		this->status = STATUS_451;
+		break;
+	case 499:
+		this->status = STATUS_499;
 		break;
 	case 500:
 		this->status = STATUS_500;
@@ -762,14 +855,38 @@ void ResponseBuilder::set_status(short status_code)
 	case 501:
 		this->status = STATUS_501;
 		break;
+	case 502:
+		this->status = STATUS_502;
+		break;
+	case 503:
+		this->status = STATUS_503;
+		break;
 	case 504:
 		this->status = STATUS_504;
 		break;
 	case 505:
 		this->status = STATUS_505;
 		break;
+	case 506:
+		this->status = STATUS_506;
+		break;
+	case 507:
+		this->status = STATUS_507;
+		break;
+	case 508:
+		this->status = STATUS_508;
+		break;
+	case 510:
+		this->status = STATUS_510;
+		break;
+	case 511:
+		this->status = STATUS_511;
+		break;
+	case 599:
+		this->status = STATUS_599;
+		break;
 	default:
-		this->status = "UNDEFINED STATUS";
+		this->status = UNDEFINED_STATUS;
 		break;
 	}
 }

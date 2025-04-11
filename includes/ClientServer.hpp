@@ -23,14 +23,14 @@ private:
 	std::string _request_buffer;
 	std::string _response_buffer;
 	bool _response_ready;
-	time_t _last_activity;
+	std::time_t _last_activity;
 	bool _continue_sent;
 
 	CGIHandler *_pendingCgi;
 	bool _waitingForCGI;
 
-	ResponseBuilder* _responseBuilder;
-	std::vector<ServerConfig*> _server_configs;
+	ResponseBuilder *_responseBuilder;
+	std::vector<ServerConfig *> _server_configs;
 
 private:
 	// Main processing methods
@@ -54,7 +54,7 @@ private:
 	void handleTimeout();
 	bool sendResponseChunk();
 	void finalizeResponse();
-	void sendErrorResponse(int status_code, const std::string& message);
+	void sendErrorResponse(int status_code, const std::string &message);
 
 	// Timeout check
 	bool hasTimeOut() const;
@@ -69,7 +69,7 @@ public:
 	void RegisterWithIOMultiplexer();
 	bool shouldKeepAlive() const;
 
-	ClientServer(const int &server_socket_fd, const int &peer_socket_fd, const std::vector<ServerConfig*> &server_configs);
+	ClientServer(const int &server_socket_fd, const int &peer_socket_fd, const std::vector<ServerConfig *> &server_configs);
 	~ClientServer();
 
 	virtual void terminate();

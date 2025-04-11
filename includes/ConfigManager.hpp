@@ -7,8 +7,7 @@
 #define SIZE_MB (1024UL * SIZE_KB)
 #define SIZE_GB (1024UL * SIZE_MB)
 
-// Default size limits
-#define DEFAULT_CLIENT_MAX_BODY_SIZE (1 * SIZE_MB) // 1MB
+#define DEFAULT_CLIENT_MAX_BODY_SIZE (1 * SIZE_MB)
 
 struct Location
 {

@@ -3,13 +3,13 @@
 // Generate a session ID based on current time and a random number
 std::string SessionCookieHandler::generate_session_id()
 {
-	time_t now = time(NULL);
+	std::time_t now = std::time(NULL);
 	struct tm *timeinfo = localtime(&now);
 
 	char buffer[1024];
 	strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S", timeinfo);
 
-	srand(time(NULL));
+	srand(std::time(NULL));
 	int random_number = rand() % 10000;
 
 	std::string session_id(buffer);

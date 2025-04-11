@@ -1,10 +1,6 @@
 #include "Parser.hpp"
 
-bool isValidAddr(std::string addr)
-{
-	struct sockaddr_in s;
-	return inet_pton(AF_INET, addr.c_str(), &(s.sin_addr)) == 1;
-}
+Parser::Parser(const std::vector<Token> &tokens) : _tokens(tokens), _index(0), _currentServer(NULL) {}
 
 Token Parser::consume(TokenType expected)
 {
@@ -15,7 +11,7 @@ Token Parser::consume(TokenType expected)
 	throw std::runtime_error("Syntax Error: Unexpected token " + _tokens[_index].value);
 }
 
-std::pair<std::string, uint16_t> listenDirective(Token directive)
+std::pair<std::string, uint16_t> Parser::listenDirective(Token directive)
 {
 
 	uint16_t port;
@@ -87,7 +83,7 @@ void Parser::parseErrorPageDirective()
 }
 
 // Parse a size string (like "10M", "1G", etc.)
-size_t parseSize(const std::string &sizeStr, char unit)
+size_t Parser::parseSize(const std::string &sizeStr, char unit)
 {
 	std::string numPart = sizeStr;
 	size_t multiplier = 1;
@@ -209,21 +205,22 @@ void Parser::parseCgiDirective(Location &location)
 
 void Parser::parseReturnDirective(Location &location)
 {
-    consume(RETURN);
-    
-    Token code = consume(NUMBER);
-    int statusCode = std::atoi(code.value.c_str());
-    
-    location.has_return = true;
-    location.return_code = statusCode;
-    
-    while (_tokens[_index].type == STRING) {
-        Token message = consume(STRING);
-        std::string msg = message.value;
-        location.return_message += location.return_message.empty() ? msg : " " + msg;
-    }
-    
-    consume(SEMICOLON);
+	consume(RETURN);
+
+	Token code = consume(NUMBER);
+	int statusCode = std::atoi(code.value.c_str());
+
+	location.has_return = true;
+	location.return_code = statusCode;
+
+	while (_tokens[_index].type == STRING)
+	{
+		Token message = consume(STRING);
+		std::string msg = message.value;
+		location.return_message += location.return_message.empty() ? msg : " " + msg;
+	}
+
+	consume(SEMICOLON);
 }
 
 void Parser::parseLocationBlock()
@@ -355,4 +352,15 @@ void Parser::parseConfig()
 	{
 		parseServerBlock();
 	}
+}
+
+bool Parser::isValidAddr(std::string addr)
+{
+	struct sockaddr_in s;
+	return inet_pton(AF_INET, addr.c_str(), &(s.sin_addr)) == 1;
+}
+
+const std::vector<ServerConfig> &Parser::getServers() const
+{
+	return _servers;
 }

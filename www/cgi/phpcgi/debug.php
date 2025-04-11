@@ -1,6 +1,7 @@
 <?php
 // Debug script: save as www/cgi/debug.php
 header("Content-Type: text/plain");
+header('Status: 307');
 
 echo "FILES array: ";
 var_dump($_FILES);

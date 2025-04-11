@@ -22,7 +22,7 @@ enum TokenType
 	CLIENT_MAX_BODY_SIZE_MUL,
 	ALLOWED_METHODS,
 	REDIRECT,
-	RETURN,  // Add this new token type
+	RETURN,
 	CGI,
 	CGI_PATH,
 	UPLOAD_STORE,
@@ -37,4 +37,3 @@ struct Token
 
 std::vector<Token> tokenize(std::string &input);
 void SanitizeInput(std::string &input);
-bool find_del(char b);

@@ -590,7 +590,7 @@ std::string RequestParser::normalize_path(const std::string &path)
 void RequestParser::match_location(const std::vector<ServerConfig *> &servers)
 {
 	this->server_config = servers[0];
-	
+
 	std::string host;
 	std::map<std::string, std::string>::const_iterator host_it = headers.find("host");
 	if (host_it != headers.end())
