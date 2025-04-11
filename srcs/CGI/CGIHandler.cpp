@@ -17,30 +17,13 @@ CGIHandler::CGIHandler(RequestParser &request, const std::string &cgi_path,
 	headers = request.get_headers();
 	contentType = headers.count("content-type") ? headers["content-type"] : "application/x-www-form-urlencoded";
 
-	if (access(scriptPath.c_str(), F_OK) != 0)
-		throw std::runtime_error("CGI script not found");
-	if (access(scriptPath.c_str(), X_OK) != 0)
-		throw std::runtime_error("CGI script not executable");
-
 	struct stat file_stat;
 	if (stat(scriptPath.c_str(), &file_stat) == -1)
 	{
 		throw std::runtime_error("CGI script not found");
 	}
-
-	// Check if the file is a directory
 	if (S_ISDIR(file_stat.st_mode))
 	{
-		// If the URI does not end with '/', redirect to the correct URL
-		if (uri[uri.size() - 1] != '/')
-		{
-			responseBuilder->set_status(301);
-			responseBuilder->set_body(responseBuilder->generate_error_page());
-			this->headers["Location"] = uri + "/";
-			return;
-		}
-
-		// If an index file exists, use it
 		std::string index_path = scriptPath + request.get_location_config()->index;
 		if (stat(index_path.c_str(), &file_stat) == 0)
 		{
