@@ -38,3 +38,8 @@
 - Bonus Features:
 	- Add support for cookies and session management.
 	- Integrate multiple CGI handlers.
+
+# Some Illustrations
+![Start](./illustrations/start.png)
+![Start](./illustrations/server.png)
+![Start](./illustrations/reqres.png)
