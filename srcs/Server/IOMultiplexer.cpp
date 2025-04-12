@@ -48,6 +48,7 @@ IOMultiplexer &IOMultiplexer::getInstance()
 	static IOMultiplexer inst;
 	return inst;
 }
+
 #define DEBUG_MODE true
 bool debug_mode()
 {
@@ -138,9 +139,8 @@ void IOMultiplexer::removeListener(epoll_event ev, int fd)
 
 void IOMultiplexer::terminate(void)
 {
-
-	for (std::map<int, IEvenetListeners *>::iterator it = _listeners.begin();
-		 it != _listeners.end() && _listeners.size(); ++it)
+	std::map<int, IEvenetListeners *>::reverse_iterator it = _listeners.rend();
+	for (; _listeners.size() ;)
 	{
 		try
 		{
